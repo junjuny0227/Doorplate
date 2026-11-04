@@ -40,6 +40,7 @@ public enum L10n {
     case durationMinutes = "duration.minutes"
     case durationHours = "duration.hours"
     case durationDays = "duration.days"
+    case alertOK = "alert.ok"
     case alertStillRunning = "alert.stillRunning"
     case alertForceStop = "alert.forceStop"
     case alertKeepWaiting = "alert.keepWaiting"

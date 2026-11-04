@@ -367,10 +367,10 @@ Finder에서 보기
 
 ## 9. 종료 흐름
 
-1. **pid 재확인**: 종료 직전에 그 pid의 시작 시각이 Snapshot의 `startedAt`과 같은지 확인한다. 다르거나 프로세스가 없으면 아무것도 하지 않고 "이미 종료됨"을 짧게 알린다.
+1. **pid 재확인**: 종료 직전에 그 pid의 시작 시각이 Snapshot의 `startedAt`과 같은지 확인한다. 다르거나 프로세스가 없으면 시그널을 보내지 않고 경고음을 낸 뒤 즉시 재조회한다. 확인 창은 띄우지 않는다.
 2. **SIGTERM**을 보낸다. 확인 창은 없다. 정상 종료 신호이고 사용자가 명시적으로 고른 동작이다.
 3. kqueue 종료 이벤트로 **최대 10초** 기다린다. 그동안 행에 "Stopping…"을 표시한다.
-4. 10초 안에 끝나지 않으면 확인 창: "shop-api is still running. [Force Stop] [Keep Waiting]". 강제 종료는 SIGKILL이다. 이때도 1번 재확인을 다시 한다.
+4. 10초 안에 끝나지 않으면 확인 창: "shop-api is still running. [Force Stop] [Keep Waiting]". 강제 종료는 SIGKILL이다. 이때도 1번 재확인을 다시 한다. 기다리기를 누르면 SIGTERM을 다시 보내고 최대 10초를 더 기다린다. 재전송 직전에도 1번 pid 재확인을 반복한다.
 5. 부모 프로세스(`npm`, `gradle`, `cargo` 등)는 건드리지 않는다.
 6. 컨테이너는 Docker API `POST /containers/{id}/stop`(Docker 기본 유예 10초)으로 정지한다.
 7. 종료 권한이 없는 프로세스(다른 사용자 소유, 시스템)는 `canTerminate = false`이고 종료 항목이 비활성이다.
