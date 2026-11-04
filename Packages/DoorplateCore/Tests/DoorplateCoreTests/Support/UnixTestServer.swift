@@ -60,9 +60,11 @@ final class UnixTestServer: @unchecked Sendable {
       throw POSIXError(.ENAMETOOLONG)
     }
     withUnsafeMutableBytes(of: &address.sun_path) { $0.copyBytes(from: bytes) }
+    // Copy to a local: Swift 6.3 rejects a closure capturing a stored property before init finishes.
+    let descriptor = fd
     let bound = withUnsafePointer(to: &address) {
       $0.withMemoryRebound(to: sockaddr.self, capacity: 1) {
-        Darwin.bind(fd, $0, socklen_t(MemoryLayout<sockaddr_un>.size))
+        Darwin.bind(descriptor, $0, socklen_t(MemoryLayout<sockaddr_un>.size))
       }
     }
     guard bound == 0 else {
