@@ -51,6 +51,8 @@ public enum L10n {
     case firstLaunchTitle = "firstLaunch.title"
     case firstLaunchYes = "firstLaunch.yes"
     case firstLaunchNo = "firstLaunch.no"
+    case settingsTitle = "settings.title"
+    case alertLoginFailed = "alert.loginFailed"
     case settingsOpenAtLogin = "settings.openAtLogin"
     case settingsLongRunning = "settings.longRunning"
     case settingsHours = "settings.hours"

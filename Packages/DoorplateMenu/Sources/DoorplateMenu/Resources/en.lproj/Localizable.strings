@@ -38,6 +38,8 @@
 "firstLaunch.title" = "Open Doorplate at login?";
 "firstLaunch.yes" = "Open at Login";
 "firstLaunch.no" = "Not Now";
+"settings.title" = "Settings";
+"alert.loginFailed" = "Couldn’t change the login item: %@";
 "settings.openAtLogin" = "Open at login";
 "settings.longRunning" = "Mark servers running longer than";
 "settings.hours" = "%d hours";

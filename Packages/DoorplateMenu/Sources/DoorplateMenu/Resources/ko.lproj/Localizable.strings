@@ -38,6 +38,8 @@
 "firstLaunch.title" = "로그인할 때 Doorplate를 열까요?";
 "firstLaunch.yes" = "로그인 시 열기";
 "firstLaunch.no" = "나중에";
+"settings.title" = "설정";
+"alert.loginFailed" = "로그인 항목을 변경하지 못했습니다: %@";
 "settings.openAtLogin" = "로그인 시 열기";
 "settings.longRunning" = "오래 켜진 서버 표시 기준";
 "settings.hours" = "%d시간";
