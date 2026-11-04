@@ -32,6 +32,8 @@ enum MenuSpike {
         alt.target = actionTarget
 
         titleTimer?.invalidate()
+        trailingNumber = 1
+        row.title = "5173  sample 1"
         let timer = Timer(timeInterval: 2, repeats: true) { _ in
             MainActor.assumeIsolated {
                 trailingNumber += 1
