@@ -19,8 +19,8 @@
 | `swift format lint --strict --recursive Packages` (계획 3부터 `App`도) | verified (exit 0, 2026-11-05) | 계획 2 Task 1 |
 | `scripts/check-core-imports.sh` | verified (exit 0, 2026-11-05) | 계획 2 Task 1 |
 | `swift run --package-path Packages/DoorplateCore doorplate-scan` (`--fixture`) | verified (exit 0, 2026-11-05) | 계획 2 Task 11 (실제 기기를 읽기만 함) |
-| `swift test --package-path Packages/DoorplateMenu` | unverified | 계획 3 Task 1 |
-| `xcodegen generate && xcodebuild -project Doorplate.xcodeproj -scheme Doorplate -configuration Debug -derivedDataPath build CODE_SIGN_IDENTITY=- build` | unverified | 계획 3 Task 3 |
+| `swift test --package-path Packages/DoorplateMenu` | verified (exit 0, 2026-11-05) | 계획 3 Task 1 |
+| `xcodegen generate && xcodebuild -project Doorplate.xcodeproj -scheme Doorplate -configuration Debug -derivedDataPath build CODE_SIGN_IDENTITY=- build` | verified (exit 0, 2026-11-05) | 계획 3 Task 3 |
 | `swift test --package-path Packages/ReleaseTools` | unverified | 계획 4 Task 3 (Sparkle을 쓸 때만) |
 | `scripts/build-release.sh v<버전>` | unverified | 계획 4 Task 1 |
 | `actionlint .github/workflows/*.yml` | unverified | 계획 4 Task 4 |
@@ -58,6 +58,7 @@
 
 - 실험 계획이 스펙 14절과 다른 질문 수·번호를 쓴 채로 병합되어, 구현 전에 정합성 PR을 따로 내야 했다. 질문이나 절 번호를 문서에 쓸 때는 스펙의 표와 대조한다.
 - `gh`의 기본 계정이 이 저장소에 권한이 없는 계정이면 `gh pr create`가 `must be a collaborator`로 실패한다(PR 생성 1회 실패). 기본 계정을 바꾸지 말고 `GH_TOKEN=$(gh auth token --user junjuny0227) gh …`로 그 명령에만 토큰을 넘긴다.
+- CI(`macos-latest`)는 로컬보다 낮은 Swift(2026-11 기준 6.3.3)를 쓴다. 로컬에서 통과한 코드가 CI에서 컴파일되지 않아 main의 core 검사가 PR 20개 가까이 실패한 채 병합됐다. PR의 `core`·`app` 검사가 통과한 뒤에 병합한다.
 
 ## 규칙
 
