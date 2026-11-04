@@ -107,7 +107,10 @@ public struct UnixSocketDockerSource: DockerSource {
 }
 
 private enum SocketIO {
-  enum Failure: Error { case system(Int32), timeout }
+  enum Failure: Error {
+    case system(Int32)
+    case timeout
+  }
 
   static func wait(_ fd: Int32, _ events: Int16, until deadline: ContinuousClock.Instant) throws {
     while true {
