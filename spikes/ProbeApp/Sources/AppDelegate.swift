@@ -15,9 +15,11 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         for item in UpdaterSpike.items() {
             menu.addItem(item)
         }
-        for item in LoginItemSpike.items() {
+        let loginTarget = LoginItemActionTarget()
+        for item in LoginItemSpike.items(target: loginTarget) {
             menu.addItem(item)
         }
+        menu.delegate = LoginItemSpike.menuDelegate
         menu.addItem(.separator())
         menu.addItem(withTitle: "Quit", action: #selector(quit), keyEquivalent: "q")
         statusItem.menu = menu
