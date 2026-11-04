@@ -12,6 +12,9 @@
   <key>CFBundleLocalizations</key><array><string>en</string><string>ko</string></array>
   <key>LSMinimumSystemVersion</key><string>$(MACOSX_DEPLOYMENT_TARGET)</string>
   <key>LSUIElement</key><true/>
+  <key>SUFeedURL</key><string>https://junjuny0227.github.io/Doorplate/appcast.xml</string>
+  <key>SUPublicEDKey</key><string>8WJMPaz5nSjLpJC6bgXumdvHD9oVd1oL6AP4cxJMrmA=</string>
+  <key>SUEnableAutomaticChecks</key><true/>
   <key>NSPrincipalClass</key><string>NSApplication</string>
   <key>NSDocumentsFolderUsageDescription</key><string>Doorplate reads project files such as package.json to show which project owns each port.</string>
   <key>NSDesktopFolderUsageDescription</key><string>Doorplate reads project files such as package.json to show which project owns each port.</string>
