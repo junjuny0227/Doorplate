@@ -119,7 +119,7 @@ Core 패키지와 App 두 덩어리로 나눈다.
 
 1. 복잡도 대부분이 판단 규칙(도구 판별, 프로젝트 이름, 보조 포트, Docker 연결)에 있다. 이 규칙은 fixture 사례를 많이 쌓아 검증해야 한다.
 2. `swift test`로 Xcode 없이 터미널에서 바로 검증할 수 있다. AI와 고치고 확인하는 반복이 빨라진다.
-3. Core에서 `import AppKit`을 쓰면 빌드가 실패하므로 경계를 컴파일러가 지킨다.
+3. 경계가 분명해진다. SPM은 macOS에서 AppKit import를 막지 않으므로, Core가 AppKit·SwiftUI를 import하지 않는다는 규칙은 CI 검사(`scripts/check-core-imports.sh`)로 지킨다.
 4. 버그 제보 환경을 fixture로 재현할 수 있어, 내 기기에 Gradle이나 Docker가 없어도 된다.
 
 ```

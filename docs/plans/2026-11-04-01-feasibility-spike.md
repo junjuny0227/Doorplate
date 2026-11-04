@@ -227,7 +227,7 @@ Expected: Gatekeeper가 실행을 막는다. 사용자가 시스템 설정 > 개
 - [ ] **Step 4: 업데이트**
 
 Run: `(cd spikes/updates && python3 -m http.server 8777 --bind 127.0.0.1 &)`. 사용자가 메뉴의 `Check for Updates…`로 업데이트를 설치하고 다시 실행한다.
-Expected: 메뉴에 `1.1`이 보이고, 실행이 막히지 않는다. `xattr -l ~/Applications/ProbeApp.app`과 `codesign -dv ~/Applications/ProbeApp.app`의 결과, Sparkle이 보인 오류 문구가 있으면 그것까지 기록한다.
+Expected: 메뉴에 `1.1`이 보이고, 실행이 막히지 않는다. `xattr -l ~/Applications/ProbeApp.app`과 `codesign -dv ~/Applications/ProbeApp.app`의 결과, Sparkle이 보인 오류 문구가 있으면 그것까지 기록한다. 실제로 받은 Sparkle 버전(`spikes/ProbeApp/.spm/workspace-state.json` 또는 빌드 로그)도 기록한다. 계획 3이 이 버전을 `exactVersion`으로 고정한다.
 
 - [ ] **Step 5: 정리**
 
