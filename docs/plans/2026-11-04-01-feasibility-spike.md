@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** 스펙 14절의 일곱 질문에 실제 기기로 답하고, 그 답을 결과 문서와 스펙에 반영한다.
+**Goal:** 스펙 14절의 아홉 질문에 실제 기기로 답하고, 그 답을 결과 문서와 스펙에 반영한다. 질문 번호는 14절 표의 행 순서(1 libproc 조회, 2 조회 시간, 3 ⌥ 대체 항목, 4 root 소켓, 5 Docker 소켓, 6 TCC, 7 공유 소켓, 8 Sparkle, 9 로그인 항목)를 따른다.
 
 **Architecture:** XcodeGen으로 만든 버리는 메뉴바 앱 `ProbeApp` 하나를 ad-hoc 서명해서 실행한다. 이 앱은 `--probe-*` 인자를 받으면 측정을 하고 JSON을 쓴 뒤 끝나고, 인자가 없으면 메뉴바에 떠서 메뉴·업데이트·로그인 항목을 손으로 확인하게 한다. 이렇게 하면 실제 앱과 같은 조건(LaunchServices로 실행된 GUI 앱, 샌드박스 없음, ad-hoc 서명)에서 측정할 수 있다.
 
@@ -78,7 +78,7 @@ git add spikes/
 git commit -m "chore(spike): add the probe app skeleton"
 ```
 
-### Task 2: libproc 조회, 조회 시간, root 소켓 (질문 1, 2, 4)
+### Task 2: libproc 조회, 조회 시간, root 소켓, TCC, 공유 소켓 (질문 1, 2, 4, 6, 7)
 
 **Files:**
 - Create: `spikes/ProbeApp/Sources/ProbeLibproc.swift`
@@ -170,7 +170,7 @@ Run: `log stream --predicate 'subsystem == "io.github.junjuny0227.doorplate.prob
 4. 키보드(↓, ⌥, Return)로도 같은 동작이 된다.
 5. 메뉴를 연 채로 두면 `row` 제목의 숫자가 2초마다 바뀌고, 하위 메뉴를 연 상태에서도 닫히지 않는다.
 
-Expected: 네 가지 모두 되면 통과다. 하나라도 안 되면 어떻게 동작했는지 적는다.
+Expected: 다섯 가지 모두 되면 통과다. 하나라도 안 되면 어떻게 동작했는지 적는다.
 
 - [ ] **Step 3: Commit**
 
@@ -222,7 +222,7 @@ git add spikes/ProbeApp/Sources/ProbeDocker.swift spikes/docker/compose.yaml
 git commit -m "chore(spike): probe Docker sockets"
 ```
 
-### Task 5: ad-hoc 서명 앱의 Sparkle 업데이트 (질문 6)
+### Task 5: ad-hoc 서명 앱의 Sparkle 업데이트 (질문 8, 업데이트 뒤 질문 6)
 
 **Files:**
 - Modify: `spikes/ProbeApp/project.yml` (패키지 `Sparkle`: `https://github.com/sparkle-project/Sparkle`, `from: 2.6.0`)
@@ -264,7 +264,7 @@ git add spikes/ProbeApp
 git commit -m "chore(spike): try Sparkle updates on an ad-hoc signed app"
 ```
 
-### Task 6: ad-hoc 서명 앱의 로그인 항목 (질문 7)
+### Task 6: ad-hoc 서명 앱의 로그인 항목 (질문 9)
 
 **Files:**
 - Modify: `spikes/ProbeApp/Sources/AppDelegate.swift` (메뉴 `Open at Login` 토글: `SMAppService.mainApp.register()`/`unregister()`, 메뉴에 `SMAppService.mainApp.status` 표시)
