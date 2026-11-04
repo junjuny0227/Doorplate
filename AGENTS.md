@@ -11,14 +11,14 @@
 
 ## 빌드와 테스트
 
-아직 코드가 없어서 모든 명령이 unverified다. 해당 Task에서 처음 실행해 exit 0을 보면 `verified (exit 0, <날짜>)`로 바꾼다.
+아직 실행하지 않은 명령은 unverified다. 해당 Task에서 처음 실행해 exit 0을 보면 `verified (exit 0, <날짜>)`로 바꾼다.
 
 | 명령 | 상태 | 생기는 시점 |
 |---|---|---|
-| `swift test --package-path Packages/DoorplateCore` | unverified | 계획 2 Task 1 |
-| `swift format lint --strict --recursive Packages` (계획 3부터 `App`도) | unverified | 계획 2 Task 1 |
-| `scripts/check-core-imports.sh` | unverified | 계획 2 Task 1 |
-| `swift run --package-path Packages/DoorplateCore doorplate-scan` (`--fixture`) | unverified | 계획 2 Task 11 (실제 기기를 읽기만 함) |
+| `swift test --package-path Packages/DoorplateCore` | verified (exit 0, 2026-11-05) | 계획 2 Task 1 |
+| `swift format lint --strict --recursive Packages` (계획 3부터 `App`도) | verified (exit 0, 2026-11-05) | 계획 2 Task 1 |
+| `scripts/check-core-imports.sh` | verified (exit 0, 2026-11-05) | 계획 2 Task 1 |
+| `swift run --package-path Packages/DoorplateCore doorplate-scan` (`--fixture`) | verified (exit 0, 2026-11-05) | 계획 2 Task 11 (실제 기기를 읽기만 함) |
 | `swift test --package-path Packages/DoorplateMenu` | unverified | 계획 3 Task 1 |
 | `xcodegen generate && xcodebuild -project Doorplate.xcodeproj -scheme Doorplate -configuration Debug -derivedDataPath build CODE_SIGN_IDENTITY=- build` | unverified | 계획 3 Task 3 |
 | `swift test --package-path Packages/ReleaseTools` | unverified | 계획 4 Task 3 (Sparkle을 쓸 때만) |
