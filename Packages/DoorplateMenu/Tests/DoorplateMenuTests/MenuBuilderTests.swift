@@ -101,14 +101,14 @@ import Testing
     #expect(menu.items[index + 1].keyEquivalentModifierMask == .option)
     #expect(menu.items[index + 1].submenu == nil)
     populate(outcome(apps: [entry(canTerminate: false)]))
-    #expect(!menu.items.contains(where: \.isAlternate))
+    #expect(!menu.items.contains(where: { $0.isAlternate }))
   }
   @Test func stoppingRowDisablesStop() throws {
     var state = MenuState()
     state.stopping = ["pid:101"]
     populate(outcome(apps: [entry()]), state: state)
     #expect(try row().title.contains("Stopping…"))
-    #expect(!menu.items.contains(where: \.isAlternate))
+    #expect(!menu.items.contains(where: { $0.isAlternate }))
     #expect(try submenu().items.last?.isEnabled == false)
   }
   @Test func nonHTTPPutsCopyFirst() throws {
@@ -126,7 +126,7 @@ import Testing
     let fixture = entry()
     populate(outcome(apps: [fixture]))
     try choose(#require(submenu().items.first))
-    try choose(#require(menu.items.first(where: \.isAlternate)))
+    try choose(#require(menu.items.first(where: { $0.isAlternate })))
     #expect(handler.commands == [
       .openInBrowser(URL(string: "http://localhost:5173")!),
       .stop(EntryRef(id: "pid:101", target: fixture.target, title: "@repot/desktop", port: 5173))
@@ -146,7 +146,7 @@ import Testing
     #expect(menu.items[1].title == "No servers running")
     #expect(menu.items[2].isSeparatorItem)
     #expect(try row().title.contains("AirPlay Receiver (macOS)"))
-    #expect(!menu.items.contains(where: \.isAlternate))
+    #expect(!menu.items.contains(where: { $0.isAlternate }))
     #expect(try submenu().items.count == 1)
     #expect(try !submenu().items[0].isEnabled)
   }
