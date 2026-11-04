@@ -170,7 +170,7 @@ Packages/DoorplateCore/
   Sources/TestListener/      종료 테스트용 헬퍼
   Tests/DoorplateCoreTests/
   Tests/Fixtures/            processes/, trees/, docker/, expected/
-App/                         AppDelegate, StatusItemController, MenuBuilder, ActionHandler, Settings/
+App/                         AppDelegate, StatusItemController, MenuBuilder, ActionPerformer, Settings/
 App/Resources/               Localizable.xcstrings (en, ko), Info.plist (LSUIElement)
 AppTests/                    MenuBuilder 테스트
 docs/specs, docs/plans
