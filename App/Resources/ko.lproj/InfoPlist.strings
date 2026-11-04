@@ -1,0 +1,3 @@
+"NSDocumentsFolderUsageDescription" = "Doorplate는 각 포트가 어느 프로젝트의 것인지 보여 주려고 package.json 같은 프로젝트 파일을 읽습니다.";
+"NSDesktopFolderUsageDescription" = "Doorplate는 각 포트가 어느 프로젝트의 것인지 보여 주려고 package.json 같은 프로젝트 파일을 읽습니다.";
+"NSDownloadsFolderUsageDescription" = "Doorplate는 각 포트가 어느 프로젝트의 것인지 보여 주려고 package.json 같은 프로젝트 파일을 읽습니다.";
