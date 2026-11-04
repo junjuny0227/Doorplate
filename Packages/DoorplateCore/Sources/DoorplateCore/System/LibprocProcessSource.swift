@@ -2,6 +2,7 @@ import Darwin
 import Foundation
 
 // sys/proc_info.h: this expression macro is not imported into Swift.
+// swift-format-ignore: AlwaysUseLowerCamelCase
 private let PROC_PIDPATHINFO_MAXSIZE = 4 * MAXPATHLEN
 
 public struct LibprocProcessSource: ProcessSource {
