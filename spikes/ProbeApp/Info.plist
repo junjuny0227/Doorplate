@@ -15,8 +15,21 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>1.0</string>
+	<string>$(MARKETING_VERSION)</string>
 	<key>CFBundleVersion</key>
-	<string>1</string>
+	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>LSUIElement</key>
+	<true/>
+	<key>SUFeedURL</key>
+	<string>http://127.0.0.1:8777/appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>XdI9V/OXdr+2bZ4Petw2n1Gofe5gHFR/uPmokFz3/Ls=</string>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
+	</dict>
+	<key>NSDocumentsFolderUsageDescription</key>
+	<string>ProbeApp reads package.json to test Documents folder access before and after updates.</string>
 </dict>
 </plist>
