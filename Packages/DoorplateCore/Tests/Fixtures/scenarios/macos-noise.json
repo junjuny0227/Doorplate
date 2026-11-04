@@ -1,0 +1,88 @@
+{
+  "currentUID": 501,
+  "denied": [],
+  "docker": {
+    "status": "absent"
+  },
+  "files": {},
+  "home": "/Users/dev",
+  "listeners": [
+    {
+      "address": "::",
+      "pid": 180,
+      "port": 5000
+    },
+    {
+      "address": "::",
+      "pid": 180,
+      "port": 7000
+    },
+    {
+      "address": "::1",
+      "pid": 181,
+      "port": 57621
+    },
+    {
+      "address": "::1",
+      "pid": 182,
+      "port": 49152
+    },
+    {
+      "address": "::1",
+      "pid": 183,
+      "port": 63342
+    }
+  ],
+  "now": "2026-11-04T06:00:00Z",
+  "processes": [
+    {
+      "arguments": [
+        "ControlCenter"
+      ],
+      "executablePath": "/System/Library/CoreServices/ControlCenter.app/Contents/MacOS/ControlCenter",
+      "name": "ControlCenter",
+      "parentPID": 1,
+      "pid": 180,
+      "startedAt": "2026-11-04T05:20:00Z",
+      "uid": 501
+    },
+    {
+      "arguments": [
+        "Spotify"
+      ],
+      "executablePath": "/Applications/Spotify.app/Contents/MacOS/Spotify",
+      "name": "Spotify",
+      "parentPID": 1,
+      "pid": 181,
+      "startedAt": "2026-11-04T05:20:00Z",
+      "uid": 501
+    },
+    {
+      "arguments": [
+        "rapportd"
+      ],
+      "executablePath": "/usr/libexec/rapportd",
+      "name": "rapportd",
+      "parentPID": 1,
+      "pid": 182,
+      "startedAt": "2026-11-04T05:20:00Z",
+      "uid": 501
+    },
+    {
+      "arguments": [
+        "idea"
+      ],
+      "executablePath": "/Applications/IntelliJ IDEA.app/Contents/MacOS/idea",
+      "name": "idea",
+      "parentPID": 1,
+      "pid": 183,
+      "startedAt": "2026-11-04T05:20:00Z",
+      "uid": 501
+    }
+  ],
+  "settings": {
+    "longRunningThreshold": 86400,
+    "showDevTools": false,
+    "showOtherApps": false
+  }
+}

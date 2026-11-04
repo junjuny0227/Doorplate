@@ -1,0 +1,51 @@
+{
+  "currentUID": 501,
+  "denied": [],
+  "docker": {
+    "status": "absent"
+  },
+  "files": {
+    "/Users/dev/repot/.git": "",
+    "/Users/dev/repot/apps/desktop/package.json": "{\"name\":\"@repot/desktop\"}",
+    "/Users/dev/repot/package.json": "{\"name\":\"repot\"}"
+  },
+  "home": "/Users/dev",
+  "listeners": [
+    {
+      "address": "::1",
+      "pid": 101,
+      "port": 5173
+    },
+    {
+      "address": "127.0.0.1",
+      "pid": 101,
+      "port": 5173
+    },
+    {
+      "address": "::1",
+      "pid": 101,
+      "port": 24678
+    }
+  ],
+  "now": "2026-11-04T06:00:00Z",
+  "processes": [
+    {
+      "arguments": [
+        "node",
+        "/Users/dev/repot/node_modules/.bin/vite"
+      ],
+      "cwd": "/Users/dev/repot/apps/desktop",
+      "executablePath": "/opt/homebrew/bin/node",
+      "name": "node",
+      "parentPID": 1,
+      "pid": 101,
+      "startedAt": "2026-11-04T05:20:00Z",
+      "uid": 501
+    }
+  ],
+  "settings": {
+    "longRunningThreshold": 86400,
+    "showDevTools": false,
+    "showOtherApps": false
+  }
+}

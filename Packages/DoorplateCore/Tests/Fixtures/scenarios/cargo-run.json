@@ -1,0 +1,52 @@
+{
+  "currentUID": 501,
+  "denied": [],
+  "docker": {
+    "status": "absent"
+  },
+  "files": {
+    "/Users/dev/billing/.git": "",
+    "/Users/dev/billing/Cargo.toml": "[package]\nname = \"billing\""
+  },
+  "home": "/Users/dev",
+  "listeners": [
+    {
+      "address": "::1",
+      "pid": 151,
+      "port": 9000
+    }
+  ],
+  "now": "2026-11-04T06:00:00Z",
+  "processes": [
+    {
+      "arguments": [
+        "cargo",
+        "run"
+      ],
+      "cwd": "/Users/dev/billing",
+      "executablePath": "/opt/homebrew/bin/cargo",
+      "name": "cargo",
+      "parentPID": 1,
+      "pid": 150,
+      "startedAt": "2026-11-04T05:20:00Z",
+      "uid": 501
+    },
+    {
+      "arguments": [
+        "billing"
+      ],
+      "cwd": "/Users/dev/billing",
+      "executablePath": "/Users/dev/billing/target/debug/billing",
+      "name": "billing",
+      "parentPID": 150,
+      "pid": 151,
+      "startedAt": "2026-11-04T05:20:00Z",
+      "uid": 501
+    }
+  ],
+  "settings": {
+    "longRunningThreshold": 86400,
+    "showDevTools": false,
+    "showOtherApps": false
+  }
+}

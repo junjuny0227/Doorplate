@@ -1,0 +1,85 @@
+{
+  "currentUID": 501,
+  "denied": [],
+  "docker": {
+    "status": "absent"
+  },
+  "files": {
+    "/Users/dev/shop-api/.git": "",
+    "/Users/dev/shop-api/pyproject.toml": "[project]\nname = \"shop-api\""
+  },
+  "home": "/Users/dev",
+  "listeners": [
+    {
+      "address": "0.0.0.0",
+      "pid": 201,
+      "port": 8000,
+      "socketID": 77
+    },
+    {
+      "address": "0.0.0.0",
+      "pid": 202,
+      "port": 8000,
+      "socketID": 77
+    },
+    {
+      "address": "0.0.0.0",
+      "pid": 200,
+      "port": 8000,
+      "socketID": 77
+    }
+  ],
+  "now": "2026-11-04T06:00:00Z",
+  "processes": [
+    {
+      "arguments": [
+        "python3",
+        "-m",
+        "gunicorn",
+        "main:app"
+      ],
+      "cwd": "/Users/dev/shop-api",
+      "executablePath": "/opt/homebrew/bin/python3",
+      "name": "python3",
+      "parentPID": 1,
+      "pid": 200,
+      "startedAt": "2026-11-04T05:20:00Z",
+      "uid": 501
+    },
+    {
+      "arguments": [
+        "python3",
+        "-m",
+        "gunicorn",
+        "main:app"
+      ],
+      "cwd": "/Users/dev/shop-api",
+      "executablePath": "/opt/homebrew/bin/python3",
+      "name": "python3",
+      "parentPID": 200,
+      "pid": 201,
+      "startedAt": "2026-11-04T05:20:00Z",
+      "uid": 501
+    },
+    {
+      "arguments": [
+        "python3",
+        "-m",
+        "gunicorn",
+        "main:app"
+      ],
+      "cwd": "/Users/dev/shop-api",
+      "executablePath": "/opt/homebrew/bin/python3",
+      "name": "python3",
+      "parentPID": 200,
+      "pid": 202,
+      "startedAt": "2026-11-04T05:20:00Z",
+      "uid": 501
+    }
+  ],
+  "settings": {
+    "longRunningThreshold": 86400,
+    "showDevTools": false,
+    "showOtherApps": false
+  }
+}
