@@ -198,11 +198,13 @@ docs/specs, docs/plans
 - TCP LISTEN 소켓만 모은다: `(pid, 포트, 바인드 주소, 소켓 식별자)`. 소켓 식별자는 libproc `socket_fdinfo.psi.soi_so`이다.
 - 같은 pid·포트의 IPv4·IPv6 중복은 하나로 합친다. `::`에 바인드한 소켓은 IPv4·IPv6 표시가 둘 다 켜져 있으므로 IPv6를 먼저 본다.
 - 바인드 주소로 노출 범위를 기록한다. `127.0.0.1`·`::1`은 이 기기만, `0.0.0.0`·`::`은 네트워크에 열림.
-- 관리자 권한 없이는 다른 사용자(root) 소유 프로세스의 소켓이 보이지 않을 수 있다. 개발 서버는 사용자 계정으로 실행되므로 받아들인다.
+- 관리자 권한 없이는 다른 사용자(root) 소유 프로세스의 소켓이 보이지 않는다. 14절 실험에서 `sudo lsof`에만 보인 LISTEN 소켓은 launchd(pid 1)의 8021 하나였다. 개발 서버는 사용자 계정으로 실행되므로 받아들인다.
 
 ### 7.2 프로세스별 묶기
 
 먼저 소켓 단위로 주인을 정한다. gunicorn, puma cluster, `uvicorn --reload`, Node cluster처럼 자식이 LISTEN 소켓을 물려받으면 같은 소켓 식별자가 여러 pid에 보인다. 이때는 그 소켓을 가진 프로세스 중 부모가 그 목록에 없는 가장 위 조상을 주인으로 정한다. 그런 프로세스가 여럿이면 pid가 가장 작은 것이다. worker를 종료하면 master가 다시 띄우므로, 행과 종료 대상은 주인이다.
+
+14절 실험에서 LISTEN 소켓을 연 프로세스가 fork하면 부모와 자식 pid에 같은 소켓 식별자가 보이는 것을 확인했다.
 
 그다음 주인 pid로 묶는다. 이후 **한 행 = 한 프로세스**다.
 
@@ -212,10 +214,11 @@ pid마다 이름, 실행 파일 경로, argv, cwd, 부모 pid, 부모의 argv, �
 
 ### 7.4 Docker 연결
 
-- 소켓 후보 경로를 차례로 시도한다: Docker Desktop(`~/.docker/run/docker.sock`), `/var/run/docker.sock`, OrbStack(`~/.orbstack/run/docker.sock`), Colima(`~/.colima/default/docker.sock`). 첫 단계 실험(14절)에서 실제 경로를 확인한다.
+- 소켓 후보 경로를 차례로 시도한다: Docker Desktop(`~/.docker/run/docker.sock`), `/var/run/docker.sock`, OrbStack(`~/.orbstack/run/docker.sock`), Colima(`~/.colima/default/docker.sock`). 14절 실험에서 Docker Desktop은 첫 후보로 접속되었다. OrbStack을 설치하면 `/var/run/docker.sock`이 `~/.orbstack/run/docker.sock`을 가리키는 심볼릭 링크가 되어 둘째 후보로 접속된다. 응답은 chunked 전송으로 온다.
 - 소켓 파일이 없거나 연결이 거부되면(ENOENT, ECONNREFUSED) 다음 후보로 넘어간다. 모두 그렇다면 "Docker 없음"이다. Docker를 끈 사용자에게 오류를 보이지 않기 위해서다. 1초 안에 응답이 없거나 API가 오류를 돌려주면 "응답 없음"이다.
-- 게시 포트의 노출 범위는 `Ports[].IP`로 정한다(`127.0.0.1`이면 이 기기만).
-- 정지(`POST /containers/{id}/stop?t=10`)는 컨테이너가 멈출 때까지 응답하지 않으므로 시간 제한을 15초로 따로 둔다.
+- 실험에서 Docker Desktop을 켠 적이 없을 때와 종료한 뒤에는 네 후보 모두 ENOENT였다(소켓 파일이 남지 않는다). OrbStack을 종료하면 `/var/run/docker.sock` 심볼릭 링크가 대상 없이 남는데, 연결이 ENOENT로 실패하므로 "응답 없음"이 아니라 "Docker 없음"으로 처리한다.
+- 게시 포트의 노출 범위는 `Ports[].IP`로 정한다(`127.0.0.1`이면 이 기기만). `0.0.0.0`과 `::`에 같은 호스트 포트가 두 번 나오므로(실험의 postgres) 하나로 합친다.
+- 정지(`POST /containers/{id}/stop?t=10`)는 컨테이너가 멈출 때까지 응답하지 않으므로 시간 제한을 15초로 따로 둔다. 실험에서는 Docker Desktop 0.17초, OrbStack 0.78초에 204로 끝났다.
 - 실행 중인 컨테이너의 **게시된 호스트 포트 집합**을 만든다. 이 집합에 속한 포트는 프로세스가 아니라 **컨테이너 행**으로 바꾼다. Docker 런타임 프로세스 이름에 기대지 않으므로 런타임 종류와 관계없이 동작한다.
 - 컨테이너 행의 제목은 `Compose 프로젝트 · 서비스`(`shop · postgres`)이다. Compose가 아니면 컨테이너 이름을 쓴다.
 - 소켓이 없으면 Docker 구역을 숨긴다. 소켓은 있는데 1초 안에 응답이 없으면 "Docker (응답 없음)" 행을 보여 주고 정지 동작을 끈다.
@@ -240,6 +243,8 @@ pid마다 이름, 실행 파일 경로, argv, cwd, 부모 pid, 부모의 argv, �
 | 실행 파일 경로에 `.app/Contents/`가 있는 다른 앱 | 다른 앱(숨김, 종료 불가) | 앱 이름 |
 | 그 밖 | 앱 | 실행 파일 이름 |
 
+14절 실험에서 확인한 게시 포트의 주인 프로세스는 Docker Desktop이 `com.docker.backend`(`/Applications/Docker.app/Contents/MacOS/`), OrbStack이 `OrbStack Helper`(`/Applications/OrbStack.app/Contents/Frameworks/OrbStack Helper.app/Contents/MacOS/`)다. 실행 파일 경로의 가장 바깥 `.app` 이름(`Docker`, `OrbStack`)으로 판별하므로 둘 다 첫 규칙에 걸린다.
+
 **프로젝트 이름**: 시작 폴더에서 위로 올라가며(홈 폴더에서 멈춘다) **가장 가까운 표식**의 이름을 쓴다.
 
 - 시작 폴더: cwd. `java -jar`는 jar 파일이 있는 폴더.
@@ -247,7 +252,9 @@ pid마다 이름, 실행 파일 경로, argv, cwd, 부모 pid, 부모의 argv, �
 - TOML과 Gradle 파일은 라이브러리 없이 이름 줄만 정규식으로 읽는다. `pom.xml`은 `XMLParser`로 읽는다. 해석에 실패하면 다음 표식으로 넘어간다.
 - 시작 폴더가 `/`이거나 홈 폴더이면 쓰지 않는다. 대체 순서: jar 파일 이름 → 실행 파일 이름 → 프로세스 이름.
 - 표식 폴더와 별도로 git 루트 경로를 기록한다. 하위 메뉴에서 표식 폴더와 다를 때만 "Repository" 줄로 보여 준다.
-- **폴더 접근 허락(TCC)**: `~/Documents`, `~/Desktop`, `~/Downloads`, iCloud Drive 안의 파일을 읽으면 macOS가 허락 창을 띄운다. 거부되었거나 아직 허락을 받지 못해 접근이 막히면(EPERM) 더 올라가지 않고, 시작 폴더 이름을 프로젝트 이름으로 쓴다. 허락 창의 설명 문구는 13.1절에 둔다.
+- **폴더 접근 허락(TCC)**: `~/Documents`, `~/Desktop`, `~/Downloads`, iCloud Drive 안의 파일을 읽으면 macOS가 허락 창을 띄운다. 거부되었거나 아직 허락을 받지 못해 접근이 막히면(EPERM·EACCES) 더 올라가지 않고, 시작 폴더 이름을 프로젝트 이름으로 쓴다. 허락 창의 설명 문구는 13.1절에 둔다.
+  - 14절 실험에서 허락 창이 떠 있는 동안에는 파일 읽기가 응답 없이 멈췄다. 그래서 프로젝트 파일은 메인 스레드에서 읽지 않는다.
+  - 거부하면 이후 읽기는 바로 EPERM·EACCES로 실패한다. libproc로 읽는 cwd와 argv는 거부와 관계없이 읽히므로 시작 폴더 이름으로 대체할 수 있다.
 
 **대표 포트와 보조 포트**
 
