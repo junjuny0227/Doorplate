@@ -271,20 +271,24 @@ pid마다 이름, 실행 파일 경로, argv, cwd, 부모 pid, 부모의 argv, �
 ```swift
 struct ServerEntry: Sendable, Equatable {
   let id: EntryID              // "pid:48211" / "docker:3f2a…"
-  let target: Target           // .process(pid, startedAt) / .container(id) / .unknownDocker
+  let target: Target           // .process(pid, startedAt) / .container(id)
   let section: Section         // .app / .system / .docker / .hidden(.devTool | .otherApp)
   let title: String            // 프로젝트 이름 → jar 이름 → 실행 파일 이름
   let tool: String?            // "vite", "gradle"
+  let image: String?           // 컨테이너 이미지 (프로세스는 nil)
   let primary: PortBinding     // port, exposure(.loopback / .network)
   let extras: [PortBinding]    // role: .debugger, .liveReload, .inspector
-  let directory: URL?          // 표식 폴더
-  let repositoryRoot: URL?     // git 루트
+  let directory: String?       // 표식 폴더 (절대 경로)
+  let repositoryRoot: String?  // git 루트 (절대 경로)
   let startedAt: Date?
   let isLongRunning: Bool
   let likelyHTTP: Bool
   let canTerminate: Bool
 }
 ```
+
+- Docker 응답 없음은 가짜 행(target)이 아니라 `Snapshot.dockerStatus`(`.absent` / `.ok` / `.notResponding`)로 나타낸다.
+- 시작 시각을 모르는 프로세스(`startedAt == nil`)는 `canTerminate = false`다. 종료 직전 pid 재확인(9절 1번)을 할 수 없어서다.
 
 ### 7.7 메뉴를 여는 순간
 
