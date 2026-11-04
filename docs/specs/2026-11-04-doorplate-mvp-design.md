@@ -348,7 +348,7 @@ Finder에서 보기
 
 - 시안에 맞춰 회색 정보 줄(표식 폴더 경로, `도구 · 실행 시간 · PID · 노출`, Repository)은 두지 않는다. 도구는 행에, 오래 켜짐은 행의 주황 글자에, PID는 종료 항목에 있다.
 - 노출은 네트워크에 열린 포트일 때만 맨 위 회색 "네트워크에 열림" 줄로 보여 준다. 이 기기만이면 줄이 없다. 프로세스 하위 메뉴에만 둔다. Docker는 포트를 기본으로 모든 네트워크에 열어서 컨테이너에는 거의 항상 붙고, 그러면 알려 주는 것이 없다.
-- `likelyHTTP`가 거짓이면 "브라우저에서 열기"를 빼고 "주소 복사"를 맨 위에 둔다. `likelyHTTP`가 거짓인 경우: 포트 5432·3306·6379·27017·9092·11211, 또는 컨테이너 이미지 이름이 `postgres`·`mysql`·`mariadb`·`redis`·`mongo`·`kafka`·`memcached`로 시작할 때.
+- `likelyHTTP`가 거짓이면 "브라우저에서 열기"를 빼고 "주소 복사"를 맨 위에 둔다. `likelyHTTP`가 거짓인 경우: 포트 5432·3306·6379·27017·9092·11211, 또는 컨테이너 이미지의 짧은 이름(마지막 `/` 뒤, `:` 앞)이 `postgres`·`postgresql`·`mysql`·`mariadb`·`redis`·`valkey`·`mongo`·`mongodb`·`kafka`·`cp-kafka`·`memcached` 중 하나와 정확히 같을 때. 접두어로 판단하지 않는다(`redis-exporter`는 HTTP다).
 - "터미널에서 열기"는 설정의 터미널 앱(기본 Terminal)으로 표식 폴더를 연다.
 - 컨테이너 행: 열기·복사 → "Compose 폴더를 Finder에서 보기" → "컨테이너 정지". Compose 폴더 경로, 이미지, 실행 시간 줄은 두지 않는다.
 - 시스템 행(AirPlay): "Turn off in System Settings > General > AirDrop & Handoff" 안내만 보여 준다.
