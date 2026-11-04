@@ -217,7 +217,11 @@ pid마다 이름, 실행 파일 경로, argv, cwd, 부모 pid, 부모의 argv, �
 - 소켓 파일이 없거나 연결이 거부되면(ENOENT, ECONNREFUSED) 다음 후보로 넘어간다. 모두 그렇다면 "Docker 없음"이다. Docker를 끈 사용자에게 오류를 보이지 않기 위해서다. 1초 안에 응답이 없거나 API가 오류를 돌려주면 "응답 없음"이다.
 - 실험에서 Docker Desktop을 켠 적이 없을 때와 종료한 뒤에는 네 후보 모두 ENOENT였다(소켓 파일이 남지 않는다). OrbStack을 종료하면 `/var/run/docker.sock` 심볼릭 링크가 대상 없이 남는데, 연결이 ENOENT로 실패하므로 "응답 없음"이 아니라 "Docker 없음"으로 처리한다.
 - 게시 포트의 노출 범위는 `Ports[].IP`로 정한다(`127.0.0.1`이면 이 기기만). `0.0.0.0`과 `::`에 같은 호스트 포트가 두 번 나오므로(실험의 postgres) 하나로 합친다.
-- 정지(`POST /containers/{id}/stop?t=10`)는 컨테이너가 멈출 때까지 응답하지 않으므로 시간 제한을 15초로 따로 둔다. 실험에서는 Docker Desktop 0.17초, OrbStack 0.78초에 204로 끝났다.
+- 정지(`POST /containers/{id}/stop?t=10`)는 컨테이너가 멈출 때까지 응답하지 않으므로 시간 제한을 15초로 따로 둔다. 실험에서는 Docker Desktop 0.17초, OrbStack 0.78초에 204로 끝났다. 정지 응답 204·304는 성공이고, 그 밖의 HTTP 응답은 API 오류다.
+- `GET /containers/json`으로 실행 중인 컨테이너를 읽고, 컨테이너마다 `GET /containers/{id}/json`을 동시에 보내 `State.StartedAt`을 채운다. inspect가 실패하면 그 컨테이너의 시작 시각만 비우고 목록 전체를 실패로 만들지 않는다. `StartedAt`(나노초 소수점 RFC 3339)은 밀리초까지만 읽고, `0001-01-01T00:00:00Z`는 시작 시각 없음이다.
+- 게시 포트는 `Type == "tcp"`이고 `PublicPort`가 있는 항목만 쓴다. `IP`가 `127.0.0.1`이나 `::1`이면 이 기기만(loopback), 그 밖(`0.0.0.0`, `::`, 없음)은 네트워크다. 같은 호스트 포트를 하나로 합칠 때 하나라도 네트워크면 네트워크이고, 포트 번호 순으로 정렬한다.
+- Compose 메타데이터는 라벨 `com.docker.compose.project`, `com.docker.compose.service`, `com.docker.compose.project.working_dir`에서 읽는다. 컨테이너 이름은 `Names[0]`이다.
+- HTTP 본문은 `Content-Length`, `Transfer-Encoding: chunked`, 연결 종료까지 읽기를 모두 다룬다. 목록과 inspect는 기본 1초, 정지는 기본 15초 시간 제한을 쓴다. 시간 초과, API 오류, 해석할 수 없는 응답은 "응답 없음"이다.
 - 실행 중인 컨테이너의 **게시된 호스트 포트 집합**을 만든다. 이 집합에 속한 포트는 프로세스가 아니라 **컨테이너 행**으로 바꾼다. Docker 런타임 프로세스 이름에 기대지 않으므로 런타임 종류와 관계없이 동작한다.
 - 컨테이너 행의 제목은 Compose 서비스 이름(`postgres`)이고, 오른쪽 열(`tool` 자리)에 컨테이너 이름(`shop-db`)을 둔다. Compose가 아니면 제목은 컨테이너 이름, 오른쪽 열은 이미지 짧은 이름(레지스트리 경로와 태그를 뺀 마지막 마디, `ghcr.io/org/redis:7` → `redis`)이다.
 - 소켓이 없으면 Docker 구역을 숨긴다. 소켓은 있는데 1초 안에 응답이 없으면 "Docker (응답 없음)" 행을 보여 주고 정지 동작을 끈다.
@@ -239,6 +243,7 @@ pid마다 이름, 실행 파일 경로, argv, cwd, 부모 pid, 부모의 argv, �
 | ruby + `puma`·`rails` | 앱 | `rails` |
 | IntelliJ, VS Code, Cursor 등 IDE 프로세스 | 개발 도구(숨김) | IDE 이름 |
 | ControlCenter의 5000·7000 포트 | 시스템 | `AirPlay 수신 (macOS)` |
+| macOS 서비스: 실행 파일이 `/System/`·`/usr/libexec/`·`/usr/sbin/` 아래에 있음(예: `rapportd`) | 다른 앱(숨김, 종료 불가) | 실행 파일 이름 |
 | 실행 파일 경로에 `.app/Contents/`가 있는 다른 앱 | 다른 앱(숨김, 종료 불가) | 앱 이름 |
 | 그 밖 | 앱 | 실행 파일 이름 |
 
@@ -265,25 +270,29 @@ pid마다 이름, 실행 파일 경로, argv, cwd, 부모 pid, 부모의 argv, �
 - 구역 순서: 앱 서버 → 시스템 → Docker → "숨김 N개".
 - 구역 안에서는 대표 포트 번호 순. 열 때마다 순서가 바뀌지 않게 한다.
 - 오래 켜짐: `현재 시각 - 시작 시각 > 기준값`. 컨테이너는 Docker API의 시작 시각을 쓴다.
-- 메뉴바 숫자는 숨김을 뺀 행 수다.
+- 메뉴바 숫자는 앱 서버와 Docker 행만 센다. 시스템 행(AirPlay)과 숨김은 세지 않는다. 시스템 행을 세면 AirPlay를 켠 사용자의 숫자가 0이 되지 않는다.
 
 ```swift
 struct ServerEntry: Sendable, Equatable {
   let id: EntryID              // "pid:48211" / "docker:3f2a…"
-  let target: Target           // .process(pid, startedAt) / .container(id) / .unknownDocker
+  let target: Target           // .process(pid, startedAt) / .container(id)
   let section: Section         // .app / .system / .docker / .hidden(.devTool | .otherApp)
   let title: String            // 프로젝트 이름 → jar 이름 → 실행 파일 이름
   let tool: String?            // "vite", "gradle"
+  let image: String?           // 컨테이너 이미지 (프로세스는 nil)
   let primary: PortBinding     // port, exposure(.loopback / .network)
   let extras: [PortBinding]    // role: .debugger, .liveReload, .inspector
-  let directory: URL?          // 표식 폴더
-  let repositoryRoot: URL?     // git 루트
+  let directory: String?       // 표식 폴더 (절대 경로)
+  let repositoryRoot: String?  // git 루트 (절대 경로)
   let startedAt: Date?
   let isLongRunning: Bool
   let likelyHTTP: Bool
   let canTerminate: Bool
 }
 ```
+
+- Docker 응답 없음은 가짜 행(target)이 아니라 `Snapshot.dockerStatus`(`.absent` / `.ok` / `.notResponding`)로 나타낸다.
+- 시작 시각을 모르는 프로세스(`startedAt == nil`)는 `canTerminate = false`다. 종료 직전 pid 재확인(9절 1번)을 할 수 없어서다.
 
 ### 7.7 메뉴를 여는 순간
 
@@ -347,7 +356,7 @@ Finder에서 보기
 
 - 시안에 맞춰 회색 정보 줄(표식 폴더 경로, `도구 · 실행 시간 · PID · 노출`, Repository)은 두지 않는다. 도구는 행에, 오래 켜짐은 행의 주황 글자에, PID는 종료 항목에 있다.
 - 노출은 네트워크에 열린 포트일 때만 맨 위 회색 "네트워크에 열림" 줄로 보여 준다. 이 기기만이면 줄이 없다. 프로세스 하위 메뉴에만 둔다. Docker는 포트를 기본으로 모든 네트워크에 열어서 컨테이너에는 거의 항상 붙고, 그러면 알려 주는 것이 없다.
-- `likelyHTTP`가 거짓이면 "브라우저에서 열기"를 빼고 "주소 복사"를 맨 위에 둔다. `likelyHTTP`가 거짓인 경우: 포트 5432·3306·6379·27017·9092·11211, 또는 컨테이너 이미지 이름이 `postgres`·`mysql`·`mariadb`·`redis`·`mongo`·`kafka`·`memcached`로 시작할 때.
+- `likelyHTTP`가 거짓이면 "브라우저에서 열기"를 빼고 "주소 복사"를 맨 위에 둔다. `likelyHTTP`가 거짓인 경우: 포트 5432·3306·6379·27017·9092·11211, 또는 컨테이너 이미지의 짧은 이름(마지막 `/` 뒤, `:` 앞)이 `postgres`·`postgresql`·`mysql`·`mariadb`·`redis`·`valkey`·`mongo`·`mongodb`·`kafka`·`cp-kafka`·`memcached` 중 하나와 정확히 같을 때. 접두어로 판단하지 않는다(`redis-exporter`는 HTTP다).
 - "터미널에서 열기"는 설정의 터미널 앱(기본 Terminal)으로 표식 폴더를 연다.
 - 컨테이너 행: 열기·복사 → "Compose 폴더를 Finder에서 보기" → "컨테이너 정지". Compose 폴더 경로, 이미지, 실행 시간 줄은 두지 않는다.
 - 시스템 행(AirPlay): "Turn off in System Settings > General > AirDrop & Handoff" 안내만 보여 준다.
@@ -369,12 +378,12 @@ Finder에서 보기
 | 특정 pid를 읽지 못함 | 그 pid를 건너뛰거나 읽은 정보까지만 쓴다. 알리지 않는다 |
 | 조회 전체 실패 | 직전 Snapshot을 유지하고 머리글에 "Update failed · 1m ago"(분 단위, 최소 1분) |
 | 이전 조회 진행 중 | 이번 주기를 건너뛴다 |
-| Docker 소켓 없음 | Docker 구역을 숨긴다 |
-| Docker 소켓 응답 없음(1초) | "Docker (not responding)" 행, 정지 비활성 |
+| Docker 소켓 없음·연결 거부(ENOENT·ECONNREFUSED, 대상 없는 심볼릭 링크 포함) | 다음 후보로 넘어가고, 모든 후보가 그렇다면 Docker 구역을 숨긴다 |
+| Docker 목록 요청 시간 초과(기본 1초)·API 오류·해석할 수 없는 응답 | "Docker (not responding)" 행, 정지 비활성. 컨테이너 하나의 inspect 실패는 목록 전체를 실패로 만들지 않는다 |
 | 프로젝트 파일 해석 실패 | 다음 표식으로 |
 | 열기·Finder·터미널 실패 | 경고음과 짧은 확인 창 |
 | 종료 중 EPERM | "Not allowed to stop this process" 확인 창 |
-| Docker 정지 실패 | API 오류 메시지를 담은 확인 창 |
+| Docker 정지 실패 | API 오류 메시지를 담은 확인 창. 정지 시간 제한은 기본 15초이고, 204·304 이외의 HTTP 응답은 API 오류다 |
 
 기록은 `os.Logger`(subsystem `io.github.junjuny0227.doorplate`, 카테고리 `scan`, `docker`, `terminate`, `menu`, `update`)에만 남긴다. 파일 로그는 없다.
 
