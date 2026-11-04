@@ -6,6 +6,9 @@ import DoorplateMenu
   private var statusController: StatusItemController?
   private var performer: ActionPerformer?
   private var stopCoordinator: StopCoordinator?
+  private let settings = SettingsStore(defaults: .standard)
+  private let loginItem = LoginItem()
+  private var settingsController: SettingsWindowController?
 
   func applicationDidFinishLaunching(_ notification: Notification) {
     let home = NSHomeDirectory()
@@ -27,12 +30,28 @@ import DoorplateMenu
     stopCoordinator = coordinator
     let performer = ActionPerformer(
       coordinator: coordinator, prompter: prompter,
-      openSettings: {}, checkForUpdates: {}, quit: { NSApp.terminate(nil) })
+      terminalBundleID: { [settings] in settings.terminalBundleID },
+      openSettings: { [weak self] in self?.openSettings() },
+      checkForUpdates: {}, quit: { NSApp.terminate(nil) })
     self.performer = performer
     let builder = MenuBuilder(handler: performer, home: home, now: { Date() })
     let controller = StatusItemController(
-      scanner: scanner, builder: builder, settings: { SnapshotSettings() })
+      scanner: scanner, builder: builder, settings: { [settings] in settings.snapshotSettings })
     statusController = controller
     controller.start()
+    Task { @MainActor [weak self] in
+      guard let self else { return }
+      loginItem.askOnFirstLaunch(settings: settings)
+    }
+  }
+
+  private func openSettings() {
+    loginItem.refresh()
+    if settingsController == nil {
+      settingsController = SettingsWindowController(settings: settings, loginItem: loginItem) {
+        [weak self] in self?.statusController?.refreshNow()
+      }
+    }
+    settingsController?.open()
   }
 }
