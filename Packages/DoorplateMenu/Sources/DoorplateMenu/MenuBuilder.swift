@@ -46,7 +46,8 @@ private final class CommandBox {
 
   private func synchronize(_ menu: NSMenu, with desired: NSMenu) {
     let desiredIDs = Set(desired.items.compactMap(\.identifier))
-    for item in menu.items where !desiredIDs.contains(item.identifier ?? NSUserInterfaceItemIdentifier("")) {
+    for item in menu.items
+    where !desiredIDs.contains(item.identifier ?? NSUserInterfaceItemIdentifier("")) {
       menu.removeItem(item)
     }
     for (index, replacement) in desired.items.enumerated() {
@@ -102,7 +103,9 @@ private final class CommandBox {
       if snapshot.dockerStatus == .notResponding {
         menu.addItem(item(L10n.text(.menuDockerNotResponding), id: "docker.failure"))
       }
-      append(snapshot.docker, to: menu, state: state, dockerUnavailable: snapshot.dockerStatus == .notResponding)
+      append(
+        snapshot.docker, to: menu, state: state,
+        dockerUnavailable: snapshot.dockerStatus == .notResponding)
     }
     if !snapshot.hidden.isEmpty {
       separator(menu, id: "hidden.separator")
@@ -122,16 +125,21 @@ private final class CommandBox {
     case .checkForUpdates:
       menu.addItem(item(L10n.text(.menuCheckForUpdates), id: "update", command: .checkForUpdates))
     case .available(let version, let page):
-      menu.addItem(item(L10n.format(.menuUpdateAvailable, version), id: "update", command: .openUpdatePage(page)))
+      menu.addItem(
+        item(
+          L10n.format(.menuUpdateAvailable, version), id: "update", command: .openUpdatePage(page)))
     case .pending(let version):
-      menu.addItem(item(L10n.format(.menuUpdateAvailable, version), id: "update", command: .checkForUpdates))
+      menu.addItem(
+        item(L10n.format(.menuUpdateAvailable, version), id: "update", command: .checkForUpdates))
     }
     menu.addItem(item(L10n.text(.menuSettings), id: "settings", command: .openSettings, key: ","))
     menu.addItem(item(L10n.text(.menuQuit), id: "quit", command: .quit, key: "q"))
     return menu
   }
 
-  private func append(_ entries: [ServerEntry], to menu: NSMenu, state: MenuState, dockerUnavailable: Bool = false) {
+  private func append(
+    _ entries: [ServerEntry], to menu: NSMenu, state: MenuState, dockerUnavailable: Bool = false
+  ) {
     for entry in entries {
       let stopping = state.stopping.contains(entry.id)
       let system = entry.section == .system
@@ -140,20 +148,25 @@ private final class CommandBox {
       var text = "\(entry.primary.port)  \(title)"
       var suffix: String?
       if entry.isLongRunning, let startedAt = entry.startedAt {
-        suffix = " · " + L10n.format(.rowLongRunning, DurationText.short(now().timeIntervalSince(startedAt)))
+        suffix =
+          " · "
+          + L10n.format(.rowLongRunning, DurationText.short(now().timeIntervalSince(startedAt)))
         text += suffix!
       }
       if stopping { text += " · " + L10n.text(.rowStopping) }
       if !system, let tool = entry.tool { text += "\t" + tool }
       let row = item(text, id: entry.id)
       row.attributedTitle = attributed(text, orangeSuffix: suffix)
-      let dot: StatusDot = system ? .system : docker ? .docker : entry.isLongRunning ? .longRunning : .running
+      let dot: StatusDot =
+        system ? .system : docker ? .docker : entry.isLongRunning ? .longRunning : .running
       row.image = dot.image()
       row.isEnabled = true
       row.submenu = submenu(entry, stopping: stopping, dockerUnavailable: dockerUnavailable)
       menu.addItem(row)
       if entry.canTerminate && !system && !stopping && !dockerUnavailable {
-        let alternate = item(L10n.format(.rowStop, Int(entry.primary.port), title), id: entry.id + ".alternate", command: .stop(ref(entry)))
+        let alternate = item(
+          L10n.format(.rowStop, Int(entry.primary.port), title), id: entry.id + ".alternate",
+          command: .stop(ref(entry)))
         alternate.isAlternate = true
         alternate.keyEquivalentModifierMask = .option
         menu.addItem(alternate)
@@ -171,27 +184,36 @@ private final class CommandBox {
     let docker = entry.section == .docker
     if !docker && entry.primary.exposure == .network {
       let network = item(L10n.text(.exposureNetwork), id: "network")
-      network.attributedTitle = NSAttributedString(string: network.title, attributes: [.foregroundColor: NSColor.secondaryLabelColor, .font: NSFont.menuFont(ofSize: 0)])
+      network.attributedTitle = NSAttributedString(
+        string: network.title,
+        attributes: [
+          .foregroundColor: NSColor.secondaryLabelColor, .font: NSFont.menuFont(ofSize: 0),
+        ])
       menu.addItem(network)
       separator(menu, id: "network.separator")
     }
     let address = "localhost:\(entry.primary.port)"
     if entry.likelyHTTP {
-      let open = item(L10n.text(.subOpenInBrowser) + "\t" + address, id: "browser", command: .openInBrowser(URL(string: "http://" + address)!))
+      let open = item(
+        L10n.text(.subOpenInBrowser) + "\t" + address, id: "browser",
+        command: .openInBrowser(URL(string: "http://" + address)!))
       open.attributedTitle = attributed(open.title)
       menu.addItem(open)
     } else {
       menu.addItem(item(L10n.text(.subCopyAddress), id: "copy", command: .copy(address)))
     }
     if !docker, let directory = entry.directory {
-      menu.addItem(item(L10n.text(.subShowInFinder), id: "finder", command: .revealInFinder(directory)))
-      menu.addItem(item(L10n.text(.subOpenInTerminal), id: "terminal", command: .openInTerminal(directory)))
+      menu.addItem(
+        item(L10n.text(.subShowInFinder), id: "finder", command: .revealInFinder(directory)))
+      menu.addItem(
+        item(L10n.text(.subOpenInTerminal), id: "terminal", command: .openInTerminal(directory)))
     }
     if entry.likelyHTTP {
       menu.addItem(item(L10n.text(.subCopyAddress), id: "copy", command: .copy(address)))
     }
     if docker, let directory = entry.directory {
-      menu.addItem(item(L10n.text(.subShowComposeFolder), id: "compose", command: .revealInFinder(directory)))
+      menu.addItem(
+        item(L10n.text(.subShowComposeFolder), id: "compose", command: .revealInFinder(directory)))
     }
     if !docker && !entry.extras.isEmpty {
       separator(menu, id: "extras.separator")
@@ -203,7 +225,10 @@ private final class CommandBox {
         case .inspector: role = L10n.text(.roleInspector)
         case nil: role = ""
         }
-        menu.addItem(item("\(extra.port)  \(role)", id: "extra.\(extra.port)", command: .copy("localhost:\(extra.port)")))
+        menu.addItem(
+          item(
+            "\(extra.port)  \(role)", id: "extra.\(extra.port)",
+            command: .copy("localhost:\(extra.port)")))
       }
     }
     separator(menu, id: "stop.separator")
@@ -215,7 +240,9 @@ private final class CommandBox {
     let stop = item(stopTitle, id: "stop", command: .stop(ref(entry)))
     stop.isEnabled = entry.canTerminate && !stopping && !dockerUnavailable
     if !docker {
-      stop.attributedTitle = NSAttributedString(string: stopTitle, attributes: [.foregroundColor: NSColor.systemRed, .font: NSFont.menuFont(ofSize: 0)])
+      stop.attributedTitle = NSAttributedString(
+        string: stopTitle,
+        attributes: [.foregroundColor: NSColor.systemRed, .font: NSFont.menuFont(ofSize: 0)])
     }
     menu.addItem(stop)
     return menu
@@ -228,9 +255,12 @@ private final class CommandBox {
   private func attributed(_ text: String, orangeSuffix: String? = nil) -> NSAttributedString {
     let paragraph = NSMutableParagraphStyle()
     paragraph.tabStops = [NSTextTab(textAlignment: .right, location: 320)]
-    let title = NSMutableAttributedString(string: text, attributes: [.font: NSFont.menuFont(ofSize: 0), .paragraphStyle: paragraph])
+    let title = NSMutableAttributedString(
+      string: text, attributes: [.font: NSFont.menuFont(ofSize: 0), .paragraphStyle: paragraph])
     if let orangeSuffix {
-      title.addAttribute(.foregroundColor, value: NSColor.systemOrange, range: (text as NSString).range(of: orangeSuffix, options: .backwards))
+      title.addAttribute(
+        .foregroundColor, value: NSColor.systemOrange,
+        range: (text as NSString).range(of: orangeSuffix, options: .backwards))
     }
     return title
   }
@@ -241,7 +271,9 @@ private final class CommandBox {
     menu.addItem(separator)
   }
 
-  private func item(_ title: String, id: String, command: MenuCommand? = nil, key: String = "") -> NSMenuItem {
+  private func item(_ title: String, id: String, command: MenuCommand? = nil, key: String = "")
+    -> NSMenuItem
+  {
     let item = NSMenuItem(title: title, action: nil, keyEquivalent: key)
     item.identifier = NSUserInterfaceItemIdentifier(id)
     item.isEnabled = command != nil

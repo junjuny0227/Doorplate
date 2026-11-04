@@ -16,12 +16,21 @@ public struct EntryRef: Equatable, Sendable {
 }
 
 public enum MenuCommand: Equatable, Sendable {
-  case openInBrowser(URL), revealInFinder(String), openInTerminal(String), copy(String)
-  case stop(EntryRef), openSettings, checkForUpdates, openUpdatePage(URL), quit
+  case openInBrowser(URL)
+  case revealInFinder(String)
+  case openInTerminal(String)
+  case copy(String)
+  case stop(EntryRef)
+  case openSettings, checkForUpdates
+  case openUpdatePage(URL)
+  case quit
 }
 
 public enum UpdateMenuItem: Equatable, Sendable {
-  case checkForUpdates, available(version: String, page: URL), pending(version: String), none
+  case checkForUpdates
+  case available(version: String, page: URL)
+  case pending(version: String)
+  case none
 }
 
 public struct MenuState: Equatable, Sendable {

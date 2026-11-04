@@ -1,6 +1,7 @@
 import AppKit
 import DoorplateCore
 import Testing
+
 @testable import DoorplateMenu
 
 @MainActor private final class RecordingHandler: MenuCommandHandler {
@@ -42,19 +43,31 @@ import Testing
   @Test func rowTitleFormat() throws {
     populate(outcome(apps: [entry()]))
     #expect(try row().title == "5173  @repot/desktop\tvite")
-    populate(outcome(apps: [entry(port: 8080, title: "shop-api", tool: "gradle", startedAt: menuNow.addingTimeInterval(-259200), isLongRunning: true)]))
+    populate(
+      outcome(apps: [
+        entry(
+          port: 8080, title: "shop-api", tool: "gradle",
+          startedAt: menuNow.addingTimeInterval(-259200), isLongRunning: true)
+      ]))
     let item = try row()
     #expect(item.title == "8080  shop-api · 3d\tgradle")
     let text = try #require(item.attributedTitle)
     let suffix = (text.string as NSString).range(of: " · 3d")
-    #expect(text.attribute(.foregroundColor, at: suffix.location, effectiveRange: nil) as? NSColor == .systemOrange)
-    #expect(text.attribute(.foregroundColor, at: 0, effectiveRange: nil) as? NSColor != .systemOrange)
+    #expect(
+      text.attribute(.foregroundColor, at: suffix.location, effectiveRange: nil) as? NSColor
+        == .systemOrange)
+    #expect(
+      text.attribute(.foregroundColor, at: 0, effectiveRange: nil) as? NSColor != .systemOrange)
     #expect(text.attribute(.font, at: 0, effectiveRange: nil) as? NSFont == .menuFont(ofSize: 0))
-    let style = try #require(text.attribute(.paragraphStyle, at: 0, effectiveRange: nil) as? NSParagraphStyle)
+    let style = try #require(
+      text.attribute(.paragraphStyle, at: 0, effectiveRange: nil) as? NSParagraphStyle)
     #expect(style.tabStops.contains { $0.alignment == .right && $0.location == 320 })
   }
   @Test func containerRowTitleAndTool() throws {
-    populate(outcome(docker: [entry(port: 5432, title: "postgres", tool: "shop-postgres-1", section: .docker)]))
+    populate(
+      outcome(docker: [
+        entry(port: 5432, title: "postgres", tool: "shop-postgres-1", section: .docker)
+      ]))
     #expect(try row().title == "5432  postgres\tshop-postgres-1")
     #expect(try submenu().items.last?.title == "Stop Container")
   }
@@ -74,7 +87,9 @@ import Testing
     populate(outcome(apps: [entry()]))
     let stop = try #require(submenu().items.last)
     #expect(stop.title == "Stop (PID 101)")
-    #expect(stop.attributedTitle?.attribute(.foregroundColor, at: 0, effectiveRange: nil) as? NSColor == .systemRed)
+    #expect(
+      stop.attributedTitle?.attribute(.foregroundColor, at: 0, effectiveRange: nil) as? NSColor
+        == .systemRed)
     populate(outcome(apps: [entry(canTerminate: false)]))
     #expect(try submenu().items.last?.isEnabled == false)
   }
@@ -91,7 +106,8 @@ import Testing
     #expect(try submenu().items.last === originalStop)
     #expect(original.title.contains("changed"))
     #expect(!originalStop.isEnabled)
-    builder.refresh(menu, outcome: outcome(apps: [entry(), entry(id: "pid:102")]), state: MenuState())
+    builder.refresh(
+      menu, outcome: outcome(apps: [entry(), entry(id: "pid:102")]), state: MenuState())
     #expect(try row() !== original)
   }
   @Test func alternateStopOnlyWhenTerminable() throws {
@@ -117,7 +133,8 @@ import Testing
     #expect(try !submenu().items.contains { $0.title.contains("Open in Browser") })
   }
   @Test func extrasCopyTheirAddress() throws {
-    populate(outcome(apps: [entry(extras: [.init(port: 5005, exposure: .loopback, role: .debugger)])]))
+    populate(
+      outcome(apps: [entry(extras: [.init(port: 5005, exposure: .loopback, role: .debugger)])]))
     let item = try #require(submenu().items.first { $0.title == "5005  Debugger" })
     try choose(item)
     #expect(handler.commands == [.copy("localhost:5005")])
@@ -127,10 +144,11 @@ import Testing
     populate(outcome(apps: [fixture]))
     try choose(#require(submenu().items.first))
     try choose(#require(menu.items.first(where: { $0.isAlternate })))
-    #expect(handler.commands == [
-      .openInBrowser(URL(string: "http://localhost:5173")!),
-      .stop(EntryRef(id: "pid:101", target: fixture.target, title: "@repot/desktop", port: 5173))
-    ])
+    #expect(
+      handler.commands == [
+        .openInBrowser(URL(string: "http://localhost:5173")!),
+        .stop(EntryRef(id: "pid:101", target: fixture.target, title: "@repot/desktop", port: 5173)),
+      ])
   }
   @Test func dockerSectionStates() {
     populate(outcome(dockerStatus: .notResponding))
@@ -142,7 +160,8 @@ import Testing
     }
   }
   @Test func emptyStateKeepsSystemSection() throws {
-    populate(outcome(system: [entry(port: 5000, tool: "airplay", section: .system, canTerminate: false)]))
+    populate(
+      outcome(system: [entry(port: 5000, tool: "airplay", section: .system, canTerminate: false)]))
     #expect(menu.items[1].title == "No servers running")
     #expect(menu.items[2].isSeparatorItem)
     #expect(try row().title.contains("AirPlay Receiver (macOS)"))

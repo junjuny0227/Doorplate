@@ -12,7 +12,8 @@ func entry(
   likelyHTTP: Bool = true, canTerminate: Bool = true
 ) -> ServerEntry {
   ServerEntry(
-    id: id, target: section == .docker ? .container(id: id) : .process(pid: pid, startedAt: startedAt),
+    id: id,
+    target: section == .docker ? .container(id: id) : .process(pid: pid, startedAt: startedAt),
     section: section, title: title, tool: tool, primary: .init(port: port, exposure: exposure),
     extras: extras, directory: directory, repositoryRoot: root, startedAt: startedAt,
     isLongRunning: isLongRunning, likelyHTTP: likelyHTTP, canTerminate: canTerminate)
