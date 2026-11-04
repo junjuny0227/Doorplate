@@ -167,9 +167,8 @@ project.yml                  XcodeGen 설정 (생성된 .xcodeproj는 커밋하�
 Packages/DoorplateCore/
   Sources/DoorplateCore/
   Sources/doorplate-scan/    진단 명령
-  Sources/TestListener/      종료 테스트용 헬퍼
   Tests/DoorplateCoreTests/
-  Tests/Fixtures/            processes/, trees/, docker/, expected/
+  Tests/Fixtures/            scenarios/, docker/, expected/
 App/                         AppDelegate, StatusItemController, MenuBuilder, ActionPerformer, Settings/
 App/Resources/               Localizable.xcstrings (en, ko), Info.plist (LSUIElement)
 AppTests/                    MenuBuilder 테스트
@@ -395,8 +394,7 @@ Finder에서 보기
 ### 12.1 Core 단위·시나리오 테스트 (`swift test`)
 
 - Fixture
-  - `Tests/Fixtures/processes/*.json`: 프로세스와 LISTEN 소켓 묶음
-  - `Tests/Fixtures/trees/`: 프로젝트 폴더 구조(모노레포, Gradle 멀티모듈, 밖에서 실행한 `java -jar` 등)
+  - `Tests/Fixtures/scenarios/*.json`: 한 파일에 현재 시각·홈 경로·사용자 uid·설정, 프로세스와 LISTEN 소켓, 프로젝트 파일 내용, 접근 거부 경로, Docker 상태와 컨테이너를 모두 담는다. 날짜는 ISO 8601이며 `trees/` 폴더는 두지 않는다
   - `Tests/Fixtures/docker/`: Docker Desktop의 실제 `/containers/json` 응답(OrbStack은 확인할 수 있을 때 추가)
 - 도구 판별 규칙마다 맞는 사례와 아닌 사례를 하나 이상 둔다.
 - 시나리오 테스트: fixture 하나를 파이프라인 전체에 넣고 `Tests/Fixtures/expected/*.json`과 비교한다. 기대 결과는 `UPDATE_GOLDEN=1 swift test`로 다시 만들고, diff를 읽은 뒤 커밋한다.
@@ -405,7 +403,7 @@ Finder에서 보기
 ### 12.2 실제 시스템 테스트 (`swift test`, 외부 도구 없음)
 
 - 수집: 테스트 프로세스가 임시 포트를 열고, libproc 조회 결과에 자기 pid·포트·cwd가 나오는지 확인한다.
-- 종료: `TestListener` 헬퍼를 띄운다. 일반 모드는 SIGTERM으로 끝나는지, SIGTERM 무시 모드는 SIGKILL 경로로 끝나는지 확인한다. pid 재확인은 시작 시각을 바꾼 가짜 항목으로 확인한다.
+- 종료: `/bin/sleep 60`을 띄워 SIGTERM으로 끝나는지 확인한다. SIGTERM 무시 모드는 `/bin/sh -c 'trap "" TERM; exec /bin/sleep 60'`으로 띄워 SIGKILL 경로로 끝나는지 확인한다. 실제 시그널은 테스트가 직접 띄운 프로세스에만 보내고, 테스트 끝에 살아 있으면 정리한다. pid 재확인은 시작 시각을 바꾼 가짜 항목으로 확인한다.
 
 ### 12.3 App 테스트 (`xcodebuild test`)
 
