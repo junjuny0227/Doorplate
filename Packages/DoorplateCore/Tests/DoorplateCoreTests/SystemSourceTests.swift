@@ -18,7 +18,8 @@ struct SystemSourceTests {
 
   @Test func parsesHugeArgument() throws {
     let huge = String(repeating: "x", count: 200_000)
-    let result = try #require(ProcessArguments.parse(buffer(argc: 1, tail: Array("/bin/x\0\0\(huge)\0HOME=/u\0".utf8))))
+    let result = try #require(
+      ProcessArguments.parse(buffer(argc: 1, tail: Array("/bin/x\0\0\(huge)\0HOME=/u\0".utf8))))
     #expect(result.arguments == [huge])
   }
 
@@ -29,14 +30,18 @@ struct SystemSourceTests {
   }
 
   @Test func titleRewrittenProcessKeepsReadableArgs() throws {
-    let result = try #require(ProcessArguments.parse(buffer(argc: 5, tail: Array("/bin/x\0\0next-server (v15.0.0)\0\0\0\0".utf8))))
+    let result = try #require(
+      ProcessArguments.parse(
+        buffer(argc: 5, tail: Array("/bin/x\0\0next-server (v15.0.0)\0\0\0\0".utf8))))
     #expect(result.arguments == ["next-server (v15.0.0)"])
   }
 
   @Test func stopsAtEmptyOrUnterminatedArgument() throws {
-    let empty = try #require(ProcessArguments.parse(buffer(argc: 3, tail: Array("/bin/x\0x\0\0HOME=/u\0".utf8))))
+    let empty = try #require(
+      ProcessArguments.parse(buffer(argc: 3, tail: Array("/bin/x\0x\0\0HOME=/u\0".utf8))))
     #expect(empty.arguments == ["x"])
-    let truncated = try #require(ProcessArguments.parse(buffer(argc: 2, tail: Array("/bin/x\0x\0unfinished".utf8))))
+    let truncated = try #require(
+      ProcessArguments.parse(buffer(argc: 2, tail: Array("/bin/x\0x\0unfinished".utf8))))
     #expect(truncated.arguments == ["x"])
   }
 
@@ -66,13 +71,19 @@ struct SystemSourceTests {
   @Test func findsOwnLoopbackListener() throws {
     let (fd, port) = try listener(ipv6: false)
     defer { close(fd) }
-    #expect(try LibprocProcessSource().listeners().contains { $0.pid == getpid() && $0.port == port && $0.address == "127.0.0.1" })
+    #expect(
+      try LibprocProcessSource().listeners().contains {
+        $0.pid == getpid() && $0.port == port && $0.address == "127.0.0.1"
+      })
   }
 
   @Test func findsOwnIPv6Listener() throws {
     let (fd, port) = try listener(ipv6: true)
     defer { close(fd) }
-    #expect(try LibprocProcessSource().listeners().contains { $0.pid == getpid() && $0.port == port && $0.address == "::1" })
+    #expect(
+      try LibprocProcessSource().listeners().contains {
+        $0.pid == getpid() && $0.port == port && $0.address == "::1"
+      })
   }
 
   @Test func readsOwnProcessRecord() throws {
@@ -95,7 +106,8 @@ struct SystemSourceTests {
   }
 
   @Test func localFileProbeReadsAndChecks() throws {
-    let directory = FileManager.default.temporaryDirectory.appendingPathComponent("doorplate-files-\(UUID())")
+    let directory = FileManager.default.temporaryDirectory.appendingPathComponent(
+      "doorplate-files-\(UUID())")
     try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
     defer { try? FileManager.default.removeItem(at: directory) }
     let file = directory.appendingPathComponent("package.json")
