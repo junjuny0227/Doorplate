@@ -1,0 +1,46 @@
+{
+  "apps" : [
+    {
+      "canTerminate" : true,
+      "directory" : "\/Users\/dev\/shop-api",
+      "extras" : [
+
+      ],
+      "id" : "pid:131",
+      "isLongRunning" : false,
+      "likelyHTTP" : true,
+      "primary" : {
+        "exposure" : "loopback",
+        "port" : 8081
+      },
+      "repositoryRoot" : "\/Users\/dev\/shop-api",
+      "section" : {
+        "app" : {
+
+        }
+      },
+      "startedAt" : "2026-11-04T05:20:00Z",
+      "target" : {
+        "process" : {
+          "pid" : 131,
+          "startedAt" : "2026-11-04T05:20:00Z"
+        }
+      },
+      "title" : "shop-api",
+      "tool" : "maven"
+    }
+  ],
+  "badgeCount" : 1,
+  "docker" : [
+
+  ],
+  "dockerStatus" : "absent",
+  "hasLongRunning" : false,
+  "hidden" : [
+
+  ],
+  "scannedAt" : "2026-11-04T06:00:00Z",
+  "system" : [
+
+  ]
+}

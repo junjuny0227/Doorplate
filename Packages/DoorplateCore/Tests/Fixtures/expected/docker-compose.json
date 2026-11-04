@@ -1,0 +1,99 @@
+{
+  "apps" : [
+
+  ],
+  "badgeCount" : 2,
+  "docker" : [
+    {
+      "canTerminate" : true,
+      "directory" : "\/Users\/dev\/shop",
+      "extras" : [
+
+      ],
+      "id" : "docker:3f2a9c1b7d4e",
+      "image" : "postgres:16-alpine",
+      "isLongRunning" : true,
+      "likelyHTTP" : false,
+      "primary" : {
+        "exposure" : "network",
+        "port" : 5432
+      },
+      "section" : {
+        "docker" : {
+
+        }
+      },
+      "startedAt" : "2026-11-01T06:00:00Z",
+      "target" : {
+        "container" : {
+          "id" : "3f2a9c1b7d4e0123456789abcdef"
+        }
+      },
+      "title" : "postgres",
+      "tool" : "shop-postgres-1"
+    },
+    {
+      "canTerminate" : true,
+      "directory" : "\/Users\/dev\/shop",
+      "extras" : [
+
+      ],
+      "id" : "docker:4a6b8c0d2e1f",
+      "image" : "redis:7",
+      "isLongRunning" : false,
+      "likelyHTTP" : false,
+      "primary" : {
+        "exposure" : "loopback",
+        "port" : 6379
+      },
+      "section" : {
+        "docker" : {
+
+        }
+      },
+      "startedAt" : "2026-11-04T05:20:00Z",
+      "target" : {
+        "container" : {
+          "id" : "4a6b8c0d2e1f0123456789abcdef"
+        }
+      },
+      "title" : "redis",
+      "tool" : "shop-redis-1"
+    }
+  ],
+  "dockerStatus" : "ok",
+  "hasLongRunning" : true,
+  "hidden" : [
+    {
+      "canTerminate" : false,
+      "extras" : [
+
+      ],
+      "id" : "pid:900",
+      "isLongRunning" : false,
+      "likelyHTTP" : true,
+      "primary" : {
+        "exposure" : "loopback",
+        "port" : 52000
+      },
+      "section" : {
+        "hidden" : {
+          "_0" : "otherApp"
+        }
+      },
+      "startedAt" : "2026-11-04T05:20:00Z",
+      "target" : {
+        "process" : {
+          "pid" : 900,
+          "startedAt" : "2026-11-04T05:20:00Z"
+        }
+      },
+      "title" : "Docker",
+      "tool" : "container runtime"
+    }
+  ],
+  "scannedAt" : "2026-11-04T06:00:00Z",
+  "system" : [
+
+  ]
+}

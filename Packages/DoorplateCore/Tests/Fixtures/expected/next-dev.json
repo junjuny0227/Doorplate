@@ -1,0 +1,46 @@
+{
+  "apps" : [
+    {
+      "canTerminate" : true,
+      "directory" : "\/Users\/dev\/shop-web",
+      "extras" : [
+
+      ],
+      "id" : "pid:110",
+      "isLongRunning" : false,
+      "likelyHTTP" : true,
+      "primary" : {
+        "exposure" : "network",
+        "port" : 3000
+      },
+      "repositoryRoot" : "\/Users\/dev\/shop-web",
+      "section" : {
+        "app" : {
+
+        }
+      },
+      "startedAt" : "2026-11-04T05:20:00Z",
+      "target" : {
+        "process" : {
+          "pid" : 110,
+          "startedAt" : "2026-11-04T05:20:00Z"
+        }
+      },
+      "title" : "shop-web",
+      "tool" : "next"
+    }
+  ],
+  "badgeCount" : 1,
+  "docker" : [
+
+  ],
+  "dockerStatus" : "absent",
+  "hasLongRunning" : false,
+  "hidden" : [
+
+  ],
+  "scannedAt" : "2026-11-04T06:00:00Z",
+  "system" : [
+
+  ]
+}

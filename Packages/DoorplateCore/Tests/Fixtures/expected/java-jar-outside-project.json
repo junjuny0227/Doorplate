@@ -1,0 +1,44 @@
+{
+  "apps" : [
+    {
+      "canTerminate" : true,
+      "extras" : [
+
+      ],
+      "id" : "pid:140",
+      "isLongRunning" : false,
+      "likelyHTTP" : true,
+      "primary" : {
+        "exposure" : "loopback",
+        "port" : 8082
+      },
+      "section" : {
+        "app" : {
+
+        }
+      },
+      "startedAt" : "2026-11-04T05:20:00Z",
+      "target" : {
+        "process" : {
+          "pid" : 140,
+          "startedAt" : "2026-11-04T05:20:00Z"
+        }
+      },
+      "title" : "app.jar",
+      "tool" : "java"
+    }
+  ],
+  "badgeCount" : 1,
+  "docker" : [
+
+  ],
+  "dockerStatus" : "absent",
+  "hasLongRunning" : false,
+  "hidden" : [
+
+  ],
+  "scannedAt" : "2026-11-04T06:00:00Z",
+  "system" : [
+
+  ]
+}
