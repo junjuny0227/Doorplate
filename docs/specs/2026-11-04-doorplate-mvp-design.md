@@ -103,7 +103,7 @@ pid 재확인과 단계적 종료(SIGTERM → 확인 후 SIGKILL)는 Berth와 ma
 
 - **로컬 전용**: 네트워크는 업데이트 확인뿐이다. 포트·프로세스·경로 정보를 밖으로 보내지 않는다. 사용 통계를 수집하지 않는다.
 - **사용자가 고를 때만 종료한다.** 자동 종료나 일괄 정리는 없다.
-- **Docker 런타임 프로세스(Docker Desktop, OrbStack, Colima 등)를 직접 종료하지 않는다.** 모든 컨테이너가 내려가기 때문이다. 컨테이너는 Docker API로만 정지한다.
+- **Docker 런타임 프로세스(Docker Desktop, OrbStack, Colima 등)를 직접 종료하지 않는다.** 모든 컨테이너가 내려가기 때문이다. 컨테이너는 Docker API로만 정지한다. 런타임 프로세스와 "다른 앱"은 설정으로 보이게 해도 종료 항목을 두지 않는다.
 - **관리자 권한을 쓰지 않는다.** 권한이 필요한 helper나 `sudo`가 없다.
 - **포트에 접속해 확인하지 않는다.** HTTP 여부는 포트 번호, 이미지 이름, 도구로만 추정한다. 남의 서버에 요청을 보내는 부작용을 피한다.
 - **판단 로직은 테스트 가능한 순수 함수로 둔다.** 시스템 조회와 종료는 protocol 뒤에 모은다.
@@ -126,13 +126,13 @@ Core 패키지와 App 두 덩어리로 나눈다.
 [App]  StatusItemController ── 5초 타이머 → 아이콘 숫자·주황 점
           │ menuNeedsUpdate (메뉴를 여는 순간)
           ▼
-       MenuBuilder: Snapshot → NSMenu      ActionHandler: 열기/Finder/터미널/복사/종료
+       MenuBuilder: Snapshot → NSMenu      ActionPerformer: 열기/Finder/터미널/복사/종료
           ▲                                    │
 ──────────┼────────────────────────────────────┼──────────
-[Core]  SnapshotBuilder ◀── Classifier ◀── 원시 정보        Terminator (protocol)
+[Core]  SnapshotBuilder ◀── Classifier ◀── 원시 정보        Terminator ── ProcessSignaler (protocol)
                                │                             ├ 프로세스: SIGTERM / SIGKILL
         ProcessSource (protocol)  FileProbe (protocol)  DockerSource (protocol)
-         └ libproc 구현            └ 파일 시스템         └ Docker 소켓 HTTP
+         └ libproc 구현            └ 파일 시스템         └ Docker 소켓 HTTP(POSIX)
          └ Fake (테스트)           └ Fake (테스트)       └ Fake (테스트)
 ```
 
@@ -140,15 +140,15 @@ Core 패키지와 App 두 덩어리로 나눈다.
 
 | 단위 | 하는 일 | 의존 |
 |---|---|---|
-| `ProcessSource` | LISTEN 소켓(pid, 포트, 바인드 주소)과 프로세스 정보(이름, 실행 파일 경로, argv, cwd, 부모 pid, 시작 시각, 소유 uid) | libproc, `sysctl(KERN_PROCARGS2)` |
-| `FileProbe` | 파일 존재 확인과 읽기 | 파일 시스템 |
+| `ProcessSource` | LISTEN 소켓(pid, 포트, 바인드 주소, 소켓 식별자)과 프로세스 정보(이름, 실행 파일 경로, argv, cwd, 부모 pid, 시작 시각, 소유 uid) | libproc, `sysctl(KERN_PROCARGS2)` |
+| `FileProbe` | 파일 있음·없음·접근 거부(TCC) 확인과 읽기 | 파일 시스템 |
 | `DockerSource` | 컨테이너 목록, 게시 포트, Compose 라벨, 시작 시각, 정지 | Docker 소켓(7.4절) |
 | `ToolDetector` | argv·부모 프로세스로 도구와 분류 결정 | 순수 함수 |
 | `ProjectResolver` | 프로젝트 이름과 루트 경로 | `FileProbe` |
 | `PortRoleDetector` | 대표 포트와 보조 포트 역할 | 순수 함수 |
 | `Classifier` | 위 결과를 합쳐 `ServerEntry` 생성 | 위 단위들 |
 | `SnapshotBuilder` | 구역 나누기, 정렬, 숨김, 오래 켜짐 표시 | 순수 함수(현재 시각과 설정을 입력으로 받음) |
-| `Terminator` | 프로세스 종료와 컨테이너 정지 | 부작용은 여기에만 둔다 |
+| `Terminator` | 프로세스 종료와 컨테이너 정지 | `ProcessSignaler`(protocol, 시그널과 시작 시각), `DockerSource`. 부작용은 여기에만 둔다 |
 
 명령 실행·파일·환경 변수를 한 protocol에 모으지 않는다. 조회 대상의 성격이 서로 달라서 작은 protocol 여러 개로 둔다. 외부 명령(`lsof` 등)은 실행하지 않는다.
 
@@ -156,7 +156,7 @@ Core 패키지와 App 두 덩어리로 나눈다.
 
 - `StatusItemController`: `NSStatusItem`, 5초 타이머, 메뉴 열 때 갱신.
 - `MenuBuilder`: `Snapshot`을 받아 `NSMenu`를 만든다.
-- `ActionHandler`: `NSWorkspace`로 열기·Finder·터미널을 처리하고, 복사와 `Terminator` 호출을 맡는다.
+- `ActionPerformer`: `NSWorkspace`로 열기·Finder·터미널을 처리하고, 복사와 `Terminator` 호출을 맡는다.
 - `SettingsView`: SwiftUI 설정 창. 로그인 시 실행은 `SMAppService`.
 - `Updater`: 13.3절.
 
@@ -182,7 +182,7 @@ docs/specs, docs/plans
 - Swift 6, 엄격 동시성. 조회는 백그라운드 actor에서 하고 `Snapshot`은 `Sendable` 값 타입으로 메인 스레드에 넘긴다.
 - 대상 macOS 14 이상. Universal(Apple Silicon, Intel) 빌드.
 - XcodeGen: `.pbxproj`를 사람과 AI가 직접 고치지 않게 하고 병합 충돌을 피한다.
-- 외부 의존성은 Sparkle 하나. Docker 소켓 통신은 Network 프레임워크로 직접 구현한다.
+- 외부 의존성은 Sparkle 하나. Docker 소켓 통신은 POSIX unix 소켓으로 직접 구현한다. Network 프레임워크는 연결 거부를 실패가 아닌 대기 상태로 다뤄서, "Docker 꺼짐"과 "응답 없음"을 구분하기 어렵다.
 - 테스트는 Swift Testing(`import Testing`). 포맷 검사는 Swift 툴체인에 포함된 `swift format`.
 
 ## 7. 데이터 흐름
@@ -195,22 +195,27 @@ docs/specs, docs/plans
 
 ### 7.1 수집
 
-- TCP LISTEN 소켓만 모은다: `(pid, 포트, 바인드 주소)`.
-- 같은 pid·포트의 IPv4·IPv6 중복은 하나로 합친다.
+- TCP LISTEN 소켓만 모은다: `(pid, 포트, 바인드 주소, 소켓 식별자)`. 소켓 식별자는 libproc `socket_fdinfo.psi.soi_so`이다.
+- 같은 pid·포트의 IPv4·IPv6 중복은 하나로 합친다. `::`에 바인드한 소켓은 IPv4·IPv6 표시가 둘 다 켜져 있으므로 IPv6를 먼저 본다.
 - 바인드 주소로 노출 범위를 기록한다. `127.0.0.1`·`::1`은 이 기기만, `0.0.0.0`·`::`은 네트워크에 열림.
 - 관리자 권한 없이는 다른 사용자(root) 소유 프로세스의 소켓이 보이지 않을 수 있다. 개발 서버는 사용자 계정으로 실행되므로 받아들인다.
 
 ### 7.2 프로세스별 묶기
 
-pid로 묶는다. 이후 **한 행 = 한 프로세스**다.
+먼저 소켓 단위로 주인을 정한다. gunicorn, puma cluster, `uvicorn --reload`, Node cluster처럼 자식이 LISTEN 소켓을 물려받으면 같은 소켓 식별자가 여러 pid에 보인다. 이때는 그 소켓을 가진 프로세스 중 부모가 그 목록에 없는 가장 위 조상을 주인으로 정한다. 그런 프로세스가 여럿이면 pid가 가장 작은 것이다. worker를 종료하면 master가 다시 띄우므로, 행과 종료 대상은 주인이다.
+
+그다음 주인 pid로 묶는다. 이후 **한 행 = 한 프로세스**다.
 
 ### 7.3 정보 보강
 
-pid마다 이름, 실행 파일 경로, argv, cwd, 부모 pid, 부모의 argv, 시작 시각, 소유 uid를 읽는다. 일부를 읽지 못해도 실패로 처리하지 않는다. 읽은 것까지 쓰고, 빈 칸은 대체 규칙(7.5절)이 채운다.
+pid마다 이름, 실행 파일 경로, argv, cwd, 부모 pid, 부모의 argv, 시작 시각, 소유 uid를 읽는다. 일부를 읽지 못해도 실패로 처리하지 않는다. 읽은 것까지 쓰고, 빈 칸은 대체 규칙(7.5절)이 채운다. 프로세스 제목을 바꾸는 프로그램(`next-server`, `puma`)은 argv가 argc보다 적게 읽히므로, 읽힌 인자까지만 쓴다.
 
 ### 7.4 Docker 연결
 
 - 소켓 후보 경로를 차례로 시도한다: Docker Desktop(`~/.docker/run/docker.sock`), `/var/run/docker.sock`, OrbStack(`~/.orbstack/run/docker.sock`), Colima(`~/.colima/default/docker.sock`). 첫 단계 실험(14절)에서 실제 경로를 확인한다.
+- 소켓 파일이 없거나 연결이 거부되면(ENOENT, ECONNREFUSED) 다음 후보로 넘어간다. 모두 그렇다면 "Docker 없음"이다. Docker를 끈 사용자에게 오류를 보이지 않기 위해서다. 1초 안에 응답이 없거나 API가 오류를 돌려주면 "응답 없음"이다.
+- 게시 포트의 노출 범위는 `Ports[].IP`로 정한다(`127.0.0.1`이면 이 기기만).
+- 정지(`POST /containers/{id}/stop?t=10`)는 컨테이너가 멈출 때까지 응답하지 않으므로 시간 제한을 15초로 따로 둔다.
 - 실행 중인 컨테이너의 **게시된 호스트 포트 집합**을 만든다. 이 집합에 속한 포트는 프로세스가 아니라 **컨테이너 행**으로 바꾼다. Docker 런타임 프로세스 이름에 기대지 않으므로 런타임 종류와 관계없이 동작한다.
 - 컨테이너 행의 제목은 `Compose 프로젝트 · 서비스`(`shop · postgres`)이다. Compose가 아니면 컨테이너 이름을 쓴다.
 - 소켓이 없으면 Docker 구역을 숨긴다. 소켓은 있는데 1초 안에 응답이 없으면 "Docker (응답 없음)" 행을 보여 주고 정지 동작을 끈다.
@@ -221,6 +226,7 @@ pid마다 이름, 실행 파일 경로, argv, cwd, 부모 pid, 부모의 argv, �
 
 | 단서 | 분류 | 도구 표시 |
 |---|---|---|
+| 컨테이너 런타임: `Docker`·`OrbStack`·`Rancher Desktop`·`Podman Desktop` 앱 안의 실행 파일, 또는 `limactl`·`vfkit`·`qemu-system-*`·`gvproxy`·`krunkit` | 다른 앱(숨김, 종료 불가) | 런타임 이름 |
 | node + argv에 `vite`·`next`·`nuxt`·`astro`·`remix`·`webpack` | 앱 | 해당 이름 |
 | java + 메인 클래스 `GradleDaemon`·`KotlinCompileDaemon` | 개발 도구(숨김) | `gradle daemon` 등 |
 | java + 부모가 Gradle 데몬 | 앱 | `gradle` |
@@ -231,7 +237,7 @@ pid마다 이름, 실행 파일 경로, argv, cwd, 부모 pid, 부모의 argv, �
 | ruby + `puma`·`rails` | 앱 | `rails` |
 | IntelliJ, VS Code, Cursor 등 IDE 프로세스 | 개발 도구(숨김) | IDE 이름 |
 | ControlCenter의 5000·7000 포트 | 시스템 | `AirPlay 수신 (macOS)` |
-| 실행 파일이 `/Applications`·`/System` 아래의 다른 앱 | 다른 앱(숨김) | 앱 이름 |
+| 실행 파일 경로에 `.app/Contents/`가 있는 다른 앱 | 다른 앱(숨김, 종료 불가) | 앱 이름 |
 | 그 밖 | 앱 | 실행 파일 이름 |
 
 **프로젝트 이름**: 시작 폴더에서 위로 올라가며(홈 폴더에서 멈춘다) **가장 가까운 표식**의 이름을 쓴다.
@@ -239,8 +245,9 @@ pid마다 이름, 실행 파일 경로, argv, cwd, 부모 pid, 부모의 argv, �
 - 시작 폴더: cwd. `java -jar`는 jar 파일이 있는 폴더.
 - 같은 폴더 안의 표식 우선순위: `package.json`의 `name` → `Cargo.toml`의 `[package] name` → `pyproject.toml`의 `[project] name` → `settings.gradle(.kts)`의 `rootProject.name` → `pom.xml`의 `artifactId` → `go.mod`의 module 마지막 마디 → `.git`이 있는 폴더 이름.
 - TOML과 Gradle 파일은 라이브러리 없이 이름 줄만 정규식으로 읽는다. `pom.xml`은 `XMLParser`로 읽는다. 해석에 실패하면 다음 표식으로 넘어간다.
-- 시작 폴더가 `/`이거나 홈 폴더이면 쓰지 않는다. 대체 순서: jar 파일 이름 → 실행 파일 이름.
-- 표식 폴더와 별도로 git 루트 경로를 기록해 하위 메뉴에 보여 준다.
+- 시작 폴더가 `/`이거나 홈 폴더이면 쓰지 않는다. 대체 순서: jar 파일 이름 → 실행 파일 이름 → 프로세스 이름.
+- 표식 폴더와 별도로 git 루트 경로를 기록한다. 하위 메뉴에서 표식 폴더와 다를 때만 "Repository" 줄로 보여 준다.
+- **폴더 접근 허락(TCC)**: `~/Documents`, `~/Desktop`, `~/Downloads`, iCloud Drive 안의 파일을 읽으면 macOS가 허락 창을 띄운다. 거부되었거나 아직 허락을 받지 못해 접근이 막히면(EPERM) 더 올라가지 않고, 시작 폴더 이름을 프로젝트 이름으로 쓴다. 허락 창의 설명 문구는 13.1절에 둔다.
 
 **대표 포트와 보조 포트**
 
@@ -328,7 +335,7 @@ Stop
 ```
 
 - `likelyHTTP`가 거짓이면 "Open in Browser"를 빼고 "Copy Address"를 맨 위에 둔다. `likelyHTTP`가 거짓인 경우: 포트 5432·3306·6379·27017·9092·11211, 또는 컨테이너 이미지 이름이 `postgres`·`mysql`·`mariadb`·`redis`·`mongo`·`kafka`·`memcached`로 시작할 때.
-- 네트워크에 열린 포트는 "Open to network (0.0.0.0)"로 표시한다.
+- 네트워크에 열린 포트는 "Open to network"로 표시한다.
 - "Open in Terminal"은 설정의 터미널 앱(기본 Terminal)으로 표식 폴더를 연다.
 - 컨테이너 행: Compose 폴더 경로, 이미지, 실행 시간 → 열기·복사 → "Show Compose Folder in Finder" → "Stop Container".
 - 시스템 행(AirPlay): "Turn off in System Settings > General > AirDrop & Handoff" 안내만 보여 준다.
@@ -348,7 +355,7 @@ Stop
 | 상황 | 처리 |
 |---|---|
 | 특정 pid를 읽지 못함 | 그 pid를 건너뛰거나 읽은 정보까지만 쓴다. 알리지 않는다 |
-| 조회 전체 실패 | 직전 Snapshot을 유지하고 머리글에 "Update failed · 12s ago" |
+| 조회 전체 실패 | 직전 Snapshot을 유지하고 머리글에 "Update failed · 1m ago"(분 단위, 최소 1분) |
 | 이전 조회 진행 중 | 이번 주기를 건너뛴다 |
 | Docker 소켓 없음 | Docker 구역을 숨긴다 |
 | Docker 소켓 응답 없음(1초) | "Docker (not responding)" 행, 정지 비활성 |
@@ -357,7 +364,7 @@ Stop
 | 종료 중 EPERM | "Not allowed to stop this process" 확인 창 |
 | Docker 정지 실패 | API 오류 메시지를 담은 확인 창 |
 
-기록은 `os.Logger`에 단위별 카테고리로만 남긴다. 파일 로그는 없다.
+기록은 `os.Logger`(subsystem `io.github.junjuny0227.doorplate`, 카테고리 `scan`, `docker`, `terminate`, `menu`, `update`)에만 남긴다. 파일 로그는 없다.
 
 ## 11. 설정
 
@@ -377,7 +384,7 @@ Stop
 - Fixture
   - `Tests/Fixtures/processes/*.json`: 프로세스와 LISTEN 소켓 묶음
   - `Tests/Fixtures/trees/`: 프로젝트 폴더 구조(모노레포, Gradle 멀티모듈, 밖에서 실행한 `java -jar` 등)
-  - `Tests/Fixtures/docker/`: Docker Desktop과 OrbStack의 실제 `/containers/json` 응답
+  - `Tests/Fixtures/docker/`: Docker Desktop의 실제 `/containers/json` 응답(OrbStack은 확인할 수 있을 때 추가)
 - 도구 판별 규칙마다 맞는 사례와 아닌 사례를 하나 이상 둔다.
 - 시나리오 테스트: fixture 하나를 파이프라인 전체에 넣고 `Tests/Fixtures/expected/*.json`과 비교한다. 기대 결과는 `UPDATE_GOLDEN=1 swift test`로 다시 만들고, diff를 읽은 뒤 커밋한다.
 - 현재 시각과 설정은 입력으로 넣어 고정한다.
@@ -413,6 +420,7 @@ Apple Developer Program에 가입하지 않는다. Developer ID 서명과 공증
   1. 앱을 한 번 연다(막힘).
   2. 시스템 설정 > 개인정보 보호 및 보안에서 "그래도 열기"를 누른다.
   3. 터미널에 익숙하면 `xattr -dr com.apple.quarantine /Applications/Doorplate.app`도 안내한다. 이 명령이 무엇을 하는지(다운로드 격리 표시 제거)도 함께 적는다.
+- **폴더 접근 허락(TCC)**: Info.plist에 `NSDocumentsFolderUsageDescription`, `NSDesktopFolderUsageDescription`, `NSDownloadsFolderUsageDescription`을 둔다. 문구는 "Doorplate reads project files such as package.json to show which project owns each port."이고, 한국어는 `ko.lproj/InfoPlist.strings`에 둔다. ad-hoc 서명 앱은 macOS가 빌드마다 바뀌는 해시로 앱을 구분하므로, 업데이트 뒤 허락을 다시 물을 가능성이 크다. 14절 실험으로 확인한다.
 
 ### 13.2 배포 경로
 
@@ -444,6 +452,7 @@ Apple Developer Program에 가입하지 않는다. Developer ID 서명과 공증
 
 - GitHub 별 200개 이상
 - 첫 실행이 막혀 설치를 포기했다는 이슈나 의견이 3건 이상
+- 업데이트할 때마다 폴더 접근 허락이나 로그인 항목 승인을 다시 묻는 것이 실험(14절) 또는 실제 릴리스에서 확인됨
 - 공식 Homebrew cask 등록이 필요해짐
 
 ## 14. 첫 단계 실험
@@ -456,9 +465,11 @@ Apple Developer Program에 가입하지 않는다. Developer ID 서명과 공증
 | 전체 조회 시간 | 프로세스 1,000개 기준 50ms 이하 | 주기를 늘리거나 메뉴 열 때만 조회 |
 | ⌥ 대체 항목만 하위 메뉴가 없어도 되는가 | 정상 동작 | 8.1절의 대안 |
 | root 소유 소켓이 보이는가 | 결과를 기록 | 7.1절 문구를 확정 |
-| GUI 앱에서 Docker 소켓 후보 경로로 접속되는가 | Docker Desktop과 OrbStack 모두 | 설정에 소켓 경로 입력란 추가 |
-| ad-hoc 서명 앱의 Sparkle 업데이트 | 업데이트 설치 후 새 버전이 막힘 없이 실행 | 13.3절 대안 |
-| ad-hoc 서명 앱의 `SMAppService` 로그인 항목 | 재로그인 후 자동 실행 | LaunchAgent plist 방식 검토 |
+| GUI 앱에서 Docker 소켓 후보 경로로 접속되는가 | Docker Desktop 필수, OrbStack은 설치되어 있으면 | 설정에 소켓 경로 입력란 추가 |
+| `~/Documents` 안 프로젝트의 파일 읽기(TCC) | 허락 창이 한 번 뜨고, 허락 뒤 이름이 맞게 나온다. 업데이트 뒤 다시 묻는지 기록 | 거부되면 폴더 이름(7.5절). 업데이트마다 묻는다면 13.6절 조건 |
+| 공유 소켓(prefork 서버) | 같은 소켓 식별자가 여러 pid에 보인다 | 7.2절 규칙을 다시 본다 |
+| `/Applications`에 설치한 ad-hoc 서명 앱의 Sparkle 업데이트 | 격리 표시가 있는 첫 설치를 "그래도 열기"로 승인한 뒤 업데이트하면, 새 버전이 막힘 없이 실행된다. App Translocation 여부 기록 | 13.3절 대안 |
+| ad-hoc 서명 앱의 `SMAppService` 로그인 항목 | 재로그인 후 자동 실행. 새 빌드로 바꾼 뒤 상태 기록 | 로그인 항목 토글을 숨긴다 |
 
 ## 15. 이후 (MVP 밖)
 
