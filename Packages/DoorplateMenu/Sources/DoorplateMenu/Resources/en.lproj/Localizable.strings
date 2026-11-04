@@ -27,6 +27,7 @@
 "duration.minutes" = "%dm";
 "duration.hours" = "%dh";
 "duration.days" = "%dd";
+"alert.ok" = "OK";
 "alert.stillRunning" = "%@ is still running.";
 "alert.forceStop" = "Force Stop";
 "alert.keepWaiting" = "Keep Waiting";

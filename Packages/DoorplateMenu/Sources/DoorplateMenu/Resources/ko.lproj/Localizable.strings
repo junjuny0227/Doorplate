@@ -27,6 +27,7 @@
 "duration.minutes" = "%d분";
 "duration.hours" = "%d시간";
 "duration.days" = "%d일";
+"alert.ok" = "확인";
 "alert.stillRunning" = "%@이(가) 아직 실행 중입니다.";
 "alert.forceStop" = "강제 종료";
 "alert.keepWaiting" = "기다리기";
