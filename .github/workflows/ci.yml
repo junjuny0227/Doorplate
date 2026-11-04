@@ -1,0 +1,19 @@
+name: Core CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  core:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: swift --version
+      - run: scripts/check-core-imports.sh
+      - run: swift format lint --strict --recursive Packages
+      - run: swift test --package-path Packages/DoorplateCore
