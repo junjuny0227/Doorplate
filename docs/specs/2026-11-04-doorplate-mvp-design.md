@@ -56,7 +56,7 @@ Doorplate는 메뉴바에 늘 떠 있으면서 다음을 한 번에 보여 준�
 
 1. **JVM을 제대로 다룬다.** Gradle·Kotlin 데몬 숨김, `gradle bootRun`과 `mvn spring-boot:run` 구분, `settings.gradle`과 `pom.xml` 기준의 프로젝트 이름.
 2. **프로세스당 한 행과 보조 포트 역할.** 디버거(5005), LiveReload(35729), Node inspector를 대표 포트 아래 하위 메뉴로 묶는다.
-3. **Compose 서비스 이름까지 보여 준다.** `shop · postgres`처럼 프로젝트와 서비스를 함께 표시한다.
+3. **Compose 서비스 이름까지 보여 준다.** 서비스 이름(`postgres`)을 제목으로, 컨테이너 이름(`shop-db`)을 옆에 표시한다.
 
 pid 재확인과 단계적 종료(SIGTERM → 확인 후 SIGKILL)는 Berth와 markoradak/portbar도 한다. 차별점이 아니라 갖춰야 할 기본 수준으로 본다.
 
@@ -220,7 +220,7 @@ pid마다 이름, 실행 파일 경로, argv, cwd, 부모 pid, 부모의 argv, �
 - 게시 포트의 노출 범위는 `Ports[].IP`로 정한다(`127.0.0.1`이면 이 기기만). `0.0.0.0`과 `::`에 같은 호스트 포트가 두 번 나오므로(실험의 postgres) 하나로 합친다.
 - 정지(`POST /containers/{id}/stop?t=10`)는 컨테이너가 멈출 때까지 응답하지 않으므로 시간 제한을 15초로 따로 둔다. 실험에서는 Docker Desktop 0.17초, OrbStack 0.78초에 204로 끝났다.
 - 실행 중인 컨테이너의 **게시된 호스트 포트 집합**을 만든다. 이 집합에 속한 포트는 프로세스가 아니라 **컨테이너 행**으로 바꾼다. Docker 런타임 프로세스 이름에 기대지 않으므로 런타임 종류와 관계없이 동작한다.
-- 컨테이너 행의 제목은 `Compose 프로젝트 · 서비스`(`shop · postgres`)이다. Compose가 아니면 컨테이너 이름을 쓴다.
+- 컨테이너 행의 제목은 Compose 서비스 이름(`postgres`)이고, 오른쪽 열(`tool` 자리)에 컨테이너 이름(`shop-db`)을 둔다. Compose가 아니면 제목은 컨테이너 이름, 오른쪽 열은 이미지 짧은 이름(레지스트리 경로와 태그를 뺀 마지막 마디, `ghcr.io/org/redis:7` → `redis`)이다.
 - 소켓이 없으면 Docker 구역을 숨긴다. 소켓은 있는데 1초 안에 응답이 없으면 "Docker (응답 없음)" 행을 보여 주고 정지 동작을 끈다.
 
 ### 7.5 분류
@@ -251,7 +251,7 @@ pid마다 이름, 실행 파일 경로, argv, cwd, 부모 pid, 부모의 argv, �
 - 같은 폴더 안의 표식 우선순위: `package.json`의 `name` → `Cargo.toml`의 `[package] name` → `pyproject.toml`의 `[project] name` → `settings.gradle(.kts)`의 `rootProject.name` → `pom.xml`의 `artifactId` → `go.mod`의 module 마지막 마디 → `.git`이 있는 폴더 이름.
 - TOML과 Gradle 파일은 라이브러리 없이 이름 줄만 정규식으로 읽는다. `pom.xml`은 `XMLParser`로 읽는다. 해석에 실패하면 다음 표식으로 넘어간다.
 - 시작 폴더가 `/`이거나 홈 폴더이면 쓰지 않는다. 대체 순서: jar 파일 이름 → 실행 파일 이름 → 프로세스 이름.
-- 표식 폴더와 별도로 git 루트 경로를 기록한다. 하위 메뉴에서 표식 폴더와 다를 때만 "Repository" 줄로 보여 준다.
+- 표식 폴더와 별도로 git 루트 경로를 기록한다. 메뉴에는 보여 주지 않는다(8.2절).
 - **폴더 접근 허락(TCC)**: `~/Documents`, `~/Desktop`, `~/Downloads`, iCloud Drive 안의 파일을 읽으면 macOS가 허락 창을 띄운다. 거부되었거나 아직 허락을 받지 못해 접근이 막히면(EPERM·EACCES) 더 올라가지 않고, 시작 폴더 이름을 프로젝트 이름으로 쓴다. 허락 창의 설명 문구는 13.1절에 둔다.
   - 14절 실험에서 허락 창이 떠 있는 동안에는 파일 읽기가 응답 없이 멈췄다. 그래서 프로젝트 파일은 메인 스레드에서 읽지 않는다.
   - 거부하면 이후 읽기는 바로 EPERM·EACCES로 실패한다. libproc로 읽는 cwd와 argv는 거부와 관계없이 읽히므로 시작 폴더 이름으로 대체할 수 있다.
@@ -292,26 +292,32 @@ struct ServerEntry: Sendable, Equatable {
 
 ## 8. 메뉴
 
+사용자 시안을 따른다. 아래는 한국어 화면이다(영어는 `Running · 5`, `· 3d`처럼 `L10n`의 같은 키).
+
 ```
-Running · 5                                   (회색 머리글)
-● 3000  @repot/site                 vite ▸
-● 5173  @repot/desktop              vite ▸
-● 8080  shop-api · 3d               gradle ▸   (주황 점)
+실행 중 · 5                                   (회색 머리글)
+● 3000  @repot/site                    vite ▸
+● 5173  @repot/desktop                 vite ▸
+● 8080  shop-api · 3일째             gradle ▸   (`· 3일째`는 주황 글자)
 ──────────
-◌ 5000  AirPlay Receiver (macOS)           ▸
+◌ 5000  AirPlay 수신 (macOS)                ▸
 ──────────
 Docker
-● 5432  shop · postgres                    ▸
-● 6379  shop · redis                       ▸
+● 5432  postgres                    shop-db ▸
+● 6379  redis                    shop-redis ▸
 ──────────
-3 hidden                                   ▸
+숨김 3개                                    ▸
 ──────────
-Settings…                               ⌘,
-Quit Doorplate                          ⌘Q
+설정…                                    ⌘,
+Doorplate 종료                           ⌘Q
 ```
 
+- 머리글은 `실행 중 · N`이다. N은 메뉴바 숫자와 같다(7.6절).
+- 앱 행: 색 점, 포트, 프로젝트 제목, 오른쪽 끝에 도구 이름과 하위 메뉴 화살표.
+- 오래 켜진 행은 제목 뒤에 주황 글자로 `· 3일째`(영어 `· 3d`)를 붙인다.
+- Docker 행: 제목은 Compose 서비스 이름, 오른쪽 열은 컨테이너 이름이다. Compose가 아니면 제목은 컨테이너 이름, 오른쪽 열은 이미지 짧은 이름이다(7.4절).
 - 서버가 없으면 "No servers running" 한 줄.
-- 행의 도구 이름은 탭 정지가 있는 `attributedTitle`로 오른쪽에 맞춘다.
+- 행의 도구 이름과 Docker 행의 오른쪽 열은 탭 정지가 있는 `attributedTitle`로 오른쪽에 맞춘다.
 - 메뉴가 열린 상태에서 글자를 치면 해당 항목으로 이동한다(macOS 기본 동작).
 - "숨김" 하위 메뉴는 숨긴 항목을 정보로만 보여 준다.
 
@@ -319,8 +325,8 @@ Quit Doorplate                          ⌘Q
 
 macOS 메뉴에서 하위 메뉴가 달린 항목은 클릭해도 동작을 실행하지 않는다. 그래서 다음과 같이 한다.
 
-- 행에 마우스를 올리면 하위 메뉴가 열리고, 첫 항목이 가장 흔한 동작(HTTP면 "브라우저에서 열기", 아니면 "주소 복사")이다.
-- **⌥를 누르고 있으면** 행이 하위 메뉴 없는 "종료 · 5173 @repot/desktop" 대체 항목으로 바뀌고, 클릭하면 바로 종료한다. 대체 항목만 하위 메뉴가 없어도 되는지는 14절 실험으로 확인한다. 안 되면 ⌥ 종료를 빼고 하위 메뉴의 "종료"만 둔다.
+- 행에 마우스를 올리면 하위 메뉴가 열리고, 첫 동작 항목이 가장 흔한 동작(HTTP면 "브라우저에서 열기", 아니면 "주소 복사")이다.
+- **⌥를 누르고 있으면** 행이 하위 메뉴 없는 "종료 · 5173 @repot/desktop" 대체 항목으로 바뀌고, 클릭하면 바로 종료한다. 14절 실험에서 대체 항목만 하위 메뉴가 없어도 정상 동작했다: ⌥로 전환, 클릭으로 실행, ⌥를 떼면 원래 행과 하위 메뉴로 복귀, 키보드(↓, ⌥, Return), 메뉴가 열린 채 2초 타이머로 제목 갱신(열린 하위 메뉴도 유지).
 - `canTerminate`가 거짓인 행에는 ⌥ 대체 항목을 두지 않는다.
 
 ### 8.2 하위 메뉴
@@ -328,23 +334,23 @@ macOS 메뉴에서 하위 메뉴가 달린 항목은 클릭해도 동작을 실�
 프로세스 행:
 
 ```
-~/Documents/Repot/apps/desktop              (회색, 표식 폴더)
-vite · 40m · PID 48211 · This Mac only       (회색)
+네트워크에 열림                              (회색, 네트워크에 열린 포트일 때만)
 ──────────
-Open in Browser          localhost:5173
-Show in Finder
-Open in Terminal
-Copy Address
+브라우저에서 열기          localhost:5173
+Finder에서 보기
+터미널에서 열기
+주소 복사
 ──────────
-5005  Debugger                               (보조 포트, 클릭하면 주소 복사)
+5005  디버거                                 (보조 포트가 있을 때만, 클릭하면 주소 복사)
 ──────────
-Stop
+종료 (PID 48211)                             (빨간 글자)
 ```
 
-- `likelyHTTP`가 거짓이면 "Open in Browser"를 빼고 "Copy Address"를 맨 위에 둔다. `likelyHTTP`가 거짓인 경우: 포트 5432·3306·6379·27017·9092·11211, 또는 컨테이너 이미지 이름이 `postgres`·`mysql`·`mariadb`·`redis`·`mongo`·`kafka`·`memcached`로 시작할 때.
-- 네트워크에 열린 포트는 "Open to network"로 표시한다.
-- "Open in Terminal"은 설정의 터미널 앱(기본 Terminal)으로 표식 폴더를 연다.
-- 컨테이너 행: Compose 폴더 경로, 이미지, 실행 시간 → 열기·복사 → "Show Compose Folder in Finder" → "Stop Container".
+- 시안에 맞춰 회색 정보 줄(표식 폴더 경로, `도구 · 실행 시간 · PID · 노출`, Repository)은 두지 않는다. 도구는 행에, 오래 켜짐은 행의 주황 글자에, PID는 종료 항목에 있다.
+- 노출은 네트워크에 열린 포트일 때만 맨 위 회색 "네트워크에 열림" 줄로 보여 준다. 이 기기만이면 줄이 없다.
+- `likelyHTTP`가 거짓이면 "브라우저에서 열기"를 빼고 "주소 복사"를 맨 위에 둔다. `likelyHTTP`가 거짓인 경우: 포트 5432·3306·6379·27017·9092·11211, 또는 컨테이너 이미지 이름이 `postgres`·`mysql`·`mariadb`·`redis`·`mongo`·`kafka`·`memcached`로 시작할 때.
+- "터미널에서 열기"는 설정의 터미널 앱(기본 Terminal)으로 표식 폴더를 연다.
+- 컨테이너 행: ("네트워크에 열림" 줄) → 열기·복사 → "Compose 폴더를 Finder에서 보기" → "컨테이너 정지". Compose 폴더 경로, 이미지, 실행 시간 줄은 두지 않는다.
 - 시스템 행(AirPlay): "Turn off in System Settings > General > AirDrop & Handoff" 안내만 보여 준다.
 
 ## 9. 종료 흐름
