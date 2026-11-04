@@ -169,9 +169,13 @@ Packages/DoorplateCore/
   Sources/doorplate-scan/    진단 명령
   Tests/DoorplateCoreTests/
   Tests/Fixtures/            scenarios/, docker/, expected/
-App/                         AppDelegate, StatusItemController, MenuBuilder, ActionPerformer, Settings/
-App/Resources/               Localizable.xcstrings (en, ko), Info.plist (LSUIElement)
-AppTests/                    MenuBuilder 테스트
+Packages/DoorplateMenu/       AppKit 허용, 메뉴 코드·문구·표시 규칙
+  Sources/DoorplateMenu/      MenuBuilder, StatusBadge, StopCoordinator, SettingsStore, L10n
+  Sources/DoorplateMenu/Resources/en.lproj/Localizable.strings
+  Sources/DoorplateMenu/Resources/ko.lproj/Localizable.strings
+  Tests/DoorplateMenuTests/   swift test로 메뉴·문구 검증
+App/                         AppDelegate, StatusItemController, ActionPerformer, Settings/
+App/Resources/               Info.plist (LSUIElement), ko.lproj/InfoPlist.strings
 docs/specs, docs/plans
 .github/workflows/
 ```
@@ -414,9 +418,12 @@ Finder에서 보기
 - 수집: 테스트 프로세스가 임시 포트를 열고, libproc 조회 결과에 자기 pid·포트·cwd가 나오는지 확인한다.
 - 종료: `/bin/sleep 60`을 띄워 SIGTERM으로 끝나는지 확인한다. SIGTERM 무시 모드는 `/bin/sh -c 'trap "" TERM; exec /bin/sleep 60'`으로 띄워 SIGKILL 경로로 끝나는지 확인한다. 실제 시그널은 테스트가 직접 띄운 프로세스에만 보내고, 테스트 끝에 살아 있으면 정리한다. pid 재확인은 시작 시각을 바꾼 가짜 항목으로 확인한다.
 
-### 12.3 App 테스트 (`xcodebuild test`)
+### 12.3 메뉴 패키지 테스트 (`swift test --package-path Packages/DoorplateMenu`)
 
+- 메뉴 코드와 문구는 AppKit을 허용하는 `Packages/DoorplateMenu`에 두고 `swift test`로 검증한다. 별도 `AppTests/`와 `xcodebuild test`는 두지 않는다. 앱 연결은 빌드와 수동 점검으로 확인한다.
 - `MenuBuilder`: Snapshot fixture로 만든 `NSMenu`의 항목 제목, 활성 여부, ⌥ 대체 항목, `likelyHTTP` 거짓일 때의 순서.
+- `StatusBadge`, `DurationText`, `PathText`: 서버 수가 0일 때 숫자 숨김, 오래 켜짐 점, 기간 단위와 홈 경로 축약.
+- 문구는 `.xcstrings` 대신 SPM 리소스 `en.lproj/Localizable.strings`와 `ko.lproj/Localizable.strings`를 쓴다. 복수형 문구는 없으며 두 언어의 키와 `L10n.Key` 집합, 형식 지정자의 개수·순서, 한국어 로딩을 검사한다.
 
 ### 12.4 진단 명령
 
