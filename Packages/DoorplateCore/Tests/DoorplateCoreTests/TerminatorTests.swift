@@ -7,6 +7,59 @@ struct TerminatorTests {
   private let started = Date(timeIntervalSince1970: 1_000)
   private let pid: Int32 = 101
 
+  @Test func realSleepStopsOnTerm() async throws {
+    let process = try spawn(arguments: nil)
+    defer { cleanUp(process) }
+    let signaler = PosixSignaler()
+    let startedAt = try #require(signaler.startTime(of: process.processIdentifier))
+    let terminator = Terminator(
+      signaler: signaler, docker: FakeDockerSource(), gracePeriod: .seconds(2))
+    #expect(
+      await terminator.stop(.process(pid: process.processIdentifier, startedAt: startedAt))
+        == .stopped)
+    process.waitUntilExit()
+    #expect(process.terminationReason == .uncaughtSignal)
+    #expect(process.terminationStatus == SIGTERM)
+    #expect(signaler.startTime(of: process.processIdentifier) == nil)
+    #expect(await signaler.waitForExit(of: process.processIdentifier, timeout: .seconds(1)))
+  }
+
+  @Test func realTermIgnoringProcessNeedsForce() async throws {
+    let process = try spawn(arguments: ["-c", "trap \"\" TERM; printf ready; exec /bin/sleep 60"])
+    defer { cleanUp(process) }
+    let signaler = PosixSignaler()
+    let startedAt = try #require(signaler.startTime(of: process.processIdentifier))
+    let terminator = Terminator(
+      signaler: signaler, docker: FakeDockerSource(), gracePeriod: .seconds(2))
+    let target = Target.process(pid: process.processIdentifier, startedAt: startedAt)
+    #expect(await terminator.stop(target) == .stillRunning)
+    #expect(await terminator.forceStop(target) == .stopped)
+    process.waitUntilExit()
+    #expect(process.terminationReason == .uncaughtSignal)
+    #expect(process.terminationStatus == SIGKILL)
+  }
+
+  private func spawn(arguments: [String]?) throws -> Process {
+    let process = Process()
+    process.executableURL = URL(fileURLWithPath: arguments == nil ? "/bin/sleep" : "/bin/sh")
+    process.arguments = arguments ?? ["60"]
+    let output = Pipe()
+    process.standardOutput = output
+    try process.run()
+    if arguments != nil {
+      // Handshake proves the shell installed the trap before SIGTERM can be sent.
+      let ready = output.fileHandleForReading.readData(ofLength: 5)
+      #expect(ready == Data("ready".utf8))
+    }
+    return process
+  }
+
+  private func cleanUp(_ process: Process) {
+    // Only this helper's directly spawned, still-running child can be signaled.
+    if process.isRunning { _ = Darwin.kill(process.processIdentifier, SIGKILL) }
+    process.waitUntilExit()
+  }
+
   @Test func gracefulStop() async {
     let signaler = FakeSignaler(startTimes: [pid: started])
     let terminator = Terminator(signaler: signaler, docker: FakeDockerSource())
@@ -17,7 +70,8 @@ struct TerminatorTests {
 
   @Test func stillRunningAfterGrace() async {
     let signaler = FakeSignaler(startTimes: [pid: started], exits: false)
-    let terminator = Terminator(signaler: signaler, docker: FakeDockerSource(), gracePeriod: .seconds(2))
+    let terminator = Terminator(
+      signaler: signaler, docker: FakeDockerSource(), gracePeriod: .seconds(2))
     #expect(await terminator.stop(.process(pid: pid, startedAt: started)) == .stillRunning)
     #expect(signaler.signals == [SIGTERM])
     #expect(signaler.waits == [.init(pid: pid, timeout: .seconds(2))])
