@@ -15,6 +15,13 @@ jobs:
       - uses: actions/checkout@v4
       - run: swift --version
       - run: scripts/check-core-imports.sh
-      - run: swift format lint --strict --recursive Packages
+      - run: swift format lint --strict --recursive Packages App
       - run: swift test --package-path Packages/DoorplateCore
       - run: swift test --package-path Packages/DoorplateMenu
+  app:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: brew install xcodegen
+      - run: xcodegen generate
+      - run: xcodebuild -project Doorplate.xcodeproj -scheme Doorplate -configuration Debug CODE_SIGN_IDENTITY=- build
