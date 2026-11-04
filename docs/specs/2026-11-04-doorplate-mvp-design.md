@@ -421,6 +421,9 @@ Finder에서 보기
 - Docker Compose: Docker Desktop, OrbStack 각각
 - AirPlay 5000, Gradle 데몬 숨김
 - 성공 기준(2절)의 메뉴 지연, 유휴 CPU, 메모리
+- 폴더 접근 허락(TCC): `~/Desktop`, `~/Downloads`, iCloud Drive 안의 프로젝트에서 폴더마다 허락 창이 한 번 뜨는지, 허락하면 프로젝트 이름이, 거부하면 폴더 이름이 나오는지(실험은 `~/Documents`만 확인했다)
+- `~/Downloads`에서 옮기지 않고 바로 실행했을 때: App Translocation으로 실행되는지, Sparkle 업데이트가 거부되는지, 13.1절 안내와 맞는지
+- Homebrew cask 설치와 업데이트: 설치한 앱에 격리 표시가 남는지, 첫 실행, `brew upgrade` 뒤와 Sparkle 업데이트 뒤의 실행
 
 ## 13. 배포
 
@@ -430,10 +433,11 @@ Apple Developer Program에 가입하지 않는다. Developer ID 서명과 공증
 
 - ad-hoc 서명(`codesign -s -`)으로 배포한다.
 - 다운로드한 앱은 Gatekeeper가 첫 실행을 막는다. macOS 15부터는 우클릭 → 열기로 우회할 수 없다. README와 릴리스 노트에 다음 절차를 적는다.
-  1. 앱을 한 번 연다(막힘).
-  2. 시스템 설정 > 개인정보 보호 및 보안에서 "그래도 열기"를 누른다.
-  3. 터미널에 익숙하면 `xattr -dr com.apple.quarantine /Applications/Doorplate.app`도 안내한다. 이 명령이 무엇을 하는지(다운로드 격리 표시 제거)도 함께 적는다.
-- **폴더 접근 허락(TCC)**: Info.plist에 `NSDocumentsFolderUsageDescription`, `NSDesktopFolderUsageDescription`, `NSDownloadsFolderUsageDescription`을 둔다. 문구는 "Doorplate reads project files such as package.json to show which project owns each port."이고, 한국어는 `ko.lproj/InfoPlist.strings`에 둔다. ad-hoc 서명 앱은 macOS가 빌드마다 바뀌는 해시로 앱을 구분하므로, 업데이트 뒤 허락을 다시 물을 가능성이 크다. 14절 실험으로 확인한다.
+  1. 처음 열기 전에 zip을 풀고 앱을 Finder로 `/Applications`에 옮긴다. 다운로드한 위치에서 실행되는 앱은 Sparkle이 "can't be updated if it's running from the location it was downloaded to"로 업데이트를 거부한다(14절 실험에서 App Translocation 상태로 확인).
+  2. 앱을 연다. 다음 창이 뜨며 막힌다. 제목 "'Doorplate.app'을(를) 열지 않음", 본문 "Apple은 'Doorplate.app'에 사용자의 Mac에 손상을 입히거나 사용자의 개인 정보에 침입할 수 있는 악성 코드가 없음을 확인할 수 없습니다.", 버튼 [휴지통으로 이동] [완료]. "완료"를 누른다("휴지통으로 이동"은 앱을 휴지통으로 옮긴다).
+  3. 시스템 설정 > 개인정보 보호 및 보안에서 "그래도 열기"를 누르고 암호나 Touch ID로 확인한 뒤, 다시 뜨는 창에서 "그래도 열기"를 누른다.
+  4. 터미널에 익숙하면 `xattr -dr com.apple.quarantine /Applications/Doorplate.app`도 안내한다. 이 명령이 무엇을 하는지(다운로드 격리 표시 제거)도 함께 적는다.
+- **폴더 접근 허락(TCC)**: Info.plist에 `NSDocumentsFolderUsageDescription`, `NSDesktopFolderUsageDescription`, `NSDownloadsFolderUsageDescription`을 둔다. 문구는 "Doorplate reads project files such as package.json to show which project owns each port."이고, 한국어는 `ko.lproj/InfoPlist.strings`에 둔다. ad-hoc 서명 앱은 macOS가 빌드마다 바뀌는 해시로 앱을 구분하므로, 업데이트하면 허락을 다시 묻는다(14절 실험에서 1.0 → 1.1 업데이트 뒤 확인). 보호 폴더마다 업데이트당 한 번이며, 릴리스 노트에 적는다.
 
 ### 13.2 배포 경로
 
@@ -442,9 +446,10 @@ Apple Developer Program에 가입하지 않는다. Developer ID 서명과 공증
 
 ### 13.3 업데이트
 
-- 기본안: Sparkle. EdDSA로 서명한 업데이트를 받는다. appcast는 GitHub Pages에 둔다.
-- ad-hoc 서명 앱에서 Sparkle이 업데이트를 받아 설치하고, 설치된 새 버전이 Gatekeeper에 막히지 않는지 14절 실험으로 확인한다.
-- 실패하면 대안: GitHub `releases/latest`를 하루 한 번 확인한다. 새 버전이 있으면 메뉴에 "Update Available: 0.2.0" 항목을 보여 주고, 누르면 릴리스 페이지를 연다. Homebrew 사용자는 `brew upgrade`를 쓴다.
+- Sparkle을 쓴다. EdDSA로 서명한 업데이트를 받는다. appcast는 GitHub Pages에 둔다. 버전은 2.10.1로 고정한다(실험에서 쓴 버전).
+- 14절 실험에서 실제 사용자 경로(브라우저 다운로드 → 압축 해제 → Finder로 `/Applications`에 옮김 → "그래도 열기")로 설치한 ad-hoc 서명 앱이 Sparkle로 새 버전을 받아 설치하고 다시 실행했다. App Translocation 없이 `/Applications`에서 실행되었고, 새 버전은 막히지 않았다(서명 adhoc, `codesign --verify --deep --strict` 통과, 격리 표시 없음).
+- 메뉴바 전용 앱(`LSUIElement`)이라 Sparkle이 "Background app automatically schedules for update checks but does not implement gentle reminders" 경고를 남긴다. `SPUStandardUserDriverDelegate`로 gentle reminders를 구현할지, 경고를 받아들일지는 계획 3에서 정한다.
+- 실험이 실패했을 때의 대안이었다(쓰지 않음): GitHub `releases/latest`를 하루 한 번 확인한다. 새 버전이 있으면 메뉴에 "Update Available: 0.2.0" 항목을 보여 주고, 누르면 릴리스 페이지를 연다. Homebrew 사용자는 `brew upgrade`를 쓴다.
 - Sparkle EdDSA 비밀 키는 로컬 키체인과 GitHub Secrets에만 둔다. 출력하거나 커밋하지 않는다. 공개 키만 `Info.plist`에 둔다.
 
 ### 13.4 릴리스 방식
@@ -468,21 +473,23 @@ Apple Developer Program에 가입하지 않는다. Developer ID 서명과 공증
 - 업데이트할 때마다 폴더 접근 허락이나 로그인 항목 승인을 다시 묻는 것이 실험(14절) 또는 실제 릴리스에서 확인됨
 - 공식 Homebrew cask 등록이 필요해짐
 
+셋째 조건(업데이트마다 폴더 접근 허락)은 14절 실험에서 충족되었다. 사용자는 2026-11-05에 가입하지 않기로 했다. 영향은 업데이트마다 보호 폴더당 허락 창 한 번이고, 거부해도 폴더 이름으로 대체된다(7.5절). 로그인 항목은 새 빌드로 바꾼 뒤에도 켜져 있어 승인을 다시 묻지 않았다.
+
 ## 14. 첫 단계 실험
 
-본 구현 전에 확인한다. 실험 코드는 버린다.
+본 구현 전에 확인한다. 실험 코드는 버린다. 결과(2026-11-05)는 `docs/spikes/01-feasibility.md`에 있다.
 
-| 확인할 것 | 통과 기준 | 실패하면 |
-|---|---|---|
-| ad-hoc 서명 GUI 앱(샌드박스 없음)에서 libproc로 같은 사용자 프로세스의 소켓·cwd·argv를 읽을 수 있는가 | 모두 읽힘 | 설계를 다시 본다(가장 큰 위험) |
-| 전체 조회 시간 | 프로세스 1,000개 기준 50ms 이하 | 주기를 늘리거나 메뉴 열 때만 조회 |
-| ⌥ 대체 항목만 하위 메뉴가 없어도 되는가 | 정상 동작 | 8.1절의 대안 |
-| root 소유 소켓이 보이는가 | 결과를 기록 | 7.1절 문구를 확정 |
-| GUI 앱에서 Docker 소켓 후보 경로로 접속되는가 | Docker Desktop 필수, OrbStack은 설치되어 있으면 | 설정에 소켓 경로 입력란 추가 |
-| `~/Documents` 안 프로젝트의 파일 읽기(TCC) | 허락 창이 한 번 뜨고, 허락 뒤 이름이 맞게 나온다. 업데이트 뒤 다시 묻는지 기록 | 거부되면 폴더 이름(7.5절). 업데이트마다 묻는다면 13.6절 조건 |
-| 공유 소켓(prefork 서버) | 같은 소켓 식별자가 여러 pid에 보인다 | 7.2절 규칙을 다시 본다 |
-| `/Applications`에 설치한 ad-hoc 서명 앱의 Sparkle 업데이트 | 격리 표시가 있는 첫 설치를 "그래도 열기"로 승인한 뒤 업데이트하면, 새 버전이 막힘 없이 실행된다. App Translocation 여부 기록 | 13.3절 대안 |
-| ad-hoc 서명 앱의 `SMAppService` 로그인 항목 | 재로그인 후 자동 실행. 새 빌드로 바꾼 뒤 상태 기록 | 로그인 항목 토글을 숨긴다 |
+| 확인할 것 | 통과 기준 | 실패하면 | 결과 |
+|---|---|---|---|
+| ad-hoc 서명 GUI 앱(샌드박스 없음)에서 libproc로 같은 사용자 프로세스의 소켓·cwd·argv를 읽을 수 있는가 | 모두 읽힘 | 설계를 다시 본다(가장 큰 위험) | 결과: 통과. 소켓·cwd·argv·시작 시각·uid 모두 읽힘. 관리자 권한 없는 `lsof`와 비교해 빠지거나 더 나온 사용자 포트 0개 |
+| 전체 조회 시간 | 프로세스 1,000개 기준 50ms 이하 | 주기를 늘리거나 메뉴 열 때만 조회 | 결과: 통과. 프로세스 1,137개 중앙값 17.38ms, p95 31.51ms(1,000개 기준 15.28ms / 27.71ms) |
+| ⌥ 대체 항목만 하위 메뉴가 없어도 되는가 | 정상 동작 | 8.1절의 대안 | 결과: 통과. 전환, 클릭, ⌥를 떼면 복귀, 키보드, 열린 메뉴 갱신 모두 정상(8.1절) |
+| root 소유 소켓이 보이는가 | 결과를 기록 | 7.1절 문구를 확정 | 결과: `sudo lsof`에만 보인 것은 launchd(pid 1)의 8021 하나. 7.1절 문구를 확정 |
+| GUI 앱에서 Docker 소켓 후보 경로로 접속되는가 | Docker Desktop 필수, OrbStack은 설치되어 있으면 | 설정에 소켓 경로 입력란 추가 | 결과: 통과. Docker Desktop은 `~/.docker/run/docker.sock`, OrbStack은 `/var/run/docker.sock` 심볼릭 링크로 접속. 꺼진 상태는 ENOENT(7.4절) |
+| `~/Documents` 안 프로젝트의 파일 읽기(TCC) | 허락 창이 한 번 뜨고, 허락 뒤 이름이 맞게 나온다. 업데이트 뒤 다시 묻는지 기록 | 거부되면 폴더 이름(7.5절). 업데이트마다 묻는다면 13.6절 조건 | 결과: 허락 창이 한 번 뜨고, 허락 뒤 이름이 맞음. 창이 떠 있는 동안 읽기가 멈춤. 거부하면 EPERM·EACCES로 폴더 이름. 업데이트(1.0 → 1.1) 뒤 다시 물음 → 13.6절 조건 충족 |
+| 공유 소켓(prefork 서버) | 같은 소켓 식별자가 여러 pid에 보인다 | 7.2절 규칙을 다시 본다 | 결과: 통과. fork한 listener의 부모·자식 pid에 같은 소켓 식별자 |
+| `/Applications`에 설치한 ad-hoc 서명 앱의 Sparkle 업데이트 | 격리 표시가 있는 첫 설치를 "그래도 열기"로 승인한 뒤 업데이트하면, 새 버전이 막힘 없이 실행된다. App Translocation 여부 기록 | 13.3절 대안 | 결과: 통과(Sparkle 2.10.1). 실제 사용자 경로로 설치하면 App Translocation 없이 `/Applications`에서 실행되고 업데이트 뒤에도 막히지 않음. 격리 표시를 손으로 쓴 설치는 Translocation이 남아 업데이트가 거부됨(13.1절) |
+| ad-hoc 서명 앱의 `SMAppService` 로그인 항목 | 재로그인 후 자동 실행. 새 빌드로 바꾼 뒤 상태 기록 | 로그인 항목 토글을 숨긴다 | 결과: 통과. 재로그인 후 자동 실행, 새 빌드로 바꾼 뒤에도 켜짐, 승인 요청 없음 |
 
 ## 15. 이후 (MVP 밖)
 
@@ -504,3 +511,6 @@ Apple Developer Program에 가입하지 않는다. Developer ID 서명과 공증
 | Core 패키지 분리 | 6절 |
 | 이름 Doorplate | 비슷한 앱이 많은 분야라 `Port*` 이름 사이에서 구별되는 것을 우선했다. 뜻은 한 줄 소개로 보완한다 |
 | Developer Program 미가입 | 사용자 결정. 대상이 개발자라 첫 실행 절차를 감당할 수 있다고 본다. 재검토 조건은 13.6절 |
+| Sparkle 유지 | 14절 실험에서 ad-hoc 서명 앱의 업데이트가 실제 사용자 경로로 통과했다(13.3절) |
+| Developer Program 미가입 유지(2026-11-05) | 업데이트마다 폴더 접근을 다시 묻는 13.6절 조건이 충족되었지만, 영향이 업데이트마다 보호 폴더당 한 번이고 거부해도 폴더 이름으로 대체되어 사용자가 가입하지 않기로 했다 |
+| 메뉴는 사용자 시안을 따른다 | Docker 행은 서비스 이름 제목과 컨테이너 이름 오른쪽 열, 오래 켜짐은 주황 글자, 하위 메뉴의 정보 줄을 빼고 PID는 종료 항목에 둔다(8절) |
