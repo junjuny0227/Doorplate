@@ -4,7 +4,7 @@
 
 1. 기존 Doorplate는 메뉴의 **Doorplate 종료**로 종료한다. Terminal A에서 최신 main 앱을 빌드하고 연다.
    ```sh
-   cd /Users/junjuny/Documents/Doorplate
+   cd <Doorplate 저장소 폴더>
    xcodegen generate && xcodebuild -project Doorplate.xcodeproj -scheme Doorplate -configuration Debug -derivedDataPath build CODE_SIGN_IDENTITY=- build
    open build/Build/Products/Debug/Doorplate.app
    ```
