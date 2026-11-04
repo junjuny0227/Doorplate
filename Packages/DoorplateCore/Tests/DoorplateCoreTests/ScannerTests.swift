@@ -79,7 +79,7 @@ import Testing
   private func makeScanner(
     processes: any ProcessSource = FakeProcessSource(),
     docker: any DockerSource = FakeDockerSource()
-  ) -> Scanner {
+  ) -> DoorplateCore.Scanner {
     let date = now
     return Scanner(
       processes: processes, files: FakeFileProbe(), docker: docker, currentUID: 501,

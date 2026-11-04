@@ -12,9 +12,10 @@ import Testing
   @Test(arguments: names)
   func snapshotMatchesGolden(name: String) async throws {
     let scenarioNames = try FileManager.default.contentsOfDirectory(
-      at: Fixtures.url("scenarios"), includingPropertiesForKeys: nil)
-      .filter { $0.pathExtension == "json" }
-      .map { $0.deletingPathExtension().lastPathComponent }
+      at: Fixtures.url("scenarios"), includingPropertiesForKeys: nil
+    )
+    .filter { $0.pathExtension == "json" }
+    .map { $0.deletingPathExtension().lastPathComponent }
     #expect(scenarioNames.sorted() == Self.names.sorted())
     let fixture = try Fixtures.scenario(name)
     let dockerResult: Result<[Container], DockerError>
