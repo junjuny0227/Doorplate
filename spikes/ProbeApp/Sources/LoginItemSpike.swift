@@ -10,8 +10,10 @@ enum LoginItemSpike {
     )
     private static let service = SMAppService.mainApp
     static let menuDelegate = LoginMenuDelegate()
+    private static var retainedTarget: LoginItemActionTarget?
 
     static func items(target: LoginItemActionTarget) -> [NSMenuItem] {
+        retainedTarget = target
         let toggle = NSMenuItem(
             title: "Open at Login",
             action: #selector(LoginItemActionTarget.toggleLoginItem(_:)),
