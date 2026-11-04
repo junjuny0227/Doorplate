@@ -17,7 +17,8 @@ import Testing
     var states: [Set<String>] = []
     var coordinator: StopCoordinator!
     coordinator = StopCoordinator(
-      terminator: Terminator(signaler: signaler, docker: FakeDocker(), gracePeriod: .milliseconds(10)),
+      terminator: Terminator(
+        signaler: signaler, docker: FakeDocker(), gracePeriod: .milliseconds(10)),
       prompter: prompter,
       onChange: {
         changes += 1
@@ -102,7 +103,8 @@ import Testing
     let prompter = FakePrompter()
     let coordinator = StopCoordinator(
       terminator: Terminator(signaler: signaler, docker: docker), prompter: prompter, onChange: {})
-    await coordinator.stop(EntryRef(id: "docker:missing", target: .container(id: "missing"), title: "db", port: 5432))
+    await coordinator.stop(
+      EntryRef(id: "docker:missing", target: .container(id: "missing"), title: "db", port: 5432))
     #expect(await docker.stopped == ["missing"])
     #expect(prompter.messages.count == 1)
     #expect(prompter.messages.first?.contains("no such container") == true)
@@ -116,7 +118,8 @@ import Testing
     prompter.suspendPrompt = true
     var changes = 0
     let coordinator = StopCoordinator(
-      terminator: Terminator(signaler: signaler, docker: FakeDocker(), gracePeriod: .milliseconds(10)),
+      terminator: Terminator(
+        signaler: signaler, docker: FakeDocker(), gracePeriod: .milliseconds(10)),
       prompter: prompter, onChange: { changes += 1 })
     let first = Task { await coordinator.stop(ref) }
     await prompter.waitUntilAsked()
@@ -135,7 +138,8 @@ import Testing
 
   private func make(_ signaler: FakeSignaler, _ prompter: FakePrompter) -> StopCoordinator {
     StopCoordinator(
-      terminator: Terminator(signaler: signaler, docker: FakeDocker(), gracePeriod: .milliseconds(10)),
+      terminator: Terminator(
+        signaler: signaler, docker: FakeDocker(), gracePeriod: .milliseconds(10)),
       prompter: prompter, onChange: {})
   }
 }

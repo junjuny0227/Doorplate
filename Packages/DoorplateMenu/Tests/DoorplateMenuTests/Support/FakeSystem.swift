@@ -21,8 +21,10 @@ final class FakeSignaler: ProcessSignaler, @unchecked Sendable {
   let startedAt: Date?
   let result: SignalResult
 
-  init(startedAt: Date? = Date(timeIntervalSince1970: 1_000),
-       result: SignalResult = .sent, exits: [Bool] = [true]) {
+  init(
+    startedAt: Date? = Date(timeIntervalSince1970: 1_000),
+    result: SignalResult = .sent, exits: [Bool] = [true]
+  ) {
     self.startedAt = startedAt
     self.result = result
     self.exits = exits
