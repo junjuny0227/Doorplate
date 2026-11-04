@@ -1,0 +1,22 @@
+name: ProbeApp
+options:
+  deploymentTarget:
+    macOS: '14.0'
+  createIntermediateGroups: true
+settings:
+  base:
+    SWIFT_VERSION: '6.0'
+    CODE_SIGN_IDENTITY: '-'
+    ENABLE_HARDENED_RUNTIME: NO
+targets:
+  ProbeApp:
+    type: application
+    platform: macOS
+    sources:
+      - Sources
+    info:
+      path: Info.plist
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.github.junjuny0227.doorplate.probe
+        PRODUCT_NAME: ProbeApp
