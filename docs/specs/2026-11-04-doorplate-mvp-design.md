@@ -239,6 +239,7 @@ pid마다 이름, 실행 파일 경로, argv, cwd, 부모 pid, 부모의 argv, �
 | ruby + `puma`·`rails` | 앱 | `rails` |
 | IntelliJ, VS Code, Cursor 등 IDE 프로세스 | 개발 도구(숨김) | IDE 이름 |
 | ControlCenter의 5000·7000 포트 | 시스템 | `AirPlay 수신 (macOS)` |
+| macOS 서비스: 실행 파일이 `/System/`·`/usr/libexec/`·`/usr/sbin/` 아래에 있음(예: `rapportd`) | 다른 앱(숨김, 종료 불가) | 실행 파일 이름 |
 | 실행 파일 경로에 `.app/Contents/`가 있는 다른 앱 | 다른 앱(숨김, 종료 불가) | 앱 이름 |
 | 그 밖 | 앱 | 실행 파일 이름 |
 
