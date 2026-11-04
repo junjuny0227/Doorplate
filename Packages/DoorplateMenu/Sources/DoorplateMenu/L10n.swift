@@ -6,7 +6,8 @@ public enum L10n {
   }
 
   public static func format(_ key: Key, _ args: CVarArg...) -> String {
-    String(format: text(key), locale: .current, arguments: args)
+    // Ports and PIDs must never get thousands separators ("5,173"), so format without a locale.
+    String(format: text(key), locale: nil, arguments: args)
   }
 
   public enum Key: String, CaseIterable {

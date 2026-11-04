@@ -47,6 +47,7 @@ struct L10nTests {
     #expect(L10n.text(.menuEmpty) == "No servers running")
     #expect(L10n.format(.headerRunning, 3) == "Running · 3")
     #expect(L10n.format(.rowStop, 80, "shop") == "Stop 80 shop")
+    #expect(L10n.format(.rowStop, 5173, "shop") == "Stop 5173 shop")
     #expect(L10n.format(.alertCouldNotStop, "shop") == "Couldn't stop shop.")
   }
 }
