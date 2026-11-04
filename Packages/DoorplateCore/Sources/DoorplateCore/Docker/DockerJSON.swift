@@ -23,7 +23,8 @@ enum DockerJSON {
       var ports: [UInt16: Exposure] = [:]
       for binding in item.Ports ?? [] where binding.Type == "tcp" {
         guard let port = binding.PublicPort else { continue }
-        let exposure: Exposure = binding.IP == "127.0.0.1" || binding.IP == "::1" ? .loopback : .network
+        let exposure: Exposure =
+          binding.IP == "127.0.0.1" || binding.IP == "::1" ? .loopback : .network
         ports[port] = ports[port] == .network ? .network : exposure
       }
       return Container(
@@ -31,7 +32,9 @@ enum DockerJSON {
         composeProject: item.Labels?["com.docker.compose.project"],
         composeService: item.Labels?["com.docker.compose.service"],
         composeWorkingDir: item.Labels?["com.docker.compose.project.working_dir"],
-        publishedPorts: ports.keys.sorted().map { PortBinding(port: $0, exposure: ports[$0]!, role: nil) })
+        publishedPorts: ports.keys.sorted().map {
+          PortBinding(port: $0, exposure: ports[$0]!, role: nil)
+        })
     }
   }
 
@@ -42,10 +45,14 @@ enum DockerJSON {
     if let dot = text.firstIndex(of: ".") {
       let fractionStart = text.index(after: dot)
       let fractionEnd = text[fractionStart...].firstIndex(where: { !$0.isNumber }) ?? text.endIndex
-      text = String(text[...dot]) + String(text[fractionStart..<fractionEnd].prefix(3)) + text[fractionEnd...]
+      text =
+        String(text[...dot]) + String(text[fractionStart..<fractionEnd].prefix(3))
+        + text[fractionEnd...]
     }
     let formatter = ISO8601DateFormatter()
-    formatter.formatOptions = text.contains(".") ? [.withInternetDateTime, .withFractionalSeconds] : [.withInternetDateTime]
+    formatter.formatOptions =
+      text.contains(".")
+      ? [.withInternetDateTime, .withFractionalSeconds] : [.withInternetDateTime]
     return formatter.date(from: text)
   }
 }
