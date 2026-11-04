@@ -1,0 +1,88 @@
+{
+  "currentUID": 501,
+  "denied": [],
+  "docker": {
+    "status": "absent"
+  },
+  "files": {
+    "/Users/dev/shop/.git": "",
+    "/Users/dev/shop/api/build.gradle.kts": "plugins {}",
+    "/Users/dev/shop/settings.gradle.kts": "rootProject.name = \"shop\""
+  },
+  "home": "/Users/dev",
+  "listeners": [
+    {
+      "address": "::1",
+      "pid": 120,
+      "port": 55000
+    },
+    {
+      "address": "::1",
+      "pid": 121,
+      "port": 55001
+    },
+    {
+      "address": "::1",
+      "pid": 122,
+      "port": 35729
+    },
+    {
+      "address": "::",
+      "pid": 122,
+      "port": 8080
+    },
+    {
+      "address": "::1",
+      "pid": 122,
+      "port": 5005
+    }
+  ],
+  "now": "2026-11-04T06:00:00Z",
+  "processes": [
+    {
+      "arguments": [
+        "java",
+        "org.gradle.launcher.daemon.bootstrap.GradleDaemon"
+      ],
+      "cwd": "/Users/dev/shop",
+      "executablePath": "/opt/homebrew/bin/java",
+      "name": "java",
+      "parentPID": 1,
+      "pid": 120,
+      "startedAt": "2026-11-04T05:20:00Z",
+      "uid": 501
+    },
+    {
+      "arguments": [
+        "java",
+        "org.jetbrains.kotlin.daemon.KotlinCompileDaemon"
+      ],
+      "cwd": "/Users/dev/shop",
+      "executablePath": "/opt/homebrew/bin/java",
+      "name": "java",
+      "parentPID": 1,
+      "pid": 121,
+      "startedAt": "2026-11-04T05:20:00Z",
+      "uid": 501
+    },
+    {
+      "arguments": [
+        "java",
+        "-agentlib:jdwp=transport=dt_socket,server=y,address=*:5005",
+        "com.acme.ShopApplication"
+      ],
+      "cwd": "/Users/dev/shop/api",
+      "executablePath": "/Applications/IntelliJ IDEA.app/Contents/jbr/Contents/Home/bin/java",
+      "name": "java",
+      "parentPID": 120,
+      "pid": 122,
+      "startedAt": "2026-11-04T05:20:00Z",
+      "uid": 501
+    }
+  ],
+  "settings": {
+    "longRunningThreshold": 86400,
+    "showDevTools": false,
+    "showOtherApps": false
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "currentUID": 501,
+  "denied": [],
+  "docker": {
+    "status": "absent"
+  },
+  "files": {
+    "/Users/dev/shop/.git": ""
+  },
+  "home": "/Users/dev",
+  "listeners": [
+    {
+      "address": "127.0.0.1",
+      "pid": 170,
+      "port": 3000
+    }
+  ],
+  "now": "2026-11-04T06:00:00Z",
+  "processes": [
+    {
+      "arguments": [
+        "puma 6.4.0 (tcp://127.0.0.1:3000) [shop]"
+      ],
+      "cwd": "/Users/dev/shop",
+      "executablePath": "/opt/homebrew/bin/ruby",
+      "name": "puma",
+      "parentPID": 1,
+      "pid": 170,
+      "startedAt": "2026-11-04T05:20:00Z",
+      "uid": 501
+    }
+  ],
+  "settings": {
+    "longRunningThreshold": 86400,
+    "showDevTools": false,
+    "showOtherApps": false
+  }
+}

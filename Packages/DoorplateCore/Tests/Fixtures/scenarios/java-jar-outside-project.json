@@ -1,0 +1,38 @@
+{
+  "currentUID": 501,
+  "denied": [],
+  "docker": {
+    "status": "absent"
+  },
+  "files": {},
+  "home": "/Users/dev",
+  "listeners": [
+    {
+      "address": "::1",
+      "pid": 140,
+      "port": 8082
+    }
+  ],
+  "now": "2026-11-04T06:00:00Z",
+  "processes": [
+    {
+      "arguments": [
+        "java",
+        "-jar",
+        "/opt/app/app.jar"
+      ],
+      "cwd": "/Users/dev/scratch",
+      "executablePath": "/opt/homebrew/bin/java",
+      "name": "java",
+      "parentPID": 1,
+      "pid": 140,
+      "startedAt": "2026-11-04T05:20:00Z",
+      "uid": 501
+    }
+  ],
+  "settings": {
+    "longRunningThreshold": 86400,
+    "showDevTools": false,
+    "showOtherApps": false
+  }
+}

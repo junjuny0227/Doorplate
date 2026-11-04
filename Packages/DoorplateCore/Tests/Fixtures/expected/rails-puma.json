@@ -1,0 +1,46 @@
+{
+  "apps" : [
+    {
+      "canTerminate" : true,
+      "directory" : "\/Users\/dev\/shop",
+      "extras" : [
+
+      ],
+      "id" : "pid:170",
+      "isLongRunning" : false,
+      "likelyHTTP" : true,
+      "primary" : {
+        "exposure" : "loopback",
+        "port" : 3000
+      },
+      "repositoryRoot" : "\/Users\/dev\/shop",
+      "section" : {
+        "app" : {
+
+        }
+      },
+      "startedAt" : "2026-11-04T05:20:00Z",
+      "target" : {
+        "process" : {
+          "pid" : 170,
+          "startedAt" : "2026-11-04T05:20:00Z"
+        }
+      },
+      "title" : "shop",
+      "tool" : "rails"
+    }
+  ],
+  "badgeCount" : 1,
+  "docker" : [
+
+  ],
+  "dockerStatus" : "absent",
+  "hasLongRunning" : false,
+  "hidden" : [
+
+  ],
+  "scannedAt" : "2026-11-04T06:00:00Z",
+  "system" : [
+
+  ]
+}

@@ -1,0 +1,82 @@
+{
+  "currentUID": 501,
+  "denied": [],
+  "docker": {
+    "containers": [
+      {
+        "composeProject": "shop",
+        "composeService": "postgres",
+        "composeWorkingDir": "/Users/dev/shop",
+        "id": "3f2a9c1b7d4e0123456789abcdef",
+        "image": "postgres:16-alpine",
+        "name": "/shop-postgres-1",
+        "publishedPorts": [
+          {
+            "exposure": "network",
+            "port": 5432
+          }
+        ],
+        "startedAt": "2026-11-01T06:00:00Z"
+      },
+      {
+        "composeProject": "shop",
+        "composeService": "redis",
+        "composeWorkingDir": "/Users/dev/shop",
+        "id": "4a6b8c0d2e1f0123456789abcdef",
+        "image": "redis:7",
+        "name": "/shop-redis-1",
+        "publishedPorts": [
+          {
+            "exposure": "loopback",
+            "port": 6379
+          }
+        ],
+        "startedAt": "2026-11-04T05:20:00Z"
+      }
+    ],
+    "status": "ok"
+  },
+  "files": {},
+  "home": "/Users/dev",
+  "listeners": [
+    {
+      "address": "0.0.0.0",
+      "pid": 900,
+      "port": 5432
+    },
+    {
+      "address": "::",
+      "pid": 900,
+      "port": 5432
+    },
+    {
+      "address": "127.0.0.1",
+      "pid": 900,
+      "port": 6379
+    },
+    {
+      "address": "::1",
+      "pid": 900,
+      "port": 52000
+    }
+  ],
+  "now": "2026-11-04T06:00:00Z",
+  "processes": [
+    {
+      "arguments": [
+        "com.docker.backend"
+      ],
+      "executablePath": "/Applications/Docker.app/Contents/MacOS/com.docker.backend",
+      "name": "com.docker.backend",
+      "parentPID": 1,
+      "pid": 900,
+      "startedAt": "2026-11-04T05:20:00Z",
+      "uid": 501
+    }
+  ],
+  "settings": {
+    "longRunningThreshold": 86400,
+    "showDevTools": false,
+    "showOtherApps": false
+  }
+}

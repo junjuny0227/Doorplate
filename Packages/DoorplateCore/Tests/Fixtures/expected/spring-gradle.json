@@ -1,0 +1,112 @@
+{
+  "apps" : [
+    {
+      "canTerminate" : true,
+      "directory" : "\/Users\/dev\/shop",
+      "extras" : [
+        {
+          "exposure" : "loopback",
+          "port" : 5005,
+          "role" : "debugger"
+        },
+        {
+          "exposure" : "loopback",
+          "port" : 35729,
+          "role" : "liveReload"
+        }
+      ],
+      "id" : "pid:122",
+      "isLongRunning" : false,
+      "likelyHTTP" : true,
+      "primary" : {
+        "exposure" : "network",
+        "port" : 8080
+      },
+      "repositoryRoot" : "\/Users\/dev\/shop",
+      "section" : {
+        "app" : {
+
+        }
+      },
+      "startedAt" : "2026-11-04T05:20:00Z",
+      "target" : {
+        "process" : {
+          "pid" : 122,
+          "startedAt" : "2026-11-04T05:20:00Z"
+        }
+      },
+      "title" : "shop",
+      "tool" : "gradle"
+    }
+  ],
+  "badgeCount" : 1,
+  "docker" : [
+
+  ],
+  "dockerStatus" : "absent",
+  "hasLongRunning" : false,
+  "hidden" : [
+    {
+      "canTerminate" : true,
+      "directory" : "\/Users\/dev\/shop",
+      "extras" : [
+
+      ],
+      "id" : "pid:120",
+      "isLongRunning" : false,
+      "likelyHTTP" : true,
+      "primary" : {
+        "exposure" : "loopback",
+        "port" : 55000
+      },
+      "repositoryRoot" : "\/Users\/dev\/shop",
+      "section" : {
+        "hidden" : {
+          "_0" : "devTool"
+        }
+      },
+      "startedAt" : "2026-11-04T05:20:00Z",
+      "target" : {
+        "process" : {
+          "pid" : 120,
+          "startedAt" : "2026-11-04T05:20:00Z"
+        }
+      },
+      "title" : "shop",
+      "tool" : "gradle daemon"
+    },
+    {
+      "canTerminate" : true,
+      "directory" : "\/Users\/dev\/shop",
+      "extras" : [
+
+      ],
+      "id" : "pid:121",
+      "isLongRunning" : false,
+      "likelyHTTP" : true,
+      "primary" : {
+        "exposure" : "loopback",
+        "port" : 55001
+      },
+      "repositoryRoot" : "\/Users\/dev\/shop",
+      "section" : {
+        "hidden" : {
+          "_0" : "devTool"
+        }
+      },
+      "startedAt" : "2026-11-04T05:20:00Z",
+      "target" : {
+        "process" : {
+          "pid" : 121,
+          "startedAt" : "2026-11-04T05:20:00Z"
+        }
+      },
+      "title" : "shop",
+      "tool" : "kotlin daemon"
+    }
+  ],
+  "scannedAt" : "2026-11-04T06:00:00Z",
+  "system" : [
+
+  ]
+}

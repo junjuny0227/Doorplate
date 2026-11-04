@@ -1,0 +1,53 @@
+{
+  "currentUID": 501,
+  "denied": [],
+  "docker": {
+    "status": "absent"
+  },
+  "files": {
+    "/Users/dev/shop-api/.git": "",
+    "/Users/dev/shop-api/pom.xml": "<project><parent><artifactId>spring-boot-starter-parent</artifactId></parent><artifactId>shop-api</artifactId></project>"
+  },
+  "home": "/Users/dev",
+  "listeners": [
+    {
+      "address": "::1",
+      "pid": 131,
+      "port": 8081
+    }
+  ],
+  "now": "2026-11-04T06:00:00Z",
+  "processes": [
+    {
+      "arguments": [
+        "java",
+        "org.codehaus.plexus.classworlds.launcher.Launcher"
+      ],
+      "cwd": "/Users/dev/shop-api",
+      "executablePath": "/opt/homebrew/bin/java",
+      "name": "java",
+      "parentPID": 1,
+      "pid": 130,
+      "startedAt": "2026-11-04T05:20:00Z",
+      "uid": 501
+    },
+    {
+      "arguments": [
+        "java",
+        "com.acme.ShopApplication"
+      ],
+      "cwd": "/Users/dev/shop-api",
+      "executablePath": "/opt/homebrew/bin/java",
+      "name": "java",
+      "parentPID": 130,
+      "pid": 131,
+      "startedAt": "2026-11-04T05:20:00Z",
+      "uid": 501
+    }
+  ],
+  "settings": {
+    "longRunningThreshold": 86400,
+    "showDevTools": false,
+    "showOtherApps": false
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "currentUID": 501,
+  "denied": [],
+  "docker": {
+    "status": "absent"
+  },
+  "files": {
+    "/Users/dev/events/.git": "",
+    "/Users/dev/events/pyproject.toml": "[project]\nname = \"events\"",
+    "/Users/dev/shop-api/.git": "",
+    "/Users/dev/shop-api/pyproject.toml": "[project]\nname = \"shop-api\""
+  },
+  "home": "/Users/dev",
+  "listeners": [
+    {
+      "address": "::1",
+      "pid": 160,
+      "port": 8000
+    },
+    {
+      "address": "0.0.0.0",
+      "pid": 161,
+      "port": 8001
+    }
+  ],
+  "now": "2026-11-04T06:00:00Z",
+  "processes": [
+    {
+      "arguments": [
+        "python3",
+        "manage.py",
+        "runserver"
+      ],
+      "cwd": "/Users/dev/shop-api",
+      "executablePath": "/Library/Frameworks/Python.framework/Versions/3.13/Resources/Python.app/Contents/MacOS/Python",
+      "name": "Python",
+      "parentPID": 1,
+      "pid": 160,
+      "startedAt": "2026-11-04T05:20:00Z",
+      "uid": 501
+    },
+    {
+      "arguments": [
+        "python3",
+        "-m",
+        "uvicorn",
+        "main:app"
+      ],
+      "cwd": "/Users/dev/events",
+      "executablePath": "/opt/homebrew/bin/python3",
+      "name": "python3",
+      "parentPID": 1,
+      "pid": 161,
+      "startedAt": "2026-11-04T05:20:00Z",
+      "uid": 501
+    }
+  ],
+  "settings": {
+    "longRunningThreshold": 86400,
+    "showDevTools": false,
+    "showOtherApps": false
+  }
+}

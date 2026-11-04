@@ -1,0 +1,49 @@
+{
+  "apps" : [
+    {
+      "canTerminate" : true,
+      "directory" : "\/Users\/dev\/repot\/apps\/desktop",
+      "extras" : [
+        {
+          "exposure" : "loopback",
+          "port" : 24678
+        }
+      ],
+      "id" : "pid:101",
+      "isLongRunning" : false,
+      "likelyHTTP" : true,
+      "primary" : {
+        "exposure" : "loopback",
+        "port" : 5173
+      },
+      "repositoryRoot" : "\/Users\/dev\/repot",
+      "section" : {
+        "app" : {
+
+        }
+      },
+      "startedAt" : "2026-11-04T05:20:00Z",
+      "target" : {
+        "process" : {
+          "pid" : 101,
+          "startedAt" : "2026-11-04T05:20:00Z"
+        }
+      },
+      "title" : "@repot\/desktop",
+      "tool" : "vite"
+    }
+  ],
+  "badgeCount" : 1,
+  "docker" : [
+
+  ],
+  "dockerStatus" : "absent",
+  "hasLongRunning" : false,
+  "hidden" : [
+
+  ],
+  "scannedAt" : "2026-11-04T06:00:00Z",
+  "system" : [
+
+  ]
+}

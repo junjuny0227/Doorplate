@@ -1,0 +1,39 @@
+{
+  "currentUID": 501,
+  "denied": [],
+  "docker": {
+    "status": "absent"
+  },
+  "files": {
+    "/Users/dev/shop-web/.git": "",
+    "/Users/dev/shop-web/package.json": "{\"name\":\"shop-web\"}"
+  },
+  "home": "/Users/dev",
+  "listeners": [
+    {
+      "address": "0.0.0.0",
+      "pid": 110,
+      "port": 3000
+    }
+  ],
+  "now": "2026-11-04T06:00:00Z",
+  "processes": [
+    {
+      "arguments": [
+        "next-server (v15.0.0)"
+      ],
+      "cwd": "/Users/dev/shop-web",
+      "executablePath": "/opt/homebrew/bin/node",
+      "name": "next-server (v15.0.0)",
+      "parentPID": 1,
+      "pid": 110,
+      "startedAt": "2026-11-04T05:20:00Z",
+      "uid": 501
+    }
+  ],
+  "settings": {
+    "longRunningThreshold": 86400,
+    "showDevTools": false,
+    "showOtherApps": false
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "apps" : [
+    {
+      "canTerminate" : true,
+      "directory" : "\/Users\/dev\/shop-api",
+      "extras" : [
+
+      ],
+      "id" : "pid:160",
+      "isLongRunning" : false,
+      "likelyHTTP" : true,
+      "primary" : {
+        "exposure" : "loopback",
+        "port" : 8000
+      },
+      "repositoryRoot" : "\/Users\/dev\/shop-api",
+      "section" : {
+        "app" : {
+
+        }
+      },
+      "startedAt" : "2026-11-04T05:20:00Z",
+      "target" : {
+        "process" : {
+          "pid" : 160,
+          "startedAt" : "2026-11-04T05:20:00Z"
+        }
+      },
+      "title" : "shop-api",
+      "tool" : "django"
+    },
+    {
+      "canTerminate" : true,
+      "directory" : "\/Users\/dev\/events",
+      "extras" : [
+
+      ],
+      "id" : "pid:161",
+      "isLongRunning" : false,
+      "likelyHTTP" : true,
+      "primary" : {
+        "exposure" : "network",
+        "port" : 8001
+      },
+      "repositoryRoot" : "\/Users\/dev\/events",
+      "section" : {
+        "app" : {
+
+        }
+      },
+      "startedAt" : "2026-11-04T05:20:00Z",
+      "target" : {
+        "process" : {
+          "pid" : 161,
+          "startedAt" : "2026-11-04T05:20:00Z"
+        }
+      },
+      "title" : "events",
+      "tool" : "uvicorn"
+    }
+  ],
+  "badgeCount" : 2,
+  "docker" : [
+
+  ],
+  "dockerStatus" : "absent",
+  "hasLongRunning" : false,
+  "hidden" : [
+
+  ],
+  "scannedAt" : "2026-11-04T06:00:00Z",
+  "system" : [
+
+  ]
+}
