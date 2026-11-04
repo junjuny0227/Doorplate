@@ -266,7 +266,7 @@ pid마다 이름, 실행 파일 경로, argv, cwd, 부모 pid, 부모의 argv, �
 - 구역 순서: 앱 서버 → 시스템 → Docker → "숨김 N개".
 - 구역 안에서는 대표 포트 번호 순. 열 때마다 순서가 바뀌지 않게 한다.
 - 오래 켜짐: `현재 시각 - 시작 시각 > 기준값`. 컨테이너는 Docker API의 시작 시각을 쓴다.
-- 메뉴바 숫자는 숨김을 뺀 행 수다.
+- 메뉴바 숫자는 앱 서버와 Docker 행만 센다. 시스템 행(AirPlay)과 숨김은 세지 않는다. 시스템 행을 세면 AirPlay를 켠 사용자의 숫자가 0이 되지 않는다.
 
 ```swift
 struct ServerEntry: Sendable, Equatable {
