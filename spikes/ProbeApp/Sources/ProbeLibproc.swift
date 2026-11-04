@@ -96,7 +96,7 @@ enum LibprocProbe {
                 result.append(Binding(
                     pid: pid,
                     port: UInt16(bigEndian: UInt16(truncatingIfNeeded: tcp.tcpsi_ini.insi_lport)),
-                    address: String(cString: text),
+                    address: String(decoding: text.prefix { $0 != 0 }.map { UInt8(bitPattern: $0) }, as: UTF8.self),
                     socketID: String(format: "0x%016llx", info.psi.soi_so)
                 ))
             }
@@ -230,7 +230,113 @@ enum LibprocProbe {
         }
     }
 
+    struct Listener: Codable, Sendable {
+        var pid: Int32
+        var port: UInt16
+        var address: String
+        var socketID: String
+        var name: String
+        var path: String
+        var cwd: String
+        var argv: [String]
+        var ppid: UInt32
+        var uid: UInt32
+        var startedAt: String
+        var packageJSON = "pending"
+    }
+
+    struct SharedSocket: Codable, Sendable {
+        var socketID: String
+        var pids: [Int32]
+    }
+
+    struct Scan: Sendable {
+        var processCount: Int
+        var errors: ErrorCounts
+        var longestArgvBytes: Int
+        var argvShorterThanArgc: [ShortArgv]
+        var listeners: [Listener]
+    }
+
+    struct Report: Codable, Sendable {
+        var processCount: Int
+        var runs: Int
+        var medianMs: Double
+        var p95Ms: Double
+        var errors: ErrorCounts
+        var missingSymbols = ["PROC_PIDPATHINFO_MAXSIZE"]
+        var longestArgvBytes: Int
+        var argvShorterThanArgc: [ShortArgv]
+        var sharedSockets: [SharedSocket]
+        var listeners: [Listener]
+    }
+
+    static func scan(argmax: Int) throws -> Scan {
+        var errors = ErrorCounts()
+        let pids = try processIDs(errors: &errors)
+        var result = Scan(processCount: pids.count, errors: errors, longestArgvBytes: 0,
+                          argvShorterThanArgc: [], listeners: [])
+        for pid in pids {
+            let sockets = bindings(pid: pid, errors: &result.errors)
+            let info = details(pid: pid, argmax: argmax, errors: &result.errors)
+            result.longestArgvBytes = max(result.longestArgvBytes, info.argvBytes)
+            if info.argvRead && info.argv.count < info.argc {
+                result.argvShorterThanArgc.append(ShortArgv(pid: pid, name: info.name,
+                                                          argc: info.argc, read: info.argv.count))
+            }
+            // A duplicated descriptor in one process is not a second listener.
+            var seen = Set<String>()
+            for socket in sockets where seen.insert(socket.socketID).inserted {
+                result.listeners.append(Listener(pid: pid, port: socket.port, address: socket.address,
+                    socketID: socket.socketID, name: info.name, path: info.path, cwd: info.cwd,
+                    argv: info.argv, ppid: info.ppid, uid: info.uid, startedAt: info.startedAt))
+            }
+        }
+        result.listeners.sort {
+            if $0.port != $1.port { return $0.port < $1.port }
+            if $0.pid != $1.pid { return $0.pid < $1.pid }
+            return $0.address < $1.address
+        }
+        return result
+    }
+
     static func run(_ outputURL: URL) async throws {
-        throw ProbeError.notImplemented
+        // Measure full libproc/sysctl collection, not filesystem/TCC user latency.
+        let report = try await Task.detached(priority: .userInitiated) {
+            let argmax = try argumentLimit()
+            var times: [Double] = []
+            var last: Scan?
+            for _ in 0..<20 {
+                let start = DispatchTime.now().uptimeNanoseconds
+                last = try scan(argmax: argmax)
+                times.append(Double(DispatchTime.now().uptimeNanoseconds - start) / 1_000_000)
+            }
+            guard var snapshot = last else { throw POSIXError(.EIO) }
+            let packages = PackageReads()
+            packages.start(Set(snapshot.listeners.map(\.cwd)))
+            let reads = packages.finish()
+            for index in snapshot.listeners.indices {
+                let cwd = snapshot.listeners[index].cwd
+                snapshot.listeners[index].packageJSON = cwd.isEmpty ? "denied" : (reads[cwd] ?? "pending")
+            }
+            let grouped = Dictionary(grouping: snapshot.listeners, by: \.socketID)
+            let shared = grouped.compactMap { id, listeners -> SharedSocket? in
+                let pids = Set(listeners.map(\.pid)).sorted()
+                return pids.count > 1 ? SharedSocket(socketID: id, pids: pids) : nil
+            }.sorted { $0.socketID < $1.socketID }
+            let sorted = times.sorted()
+            // Even-sized median; p95 uses nearest-rank ceil(0.95 * 20).
+            return Report(processCount: snapshot.processCount, runs: times.count,
+                medianMs: (sorted[9] + sorted[10]) / 2, p95Ms: sorted[18],
+                errors: snapshot.errors, longestArgvBytes: snapshot.longestArgvBytes,
+                argvShorterThanArgc: snapshot.argvShorterThanArgc,
+                sharedSockets: shared, listeners: snapshot.listeners)
+        }.value
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]
+        try FileManager.default.createDirectory(at: outputURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try encoder.encode(report).write(to: outputURL, options: .atomic)
+        Logger(subsystem: "io.github.junjuny0227.doorplate.probe", category: "libproc")
+            .info("libproc collected \(report.processCount) processes in \(report.medianMs) ms median")
     }
 }
