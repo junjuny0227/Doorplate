@@ -9,6 +9,9 @@ enum ProbeError: Error, CustomStringConvertible {
     var description: String { "probe not implemented yet" }
 }
 
+// sys/proc_info.h: this expression macro is not imported into Swift.
+private let PROC_PIDPATHINFO_MAXSIZE = 4 * MAXPATHLEN
+
 enum LibprocProbe {
     struct ErrorCounts: Codable, Sendable {
         var EPERM = 0
@@ -101,6 +104,130 @@ enum LibprocProbe {
         }
         errors.record(EAGAIN)
         return []
+    }
+
+    struct ShortArgv: Codable, Sendable {
+        var pid: Int32
+        var name: String
+        var argc: Int
+        var read: Int
+    }
+
+    struct Details: Sendable {
+        var name = ""
+        var path = ""
+        var cwd = ""
+        var argv: [String] = []
+        var ppid: UInt32 = 0
+        var uid: UInt32 = 0
+        var startedAt = ""
+        var argc = 0
+        var argvBytes = 0
+        var argvRead = false
+    }
+
+    static func cString<T>(_ value: T) -> String {
+        withUnsafeBytes(of: value) { bytes in
+            String(decoding: bytes.prefix { $0 != 0 }, as: UTF8.self)
+        }
+    }
+
+    static func argumentLimit() throws -> Int {
+        var mib: [Int32] = [CTL_KERN, KERN_ARGMAX]
+        var limit: Int32 = 0
+        var size = MemoryLayout<Int32>.size
+        guard sysctl(&mib, 2, &limit, &size, nil, 0) == 0, limit > 0 else {
+            throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO)
+        }
+        return Int(limit)
+    }
+
+    static func details(pid: Int32, argmax: Int, errors: inout ErrorCounts) -> Details {
+        var result = Details()
+        var bsd = proc_bsdinfo()
+        let bsdSize = Int32(MemoryLayout<proc_bsdinfo>.size)
+        if proc_pidinfo(pid, PROC_PIDTBSDINFO, 0, &bsd, bsdSize) == bsdSize {
+            result.name = cString(bsd.pbi_name)
+            if result.name.isEmpty { result.name = cString(bsd.pbi_comm) }
+            result.ppid = bsd.pbi_ppid
+            result.uid = bsd.pbi_uid
+            let seconds = Double(bsd.pbi_start_tvsec) + Double(bsd.pbi_start_tvusec) / 1_000_000
+            result.startedAt = Date(timeIntervalSince1970: seconds).formatted(Date.ISO8601FormatStyle(includingFractionalSeconds: true))
+        } else { errors.record() }
+        var path = [UInt8](repeating: 0, count: Int(PROC_PIDPATHINFO_MAXSIZE))
+        let pathSize = UInt32(path.count)
+        if proc_pidpath(pid, &path, pathSize) > 0 {
+            result.path = String(decoding: path.prefix { $0 != 0 }, as: UTF8.self)
+        } else { errors.record() }
+        var vnode = proc_vnodepathinfo()
+        let vnodeSize = Int32(MemoryLayout<proc_vnodepathinfo>.size)
+        if proc_pidinfo(pid, PROC_PIDVNODEPATHINFO, 0, &vnode, vnodeSize) == vnodeSize {
+            result.cwd = cString(vnode.pvi_cdir.vip_path)
+        } else { errors.record() }
+        var mib: [Int32] = [CTL_KERN, KERN_PROCARGS2, pid]
+        var bytes = [UInt8](repeating: 0, count: argmax)
+        var size = bytes.count
+        let status = bytes.withUnsafeMutableBytes { sysctl(&mib, 3, $0.baseAddress, &size, nil, 0) }
+        guard status == 0 else { errors.record(); return result }
+        guard size >= MemoryLayout<Int32>.size else { errors.record(EIO); return result }
+        result.argc = Int(bytes.withUnsafeBytes { $0.loadUnaligned(as: Int32.self) })
+        guard result.argc >= 0 else { errors.record(EIO); return result }
+        result.argvRead = true
+        var cursor = MemoryLayout<Int32>.size
+        // Skip executable path and alignment NULs, never decode the environment.
+        while cursor < size && bytes[cursor] != 0 { cursor += 1 }
+        while cursor < size && bytes[cursor] == 0 { cursor += 1 }
+        // A NUL-filled tail after a rewritten process title ends visible argv.
+        while cursor < size && bytes[cursor] != 0 && result.argv.count < result.argc {
+            let start = cursor
+            while cursor < size && bytes[cursor] != 0 { cursor += 1 }
+            guard cursor < size else { break } // unterminated tail is not an argument
+            result.argv.append(String(decoding: bytes[start..<cursor], as: UTF8.self))
+            result.argvBytes += cursor - start + 1
+            cursor += 1
+        }
+        return result
+    }
+
+    // A detached Dispatch read may remain blocked in TCC. Do not await it via a
+    // task group: structured cancellation would still wait for the blocking I/O.
+    final class PackageReads: @unchecked Sendable {
+        private let lock = NSLock()
+        private var results: [String: String] = [:]
+        private let group = DispatchGroup()
+
+        func start(_ directories: Set<String>) {
+            for directory in directories where !directory.isEmpty {
+                group.enter()
+                DispatchQueue.global(qos: .utility).async { [self] in
+                    let path = URL(fileURLWithPath: directory).appendingPathComponent("package.json").path
+                    let fd = Darwin.open(path, O_RDONLY | O_NONBLOCK | O_CLOEXEC)
+                    let result: String
+                    if fd < 0 {
+                        result = errno == ENOENT || errno == ENOTDIR ? "absent" : "denied"
+                    } else {
+                        defer { Darwin.close(fd) }
+                        var info = stat()
+                        var byte: UInt8 = 0
+                        // Avoid blocking on special files; a real read exercises TCC.
+                        if fstat(fd, &info) == 0 && (info.st_mode & S_IFMT) == S_IFREG {
+                            result = Darwin.read(fd, &byte, 1) >= 0 ? "read" : "denied"
+                        } else { result = "denied" }
+                    }
+                    lock.lock()
+                    results[directory] = result
+                    lock.unlock()
+                    group.leave()
+                }
+            }
+        }
+
+        func finish() -> [String: String] {
+            _ = group.wait(timeout: .now() + .seconds(3))
+            lock.lock()
+            defer { lock.unlock() }
+            return results
+        }
     }
 
     static func run(_ outputURL: URL) async throws {
