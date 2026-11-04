@@ -9,6 +9,7 @@ import DoorplateMenu
   private let settings = SettingsStore(defaults: .standard)
   private let loginItem = LoginItem()
   private var settingsController: SettingsWindowController?
+  private var updater: Updater?
 
   func applicationDidFinishLaunching(_ notification: Notification) {
     let home = NSHomeDirectory()
@@ -32,12 +33,16 @@ import DoorplateMenu
       coordinator: coordinator, prompter: prompter,
       terminalBundleID: { [settings] in settings.terminalBundleID },
       openSettings: { [weak self] in self?.openSettings() },
-      checkForUpdates: {}, quit: { NSApp.terminate(nil) })
+      checkForUpdates: { [weak self] in self?.updater?.checkForUpdates() },
+      quit: { NSApp.terminate(nil) })
     self.performer = performer
     let builder = MenuBuilder(handler: performer, home: home, now: { Date() })
     let controller = StatusItemController(
       scanner: scanner, builder: builder, settings: { [settings] in settings.snapshotSettings })
     statusController = controller
+    updater = Updater(settings: settings) { [weak controller] update in
+      controller?.state.update = update
+    }
     controller.start()
     Task { @MainActor [weak self] in
       guard let self else { return }
