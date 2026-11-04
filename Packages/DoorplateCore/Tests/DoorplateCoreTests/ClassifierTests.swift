@@ -101,6 +101,94 @@ struct ClassifierTests {
     #expect(entries.allSatisfy { $0.section == .hidden(.otherApp) && !$0.canTerminate })
   }
 
+  private var postgres: Container {
+    Container(
+      id: "3f2a9c1b7d4e0123456789", name: "/shop-postgres-1", image: "postgres:16-alpine",
+      composeProject: "shop", composeService: "postgres", composeWorkingDir: "/Users/dev/shop",
+      publishedPorts: [PortBinding(port: 5432, exposure: .network)], startedAt: startedAt)
+  }
+
+  private var redis: Container {
+    Container(
+      id: "abcdef1234567890", name: "/shop-redis-1", image: "redis:7",
+      composeProject: "shop", composeService: "redis", composeWorkingDir: "/Users/dev/shop",
+      publishedPorts: [PortBinding(port: 6379, exposure: .loopback)], startedAt: nil)
+  }
+
+  @Test func publishedPortsBecomeContainers() {
+    let backend = process(
+      900, name: "com.docker.backend",
+      path: "/Applications/Docker.app/Contents/MacOS/com.docker.backend")
+    let entries = classify(
+      [5432, 6379, 52000].map { Listener(pid: 900, port: UInt16($0), address: "::") },
+      processes: [backend], containers: [postgres, redis])
+    let docker = entries.filter { $0.section == .docker }
+    #expect(docker.map(\.title) == ["postgres", "redis"])
+    #expect(docker.map(\.tool) == ["shop-postgres-1", "shop-redis-1"])
+    let remaining = entries.filter { $0.section != .docker }
+    #expect(remaining.count == 1)
+    #expect(remaining.first?.title == "Docker")
+    #expect(remaining.first?.section == .hidden(.otherApp))
+    #expect(remaining.first?.primary.port == 52000)
+    #expect(remaining.first?.extras == [])
+    // Port ownership is based on the published port set, not a runtime process name.
+    #expect(
+      classify(
+        [Listener(pid: 101, port: 5432, address: "::")], processes: [process()],
+        containers: [postgres]
+      ).map(\.id) == ["docker:3f2a9c1b7d4e"])
+  }
+
+  @Test func containerWithoutCompose() throws {
+    let container = Container(
+      id: "nginx1234567890", name: "/hopeful_tesla", image: "library/nginx:1.27",
+      publishedPorts: [PortBinding(port: 8080, exposure: .network)])
+    let entry = try #require(classify([], processes: [], containers: [container]).first)
+    #expect(entry.title == "hopeful_tesla")
+    #expect(entry.tool == "nginx")
+    #expect(entry.directory == nil)
+    #expect(entry.repositoryRoot == nil)
+    #expect(entry.likelyHTTP)
+  }
+
+  @Test func containerEntryFields() throws {
+    let entries = classify([], processes: [], containers: [postgres, redis])
+    let entry = try #require(entries.first)
+    #expect(entry.id == "docker:3f2a9c1b7d4e")
+    #expect(entry.target == .container(id: postgres.id))
+    #expect(entry.section == .docker)
+    #expect(entry.title == "postgres")
+    #expect(entry.tool == "shop-postgres-1")
+    #expect(entry.image == "postgres:16-alpine")
+    #expect(entry.directory == "/Users/dev/shop")
+    #expect(entry.repositoryRoot == nil)
+    #expect(entry.primary == PortBinding(port: 5432, exposure: .network))
+    #expect(entry.extras.isEmpty)
+    #expect(entry.startedAt == startedAt)
+    #expect(!entry.isLongRunning)
+    #expect(!entry.likelyHTTP)
+    #expect(entry.canTerminate)
+    #expect(entries.last?.primary.exposure == .loopback)
+    #expect(entries.last?.startedAt == nil)
+    #expect(entries.last?.canTerminate == true)
+  }
+
+  @Test func containerPortsAreSortedAndUnpublishedContainersAreSkipped() throws {
+    var container = postgres
+    container.publishedPorts = [
+      PortBinding(port: 9000, exposure: .loopback, role: .inspector),
+      PortBinding(port: 8080, exposure: .network),
+    ]
+    var unpublished = redis
+    unpublished.publishedPorts = []
+    let entries = classify([], processes: [], containers: [container, unpublished])
+    #expect(entries.count == 1)
+    let entry = try #require(entries.first)
+    #expect(entry.primary == PortBinding(port: 8080, exposure: .network))
+    #expect(entry.extras == [PortBinding(port: 9000, exposure: .loopback)])
+    #expect(!entry.likelyHTTP)
+  }
+
   @Test func sharedSocketBelongsToTopmostAncestor() {
     let records = [process(200, parent: 1), process(201, parent: 200), process(202, parent: 200)]
     let shared = records.reversed().map {
