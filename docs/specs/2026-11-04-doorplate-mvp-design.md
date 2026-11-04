@@ -56,7 +56,7 @@ Doorplate는 메뉴바에 늘 떠 있으면서 다음을 한 번에 보여 준�
 
 1. **JVM을 제대로 다룬다.** Gradle·Kotlin 데몬 숨김, `gradle bootRun`과 `mvn spring-boot:run` 구분, `settings.gradle`과 `pom.xml` 기준의 프로젝트 이름.
 2. **프로세스당 한 행과 보조 포트 역할.** 디버거(5005), LiveReload(35729), Node inspector를 대표 포트 아래 하위 메뉴로 묶는다.
-3. **Compose 서비스 이름까지 보여 준다.** `shop · postgres`처럼 프로젝트와 서비스를 함께 표시한다.
+3. **Compose 서비스 이름까지 보여 준다.** 서비스 이름(`postgres`)을 제목으로, 컨테이너 이름(`shop-db`)을 옆에 표시한다.
 
 pid 재확인과 단계적 종료(SIGTERM → 확인 후 SIGKILL)는 Berth와 markoradak/portbar도 한다. 차별점이 아니라 갖춰야 할 기본 수준으로 본다.
 
@@ -198,11 +198,13 @@ docs/specs, docs/plans
 - TCP LISTEN 소켓만 모은다: `(pid, 포트, 바인드 주소, 소켓 식별자)`. 소켓 식별자는 libproc `socket_fdinfo.psi.soi_so`이다.
 - 같은 pid·포트의 IPv4·IPv6 중복은 하나로 합친다. `::`에 바인드한 소켓은 IPv4·IPv6 표시가 둘 다 켜져 있으므로 IPv6를 먼저 본다.
 - 바인드 주소로 노출 범위를 기록한다. `127.0.0.1`·`::1`은 이 기기만, `0.0.0.0`·`::`은 네트워크에 열림.
-- 관리자 권한 없이는 다른 사용자(root) 소유 프로세스의 소켓이 보이지 않을 수 있다. 개발 서버는 사용자 계정으로 실행되므로 받아들인다.
+- 관리자 권한 없이는 다른 사용자(root) 소유 프로세스의 소켓이 보이지 않는다. 14절 실험에서 `sudo lsof`에만 보인 LISTEN 소켓은 launchd(pid 1)의 8021 하나였다. 개발 서버는 사용자 계정으로 실행되므로 받아들인다.
 
 ### 7.2 프로세스별 묶기
 
 먼저 소켓 단위로 주인을 정한다. gunicorn, puma cluster, `uvicorn --reload`, Node cluster처럼 자식이 LISTEN 소켓을 물려받으면 같은 소켓 식별자가 여러 pid에 보인다. 이때는 그 소켓을 가진 프로세스 중 부모가 그 목록에 없는 가장 위 조상을 주인으로 정한다. 그런 프로세스가 여럿이면 pid가 가장 작은 것이다. worker를 종료하면 master가 다시 띄우므로, 행과 종료 대상은 주인이다.
+
+14절 실험에서 LISTEN 소켓을 연 프로세스가 fork하면 부모와 자식 pid에 같은 소켓 식별자가 보이는 것을 확인했다.
 
 그다음 주인 pid로 묶는다. 이후 **한 행 = 한 프로세스**다.
 
@@ -212,12 +214,13 @@ pid마다 이름, 실행 파일 경로, argv, cwd, 부모 pid, 부모의 argv, �
 
 ### 7.4 Docker 연결
 
-- 소켓 후보 경로를 차례로 시도한다: Docker Desktop(`~/.docker/run/docker.sock`), `/var/run/docker.sock`, OrbStack(`~/.orbstack/run/docker.sock`), Colima(`~/.colima/default/docker.sock`). 첫 단계 실험(14절)에서 실제 경로를 확인한다.
+- 소켓 후보 경로를 차례로 시도한다: Docker Desktop(`~/.docker/run/docker.sock`), `/var/run/docker.sock`, OrbStack(`~/.orbstack/run/docker.sock`), Colima(`~/.colima/default/docker.sock`). 14절 실험에서 Docker Desktop은 첫 후보로 접속되었다. OrbStack을 설치하면 `/var/run/docker.sock`이 `~/.orbstack/run/docker.sock`을 가리키는 심볼릭 링크가 되어 둘째 후보로 접속된다. 응답은 chunked 전송으로 온다.
 - 소켓 파일이 없거나 연결이 거부되면(ENOENT, ECONNREFUSED) 다음 후보로 넘어간다. 모두 그렇다면 "Docker 없음"이다. Docker를 끈 사용자에게 오류를 보이지 않기 위해서다. 1초 안에 응답이 없거나 API가 오류를 돌려주면 "응답 없음"이다.
-- 게시 포트의 노출 범위는 `Ports[].IP`로 정한다(`127.0.0.1`이면 이 기기만).
-- 정지(`POST /containers/{id}/stop?t=10`)는 컨테이너가 멈출 때까지 응답하지 않으므로 시간 제한을 15초로 따로 둔다.
+- 실험에서 Docker Desktop을 켠 적이 없을 때와 종료한 뒤에는 네 후보 모두 ENOENT였다(소켓 파일이 남지 않는다). OrbStack을 종료하면 `/var/run/docker.sock` 심볼릭 링크가 대상 없이 남는데, 연결이 ENOENT로 실패하므로 "응답 없음"이 아니라 "Docker 없음"으로 처리한다.
+- 게시 포트의 노출 범위는 `Ports[].IP`로 정한다(`127.0.0.1`이면 이 기기만). `0.0.0.0`과 `::`에 같은 호스트 포트가 두 번 나오므로(실험의 postgres) 하나로 합친다.
+- 정지(`POST /containers/{id}/stop?t=10`)는 컨테이너가 멈출 때까지 응답하지 않으므로 시간 제한을 15초로 따로 둔다. 실험에서는 Docker Desktop 0.17초, OrbStack 0.78초에 204로 끝났다.
 - 실행 중인 컨테이너의 **게시된 호스트 포트 집합**을 만든다. 이 집합에 속한 포트는 프로세스가 아니라 **컨테이너 행**으로 바꾼다. Docker 런타임 프로세스 이름에 기대지 않으므로 런타임 종류와 관계없이 동작한다.
-- 컨테이너 행의 제목은 `Compose 프로젝트 · 서비스`(`shop · postgres`)이다. Compose가 아니면 컨테이너 이름을 쓴다.
+- 컨테이너 행의 제목은 Compose 서비스 이름(`postgres`)이고, 오른쪽 열(`tool` 자리)에 컨테이너 이름(`shop-db`)을 둔다. Compose가 아니면 제목은 컨테이너 이름, 오른쪽 열은 이미지 짧은 이름(레지스트리 경로와 태그를 뺀 마지막 마디, `ghcr.io/org/redis:7` → `redis`)이다.
 - 소켓이 없으면 Docker 구역을 숨긴다. 소켓은 있는데 1초 안에 응답이 없으면 "Docker (응답 없음)" 행을 보여 주고 정지 동작을 끈다.
 
 ### 7.5 분류
@@ -240,14 +243,18 @@ pid마다 이름, 실행 파일 경로, argv, cwd, 부모 pid, 부모의 argv, �
 | 실행 파일 경로에 `.app/Contents/`가 있는 다른 앱 | 다른 앱(숨김, 종료 불가) | 앱 이름 |
 | 그 밖 | 앱 | 실행 파일 이름 |
 
+14절 실험에서 확인한 게시 포트의 주인 프로세스는 Docker Desktop이 `com.docker.backend`(`/Applications/Docker.app/Contents/MacOS/`), OrbStack이 `OrbStack Helper`(`/Applications/OrbStack.app/Contents/Frameworks/OrbStack Helper.app/Contents/MacOS/`)다. 실행 파일 경로의 가장 바깥 `.app` 이름(`Docker`, `OrbStack`)으로 판별하므로 둘 다 첫 규칙에 걸린다.
+
 **프로젝트 이름**: 시작 폴더에서 위로 올라가며(홈 폴더에서 멈춘다) **가장 가까운 표식**의 이름을 쓴다.
 
 - 시작 폴더: cwd. `java -jar`는 jar 파일이 있는 폴더.
 - 같은 폴더 안의 표식 우선순위: `package.json`의 `name` → `Cargo.toml`의 `[package] name` → `pyproject.toml`의 `[project] name` → `settings.gradle(.kts)`의 `rootProject.name` → `pom.xml`의 `artifactId` → `go.mod`의 module 마지막 마디 → `.git`이 있는 폴더 이름.
 - TOML과 Gradle 파일은 라이브러리 없이 이름 줄만 정규식으로 읽는다. `pom.xml`은 `XMLParser`로 읽는다. 해석에 실패하면 다음 표식으로 넘어간다.
 - 시작 폴더가 `/`이거나 홈 폴더이면 쓰지 않는다. 대체 순서: jar 파일 이름 → 실행 파일 이름 → 프로세스 이름.
-- 표식 폴더와 별도로 git 루트 경로를 기록한다. 하위 메뉴에서 표식 폴더와 다를 때만 "Repository" 줄로 보여 준다.
-- **폴더 접근 허락(TCC)**: `~/Documents`, `~/Desktop`, `~/Downloads`, iCloud Drive 안의 파일을 읽으면 macOS가 허락 창을 띄운다. 거부되었거나 아직 허락을 받지 못해 접근이 막히면(EPERM) 더 올라가지 않고, 시작 폴더 이름을 프로젝트 이름으로 쓴다. 허락 창의 설명 문구는 13.1절에 둔다.
+- 표식 폴더와 별도로 git 루트 경로를 기록한다. 메뉴에는 보여 주지 않는다(8.2절).
+- **폴더 접근 허락(TCC)**: `~/Documents`, `~/Desktop`, `~/Downloads`, iCloud Drive 안의 파일을 읽으면 macOS가 허락 창을 띄운다. 거부되었거나 아직 허락을 받지 못해 접근이 막히면(EPERM·EACCES) 더 올라가지 않고, 시작 폴더 이름을 프로젝트 이름으로 쓴다. 허락 창의 설명 문구는 13.1절에 둔다.
+  - 14절 실험에서 허락 창이 떠 있는 동안에는 파일 읽기가 응답 없이 멈췄다. 그래서 프로젝트 파일은 메인 스레드에서 읽지 않는다.
+  - 거부하면 이후 읽기는 바로 EPERM·EACCES로 실패한다. libproc로 읽는 cwd와 argv는 거부와 관계없이 읽히므로 시작 폴더 이름으로 대체할 수 있다.
 
 **대표 포트와 보조 포트**
 
@@ -285,26 +292,32 @@ struct ServerEntry: Sendable, Equatable {
 
 ## 8. 메뉴
 
+사용자 시안을 따른다. 아래는 한국어 화면이다(영어는 `Running · 5`, `· 3d`처럼 `L10n`의 같은 키).
+
 ```
-Running · 5                                   (회색 머리글)
-● 3000  @repot/site                 vite ▸
-● 5173  @repot/desktop              vite ▸
-● 8080  shop-api · 3d               gradle ▸   (주황 점)
+실행 중 · 5                                   (회색 머리글)
+● 3000  @repot/site                    vite ▸
+● 5173  @repot/desktop                 vite ▸
+● 8080  shop-api · 3일째             gradle ▸   (`· 3일째`는 주황 글자)
 ──────────
-◌ 5000  AirPlay Receiver (macOS)           ▸
+◌ 5000  AirPlay 수신 (macOS)                ▸
 ──────────
 Docker
-● 5432  shop · postgres                    ▸
-● 6379  shop · redis                       ▸
+● 5432  postgres                    shop-db ▸
+● 6379  redis                    shop-redis ▸
 ──────────
-3 hidden                                   ▸
+숨김 3개                                    ▸
 ──────────
-Settings…                               ⌘,
-Quit Doorplate                          ⌘Q
+설정…                                    ⌘,
+Doorplate 종료                           ⌘Q
 ```
 
+- 머리글은 `실행 중 · N`이다. N은 메뉴바 숫자와 같다(7.6절).
+- 앱 행: 색 점, 포트, 프로젝트 제목, 오른쪽 끝에 도구 이름과 하위 메뉴 화살표.
+- 오래 켜진 행은 제목 뒤에 주황 글자로 `· 3일째`(영어 `· 3d`)를 붙인다.
+- Docker 행: 제목은 Compose 서비스 이름, 오른쪽 열은 컨테이너 이름이다. Compose가 아니면 제목은 컨테이너 이름, 오른쪽 열은 이미지 짧은 이름이다(7.4절).
 - 서버가 없으면 "No servers running" 한 줄.
-- 행의 도구 이름은 탭 정지가 있는 `attributedTitle`로 오른쪽에 맞춘다.
+- 행의 도구 이름과 Docker 행의 오른쪽 열은 탭 정지가 있는 `attributedTitle`로 오른쪽에 맞춘다.
 - 메뉴가 열린 상태에서 글자를 치면 해당 항목으로 이동한다(macOS 기본 동작).
 - "숨김" 하위 메뉴는 숨긴 항목을 정보로만 보여 준다.
 
@@ -312,8 +325,8 @@ Quit Doorplate                          ⌘Q
 
 macOS 메뉴에서 하위 메뉴가 달린 항목은 클릭해도 동작을 실행하지 않는다. 그래서 다음과 같이 한다.
 
-- 행에 마우스를 올리면 하위 메뉴가 열리고, 첫 항목이 가장 흔한 동작(HTTP면 "브라우저에서 열기", 아니면 "주소 복사")이다.
-- **⌥를 누르고 있으면** 행이 하위 메뉴 없는 "종료 · 5173 @repot/desktop" 대체 항목으로 바뀌고, 클릭하면 바로 종료한다. 대체 항목만 하위 메뉴가 없어도 되는지는 14절 실험으로 확인한다. 안 되면 ⌥ 종료를 빼고 하위 메뉴의 "종료"만 둔다.
+- 행에 마우스를 올리면 하위 메뉴가 열리고, 첫 동작 항목이 가장 흔한 동작(HTTP면 "브라우저에서 열기", 아니면 "주소 복사")이다.
+- **⌥를 누르고 있으면** 행이 하위 메뉴 없는 "종료 · 5173 @repot/desktop" 대체 항목으로 바뀌고, 클릭하면 바로 종료한다. 14절 실험에서 대체 항목만 하위 메뉴가 없어도 정상 동작했다: ⌥로 전환, 클릭으로 실행, ⌥를 떼면 원래 행과 하위 메뉴로 복귀, 키보드(↓, ⌥, Return), 메뉴가 열린 채 2초 타이머로 제목 갱신(열린 하위 메뉴도 유지).
 - `canTerminate`가 거짓인 행에는 ⌥ 대체 항목을 두지 않는다.
 
 ### 8.2 하위 메뉴
@@ -321,23 +334,23 @@ macOS 메뉴에서 하위 메뉴가 달린 항목은 클릭해도 동작을 실�
 프로세스 행:
 
 ```
-~/Documents/Repot/apps/desktop              (회색, 표식 폴더)
-vite · 40m · PID 48211 · This Mac only       (회색)
+네트워크에 열림                              (회색, 네트워크에 열린 포트일 때만)
 ──────────
-Open in Browser          localhost:5173
-Show in Finder
-Open in Terminal
-Copy Address
+브라우저에서 열기          localhost:5173
+Finder에서 보기
+터미널에서 열기
+주소 복사
 ──────────
-5005  Debugger                               (보조 포트, 클릭하면 주소 복사)
+5005  디버거                                 (보조 포트가 있을 때만, 클릭하면 주소 복사)
 ──────────
-Stop
+종료 (PID 48211)                             (빨간 글자)
 ```
 
-- `likelyHTTP`가 거짓이면 "Open in Browser"를 빼고 "Copy Address"를 맨 위에 둔다. `likelyHTTP`가 거짓인 경우: 포트 5432·3306·6379·27017·9092·11211, 또는 컨테이너 이미지 이름이 `postgres`·`mysql`·`mariadb`·`redis`·`mongo`·`kafka`·`memcached`로 시작할 때.
-- 네트워크에 열린 포트는 "Open to network"로 표시한다.
-- "Open in Terminal"은 설정의 터미널 앱(기본 Terminal)으로 표식 폴더를 연다.
-- 컨테이너 행: Compose 폴더 경로, 이미지, 실행 시간 → 열기·복사 → "Show Compose Folder in Finder" → "Stop Container".
+- 시안에 맞춰 회색 정보 줄(표식 폴더 경로, `도구 · 실행 시간 · PID · 노출`, Repository)은 두지 않는다. 도구는 행에, 오래 켜짐은 행의 주황 글자에, PID는 종료 항목에 있다.
+- 노출은 네트워크에 열린 포트일 때만 맨 위 회색 "네트워크에 열림" 줄로 보여 준다. 이 기기만이면 줄이 없다.
+- `likelyHTTP`가 거짓이면 "브라우저에서 열기"를 빼고 "주소 복사"를 맨 위에 둔다. `likelyHTTP`가 거짓인 경우: 포트 5432·3306·6379·27017·9092·11211, 또는 컨테이너 이미지 이름이 `postgres`·`mysql`·`mariadb`·`redis`·`mongo`·`kafka`·`memcached`로 시작할 때.
+- "터미널에서 열기"는 설정의 터미널 앱(기본 Terminal)으로 표식 폴더를 연다.
+- 컨테이너 행: ("네트워크에 열림" 줄) → 열기·복사 → "Compose 폴더를 Finder에서 보기" → "컨테이너 정지". Compose 폴더 경로, 이미지, 실행 시간 줄은 두지 않는다.
 - 시스템 행(AirPlay): "Turn off in System Settings > General > AirDrop & Handoff" 안내만 보여 준다.
 
 ## 9. 종료 흐름
@@ -408,6 +421,9 @@ Stop
 - Docker Compose: Docker Desktop, OrbStack 각각
 - AirPlay 5000, Gradle 데몬 숨김
 - 성공 기준(2절)의 메뉴 지연, 유휴 CPU, 메모리
+- 폴더 접근 허락(TCC): `~/Desktop`, `~/Downloads`, iCloud Drive 안의 프로젝트에서 폴더마다 허락 창이 한 번 뜨는지, 허락하면 프로젝트 이름이, 거부하면 폴더 이름이 나오는지(실험은 `~/Documents`만 확인했다)
+- `~/Downloads`에서 옮기지 않고 바로 실행했을 때: App Translocation으로 실행되는지, Sparkle 업데이트가 거부되는지, 13.1절 안내와 맞는지
+- Homebrew cask 설치와 업데이트: 설치한 앱에 격리 표시가 남는지, 첫 실행, `brew upgrade` 뒤와 Sparkle 업데이트 뒤의 실행
 
 ## 13. 배포
 
@@ -417,10 +433,11 @@ Apple Developer Program에 가입하지 않는다. Developer ID 서명과 공증
 
 - ad-hoc 서명(`codesign -s -`)으로 배포한다.
 - 다운로드한 앱은 Gatekeeper가 첫 실행을 막는다. macOS 15부터는 우클릭 → 열기로 우회할 수 없다. README와 릴리스 노트에 다음 절차를 적는다.
-  1. 앱을 한 번 연다(막힘).
-  2. 시스템 설정 > 개인정보 보호 및 보안에서 "그래도 열기"를 누른다.
-  3. 터미널에 익숙하면 `xattr -dr com.apple.quarantine /Applications/Doorplate.app`도 안내한다. 이 명령이 무엇을 하는지(다운로드 격리 표시 제거)도 함께 적는다.
-- **폴더 접근 허락(TCC)**: Info.plist에 `NSDocumentsFolderUsageDescription`, `NSDesktopFolderUsageDescription`, `NSDownloadsFolderUsageDescription`을 둔다. 문구는 "Doorplate reads project files such as package.json to show which project owns each port."이고, 한국어는 `ko.lproj/InfoPlist.strings`에 둔다. ad-hoc 서명 앱은 macOS가 빌드마다 바뀌는 해시로 앱을 구분하므로, 업데이트 뒤 허락을 다시 물을 가능성이 크다. 14절 실험으로 확인한다.
+  1. 처음 열기 전에 zip을 풀고 앱을 Finder로 `/Applications`에 옮긴다. 다운로드한 위치에서 실행되는 앱은 Sparkle이 "can't be updated if it's running from the location it was downloaded to"로 업데이트를 거부한다(14절 실험에서 App Translocation 상태로 확인).
+  2. 앱을 연다. 다음 창이 뜨며 막힌다. 제목 "'Doorplate.app'을(를) 열지 않음", 본문 "Apple은 'Doorplate.app'에 사용자의 Mac에 손상을 입히거나 사용자의 개인 정보에 침입할 수 있는 악성 코드가 없음을 확인할 수 없습니다.", 버튼 [휴지통으로 이동] [완료]. "완료"를 누른다("휴지통으로 이동"은 앱을 휴지통으로 옮긴다).
+  3. 시스템 설정 > 개인정보 보호 및 보안에서 "그래도 열기"를 누르고 암호나 Touch ID로 확인한 뒤, 다시 뜨는 창에서 "그래도 열기"를 누른다.
+  4. 터미널에 익숙하면 `xattr -dr com.apple.quarantine /Applications/Doorplate.app`도 안내한다. 이 명령이 무엇을 하는지(다운로드 격리 표시 제거)도 함께 적는다.
+- **폴더 접근 허락(TCC)**: Info.plist에 `NSDocumentsFolderUsageDescription`, `NSDesktopFolderUsageDescription`, `NSDownloadsFolderUsageDescription`을 둔다. 문구는 "Doorplate reads project files such as package.json to show which project owns each port."이고, 한국어는 `ko.lproj/InfoPlist.strings`에 둔다. ad-hoc 서명 앱은 macOS가 빌드마다 바뀌는 해시로 앱을 구분하므로, 업데이트하면 허락을 다시 묻는다(14절 실험에서 1.0 → 1.1 업데이트 뒤 확인). 보호 폴더마다 업데이트당 한 번이며, 릴리스 노트에 적는다.
 
 ### 13.2 배포 경로
 
@@ -429,9 +446,10 @@ Apple Developer Program에 가입하지 않는다. Developer ID 서명과 공증
 
 ### 13.3 업데이트
 
-- 기본안: Sparkle. EdDSA로 서명한 업데이트를 받는다. appcast는 GitHub Pages에 둔다.
-- ad-hoc 서명 앱에서 Sparkle이 업데이트를 받아 설치하고, 설치된 새 버전이 Gatekeeper에 막히지 않는지 14절 실험으로 확인한다.
-- 실패하면 대안: GitHub `releases/latest`를 하루 한 번 확인한다. 새 버전이 있으면 메뉴에 "Update Available: 0.2.0" 항목을 보여 주고, 누르면 릴리스 페이지를 연다. Homebrew 사용자는 `brew upgrade`를 쓴다.
+- Sparkle을 쓴다. EdDSA로 서명한 업데이트를 받는다. appcast는 GitHub Pages에 둔다. 버전은 2.10.1로 고정한다(실험에서 쓴 버전).
+- 14절 실험에서 실제 사용자 경로(브라우저 다운로드 → 압축 해제 → Finder로 `/Applications`에 옮김 → "그래도 열기")로 설치한 ad-hoc 서명 앱이 Sparkle로 새 버전을 받아 설치하고 다시 실행했다. App Translocation 없이 `/Applications`에서 실행되었고, 새 버전은 막히지 않았다(서명 adhoc, `codesign --verify --deep --strict` 통과, 격리 표시 없음).
+- 메뉴바 전용 앱(`LSUIElement`)이라 Sparkle이 "Background app automatically schedules for update checks but does not implement gentle reminders" 경고를 남긴다. `SPUStandardUserDriverDelegate`로 gentle reminders를 구현할지, 경고를 받아들일지는 계획 3에서 정한다.
+- 실험이 실패했을 때의 대안이었다(쓰지 않음): GitHub `releases/latest`를 하루 한 번 확인한다. 새 버전이 있으면 메뉴에 "Update Available: 0.2.0" 항목을 보여 주고, 누르면 릴리스 페이지를 연다. Homebrew 사용자는 `brew upgrade`를 쓴다.
 - Sparkle EdDSA 비밀 키는 로컬 키체인과 GitHub Secrets에만 둔다. 출력하거나 커밋하지 않는다. 공개 키만 `Info.plist`에 둔다.
 
 ### 13.4 릴리스 방식
@@ -455,21 +473,23 @@ Apple Developer Program에 가입하지 않는다. Developer ID 서명과 공증
 - 업데이트할 때마다 폴더 접근 허락이나 로그인 항목 승인을 다시 묻는 것이 실험(14절) 또는 실제 릴리스에서 확인됨
 - 공식 Homebrew cask 등록이 필요해짐
 
+셋째 조건(업데이트마다 폴더 접근 허락)은 14절 실험에서 충족되었다. 사용자는 2026-11-05에 가입하지 않기로 했다. 영향은 업데이트마다 보호 폴더당 허락 창 한 번이고, 거부해도 폴더 이름으로 대체된다(7.5절). 로그인 항목은 새 빌드로 바꾼 뒤에도 켜져 있어 승인을 다시 묻지 않았다.
+
 ## 14. 첫 단계 실험
 
-본 구현 전에 확인한다. 실험 코드는 버린다.
+본 구현 전에 확인한다. 실험 코드는 버린다. 결과(2026-11-05)는 `docs/spikes/01-feasibility.md`에 있다.
 
-| 확인할 것 | 통과 기준 | 실패하면 |
-|---|---|---|
-| ad-hoc 서명 GUI 앱(샌드박스 없음)에서 libproc로 같은 사용자 프로세스의 소켓·cwd·argv를 읽을 수 있는가 | 모두 읽힘 | 설계를 다시 본다(가장 큰 위험) |
-| 전체 조회 시간 | 프로세스 1,000개 기준 50ms 이하 | 주기를 늘리거나 메뉴 열 때만 조회 |
-| ⌥ 대체 항목만 하위 메뉴가 없어도 되는가 | 정상 동작 | 8.1절의 대안 |
-| root 소유 소켓이 보이는가 | 결과를 기록 | 7.1절 문구를 확정 |
-| GUI 앱에서 Docker 소켓 후보 경로로 접속되는가 | Docker Desktop 필수, OrbStack은 설치되어 있으면 | 설정에 소켓 경로 입력란 추가 |
-| `~/Documents` 안 프로젝트의 파일 읽기(TCC) | 허락 창이 한 번 뜨고, 허락 뒤 이름이 맞게 나온다. 업데이트 뒤 다시 묻는지 기록 | 거부되면 폴더 이름(7.5절). 업데이트마다 묻는다면 13.6절 조건 |
-| 공유 소켓(prefork 서버) | 같은 소켓 식별자가 여러 pid에 보인다 | 7.2절 규칙을 다시 본다 |
-| `/Applications`에 설치한 ad-hoc 서명 앱의 Sparkle 업데이트 | 격리 표시가 있는 첫 설치를 "그래도 열기"로 승인한 뒤 업데이트하면, 새 버전이 막힘 없이 실행된다. App Translocation 여부 기록 | 13.3절 대안 |
-| ad-hoc 서명 앱의 `SMAppService` 로그인 항목 | 재로그인 후 자동 실행. 새 빌드로 바꾼 뒤 상태 기록 | 로그인 항목 토글을 숨긴다 |
+| 확인할 것 | 통과 기준 | 실패하면 | 결과 |
+|---|---|---|---|
+| ad-hoc 서명 GUI 앱(샌드박스 없음)에서 libproc로 같은 사용자 프로세스의 소켓·cwd·argv를 읽을 수 있는가 | 모두 읽힘 | 설계를 다시 본다(가장 큰 위험) | 결과: 통과. 소켓·cwd·argv·시작 시각·uid 모두 읽힘. 관리자 권한 없는 `lsof`와 비교해 빠지거나 더 나온 사용자 포트 0개 |
+| 전체 조회 시간 | 프로세스 1,000개 기준 50ms 이하 | 주기를 늘리거나 메뉴 열 때만 조회 | 결과: 통과. 프로세스 1,137개 중앙값 17.38ms, p95 31.51ms(1,000개 기준 15.28ms / 27.71ms) |
+| ⌥ 대체 항목만 하위 메뉴가 없어도 되는가 | 정상 동작 | 8.1절의 대안 | 결과: 통과. 전환, 클릭, ⌥를 떼면 복귀, 키보드, 열린 메뉴 갱신 모두 정상(8.1절) |
+| root 소유 소켓이 보이는가 | 결과를 기록 | 7.1절 문구를 확정 | 결과: `sudo lsof`에만 보인 것은 launchd(pid 1)의 8021 하나. 7.1절 문구를 확정 |
+| GUI 앱에서 Docker 소켓 후보 경로로 접속되는가 | Docker Desktop 필수, OrbStack은 설치되어 있으면 | 설정에 소켓 경로 입력란 추가 | 결과: 통과. Docker Desktop은 `~/.docker/run/docker.sock`, OrbStack은 `/var/run/docker.sock` 심볼릭 링크로 접속. 꺼진 상태는 ENOENT(7.4절) |
+| `~/Documents` 안 프로젝트의 파일 읽기(TCC) | 허락 창이 한 번 뜨고, 허락 뒤 이름이 맞게 나온다. 업데이트 뒤 다시 묻는지 기록 | 거부되면 폴더 이름(7.5절). 업데이트마다 묻는다면 13.6절 조건 | 결과: 허락 창이 한 번 뜨고, 허락 뒤 이름이 맞음. 창이 떠 있는 동안 읽기가 멈춤. 거부하면 EPERM·EACCES로 폴더 이름. 업데이트(1.0 → 1.1) 뒤 다시 물음 → 13.6절 조건 충족 |
+| 공유 소켓(prefork 서버) | 같은 소켓 식별자가 여러 pid에 보인다 | 7.2절 규칙을 다시 본다 | 결과: 통과. fork한 listener의 부모·자식 pid에 같은 소켓 식별자 |
+| `/Applications`에 설치한 ad-hoc 서명 앱의 Sparkle 업데이트 | 격리 표시가 있는 첫 설치를 "그래도 열기"로 승인한 뒤 업데이트하면, 새 버전이 막힘 없이 실행된다. App Translocation 여부 기록 | 13.3절 대안 | 결과: 통과(Sparkle 2.10.1). 실제 사용자 경로로 설치하면 App Translocation 없이 `/Applications`에서 실행되고 업데이트 뒤에도 막히지 않음. 격리 표시를 손으로 쓴 설치는 Translocation이 남아 업데이트가 거부됨(13.1절) |
+| ad-hoc 서명 앱의 `SMAppService` 로그인 항목 | 재로그인 후 자동 실행. 새 빌드로 바꾼 뒤 상태 기록 | 로그인 항목 토글을 숨긴다 | 결과: 통과. 재로그인 후 자동 실행, 새 빌드로 바꾼 뒤에도 켜짐, 승인 요청 없음 |
 
 ## 15. 이후 (MVP 밖)
 
@@ -491,3 +511,6 @@ Apple Developer Program에 가입하지 않는다. Developer ID 서명과 공증
 | Core 패키지 분리 | 6절 |
 | 이름 Doorplate | 비슷한 앱이 많은 분야라 `Port*` 이름 사이에서 구별되는 것을 우선했다. 뜻은 한 줄 소개로 보완한다 |
 | Developer Program 미가입 | 사용자 결정. 대상이 개발자라 첫 실행 절차를 감당할 수 있다고 본다. 재검토 조건은 13.6절 |
+| Sparkle 유지 | 14절 실험에서 ad-hoc 서명 앱의 업데이트가 실제 사용자 경로로 통과했다(13.3절) |
+| Developer Program 미가입 유지(2026-11-05) | 업데이트마다 폴더 접근을 다시 묻는 13.6절 조건이 충족되었지만, 영향이 업데이트마다 보호 폴더당 한 번이고 거부해도 폴더 이름으로 대체되어 사용자가 가입하지 않기로 했다 |
+| 메뉴는 사용자 시안을 따른다 | Docker 행은 서비스 이름 제목과 컨테이너 이름 오른쪽 열, 오래 켜짐은 주황 글자, 하위 메뉴의 정보 줄을 빼고 PID는 종료 항목에 둔다(8절) |
