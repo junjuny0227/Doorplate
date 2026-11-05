@@ -1,0 +1,45 @@
+{
+  "currentUID": 501,
+  "denied": [],
+  "docker": {
+    "status": "absent"
+  },
+  "files": {
+    "/Users/dev/coupin-plus/.git": "",
+    "/Users/dev/coupin-plus/package.json": "{\"name\":\"@coupin/on-web\"}"
+  },
+  "home": "/Users/dev",
+  "listeners": [
+    {
+      "address": "127.0.0.1",
+      "pid": 130,
+      "port": 5037
+    }
+  ],
+  "now": "2026-11-04T06:00:00Z",
+  "processes": [
+    {
+      "arguments": [
+        "adb",
+        "-L",
+        "tcp:5037",
+        "fork-server",
+        "server",
+        "--reply-fd",
+        "4"
+      ],
+      "cwd": "/Users/dev/coupin-plus",
+      "executablePath": "/Users/dev/Library/Android/sdk/platform-tools/adb",
+      "name": "adb",
+      "parentPID": 1,
+      "pid": 130,
+      "startedAt": "2026-11-04T05:20:00Z",
+      "uid": 501
+    }
+  ],
+  "settings": {
+    "longRunningThreshold": 86400,
+    "showDevTools": false,
+    "showOtherApps": false
+  }
+}

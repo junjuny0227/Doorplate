@@ -6,7 +6,7 @@ import Testing
   static let names = [
     "node-monorepo-vite", "next-dev", "spring-gradle", "spring-maven",
     "java-jar-outside-project", "cargo-run", "python-django-uvicorn", "rails-puma",
-    "docker-compose", "macos-noise", "gunicorn-prefork", "documents-denied",
+    "docker-compose", "macos-noise", "gunicorn-prefork", "documents-denied", "adb-server",
   ]
 
   @Test(arguments: names)

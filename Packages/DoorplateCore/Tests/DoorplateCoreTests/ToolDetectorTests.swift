@@ -58,7 +58,8 @@ private func detect(_ p: ProcessRecord, parent: ProcessRecord? = nil, ports: [UI
 }
 @Test func adbLookalikeIsNotDeveloperTool() {
   #expect(
-    detect(proc("adb-helper", path: "/Users/dev/bin/adb-helper", args: ["adb-helper"]), ports: [5037])
+    detect(
+      proc("adb-helper", path: "/Users/dev/bin/adb-helper", args: ["adb-helper"]), ports: [5037])
       == ToolMatch(tool: "adb-helper", section: .app, title: nil))
 }
 @Test func adbArgumentDoesNotHideNodeServer() {

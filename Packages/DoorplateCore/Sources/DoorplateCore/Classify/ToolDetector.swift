@@ -12,9 +12,11 @@ public struct ToolMatch: Sendable, Equatable {
 }
 
 public enum ToolDetector {
-  private enum Rule { case runtime, node, java, cargo, python, ruby, ide, airplay, other, fallback }
+  private enum Rule {
+    case runtime, node, java, adb, cargo, python, ruby, ide, airplay, other, fallback
+  }
   private static let rules: [Rule] = [
-    .runtime, .node, .java, .cargo, .python, .ruby, .ide, .airplay, .other, .fallback,
+    .runtime, .node, .java, .adb, .cargo, .python, .ruby, .ide, .airplay, .other, .fallback,
   ]
   private static let frameworks = ["vite", "next", "nuxt", "astro", "remix", "webpack"]
   private static let ides = [
@@ -78,6 +80,8 @@ public enum ToolDetector {
           }
           return match("java", .app)
         }
+      case .adb:
+        if executable == "adb" { return match("adb", .hidden(.devTool), "adb") }
       case .cargo:
         if (parent?.arguments ?? []).contains("cargo") && (parent?.arguments ?? []).contains("run")
           || path.contains("/target/debug/") || path.contains("/target/release/")
