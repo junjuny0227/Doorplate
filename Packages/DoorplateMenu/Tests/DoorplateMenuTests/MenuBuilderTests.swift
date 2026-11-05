@@ -129,6 +129,13 @@ import Testing
     #expect(try submenu().items.last?.isEnabled == false)
     #expect(try submenu().items.last?.attributedTitle == nil)
   }
+  @Test func shownOtherAppHasNoStopItem() throws {
+    populate(
+      outcome(apps: [entry(title: "Spotify", section: .hidden(.otherApp), canTerminate: false)]))
+    let items = try submenu().items
+    #expect(!items.contains { $0.title.hasPrefix("Stop") })
+    #expect(items.last?.isSeparatorItem == false)
+  }
   @Test func nonHTTPPutsCopyFirst() throws {
     populate(outcome(apps: [entry(likelyHTTP: false)]))
     #expect(try submenu().items.first?.title == "Copy Address")
