@@ -13,7 +13,7 @@
 "row.stopping" = "종료 중…";
 "sub.openInBrowser" = "브라우저에서 열기";
 "sub.showInFinder" = "Finder에서 보기";
-"sub.showComposeFolder" = "Finder에서 Compose 폴더 보기";
+"sub.showComposeFolder" = "Compose 폴더를 Finder에서 보기";
 "sub.openInTerminal" = "터미널에서 열기";
 "sub.copyAddress" = "주소 복사";
 "sub.stopWithPID" = "종료 (PID %d)";
@@ -35,13 +35,13 @@
 "alert.couldNotStop" = "%@을(를) 종료하지 못했습니다.";
 "alert.dockerFailed" = "컨테이너를 정지하지 못했습니다: %@";
 "alert.openFailed" = "%@을(를) 열지 못했습니다.";
-"firstLaunch.title" = "로그인할 때 Doorplate를 열까요?";
-"firstLaunch.yes" = "로그인 시 열기";
+"firstLaunch.title" = "로그인할 때 Doorplate를 실행할까요?";
+"firstLaunch.yes" = "로그인 시 실행";
 "firstLaunch.no" = "나중에";
 "settings.title" = "설정";
 "alert.loginFailed" = "로그인 항목을 변경하지 못했습니다: %@";
-"settings.openAtLogin" = "로그인 시 열기";
-"settings.longRunning" = "오래 켜진 서버 표시 기준";
+"settings.openAtLogin" = "로그인 시 실행";
+"settings.longRunning" = "오래 켜짐 기준";
 "settings.hours" = "%d시간";
 "settings.showDevTools" = "개발 도구 포트 표시";
 "settings.showOtherApps" = "다른 앱 포트 표시";
