@@ -1,10 +1,10 @@
 import Foundation
 
 public struct Classifier: Sendable {
-  private let resolver: ProjectResolver
+  private let resolver: any ProjectLookup
   private let currentUID: UInt32
 
-  public init(resolver: ProjectResolver, currentUID: UInt32) {
+  public init(resolver: any ProjectLookup, currentUID: UInt32) {
     self.resolver = resolver
     self.currentUID = currentUID
   }

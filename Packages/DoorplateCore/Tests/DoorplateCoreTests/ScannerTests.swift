@@ -76,6 +76,73 @@ import Testing
     #expect(result.snapshot.apps.map(\.tool) == ["gradle"])
   }
 
+  @Test(arguments: [false, true])
+  func blockedProjectLookupKeepsScansUpdating(blockRead: Bool) async throws {
+    let files = BlockingProjectProbe(blockRead: blockRead)
+    defer { files.release.signal() }
+    let source = FakeProcessSource(
+      listeners: [Listener(pid: 101, port: 8080, address: "::1")],
+      processes: [
+        ProcessRecord(
+          pid: 101, name: "node", executablePath: "/usr/bin/node",
+          cwd: "/Users/dev/shop", startedAt: now, uid: 501)
+      ])
+    let date = now
+    let scanner = Scanner(
+      processes: source, files: files, docker: FakeDockerSource(), currentUID: 501,
+      now: { date })
+    let clock = ContinuousClock()
+    let start = clock.now
+    let first = try #require(await scanner.scan(settings: SnapshotSettings()))
+    #expect(start.duration(to: clock.now) < .milliseconds(200))
+    #expect(first.snapshot.apps.map(\.title) == ["node"])
+    #expect(first.failedAt == nil)
+
+    // The pending lookup must not keep isScanning set or freeze old port rows.
+    source.listenerRecords = [Listener(pid: 101, port: 9090, address: "::1")]
+    let nextStart = clock.now
+    let next = try #require(await scanner.scan(settings: SnapshotSettings()))
+    #expect(nextStart.duration(to: clock.now) < .milliseconds(200))
+    #expect(next.snapshot.apps.map { $0.primary.port } == [9090])
+    #expect(next.snapshot.apps.map(\.title) == ["node"])
+    #expect(files.attempts == 1)
+
+    files.release.signal()
+    var titles: [String] = []
+    for _ in 0..<100 {
+      let result = try #require(await scanner.scan(settings: SnapshotSettings()))
+      titles = result.snapshot.apps.map(\.title)
+      if titles == ["shop-project"] { break }
+      try await Task.sleep(for: .milliseconds(5))
+    }
+    #expect(titles == ["shop-project"])
+  }
+
+  @Test func manyPendingDirectoriesShareOneWaitBudget() async throws {
+    let files = BlockingProjectProbe(blockRead: false)
+    defer { files.release.signal() }
+    let records = (101...130).map { pid in
+      ProcessRecord(
+        pid: Int32(pid), name: "node", executablePath: "/usr/bin/node",
+        cwd: pid == 101 ? "/Users/dev/shop" : "/Users/dev/z-project-\(pid)")
+    }
+    let source = FakeProcessSource(
+      listeners: records.map { Listener(pid: $0.pid, port: UInt16($0.pid), address: "::1") },
+      processes: records)
+    let scanner = Scanner(
+      processes: source, files: files, docker: FakeDockerSource(), currentUID: 501,
+      now: { Date() })
+    let clock = ContinuousClock()
+    let start = clock.now
+    let result = try #require(await scanner.scan(settings: SnapshotSettings()))
+    #expect(start.duration(to: clock.now) < .milliseconds(200))
+    #expect(result.snapshot.apps.count == 30)
+    #expect(result.snapshot.apps.allSatisfy { $0.title == "node" })
+    source.listenerRecords = []
+    let empty = try #require(await scanner.scan(settings: SnapshotSettings()))
+    #expect(empty.snapshot.apps.isEmpty)
+  }
+
   private func makeScanner(
     processes: any ProcessSource = FakeProcessSource(),
     docker: any DockerSource = FakeDockerSource()
@@ -84,6 +151,34 @@ import Testing
     return Scanner(
       processes: processes, files: FakeFileProbe(), docker: docker, currentUID: 501,
       now: { date })
+  }
+}
+
+private final class BlockingProjectProbe: FileProbe, @unchecked Sendable {
+  let homeDirectory = "/Users/dev"
+  let release = DispatchSemaphore(value: 0)
+  private let lock = NSLock()
+  private let blockRead: Bool
+  private var count = 0
+  var attempts: Int { lock.withLock { count } }
+
+  init(blockRead: Bool) { self.blockRead = blockRead }
+
+  func presence(_ path: String) -> FilePresence {
+    guard path == "/Users/dev/shop/package.json" else { return .absent }
+    lock.withLock { count += 1 }
+    if !blockRead { waitForAnswer() }
+    return .present
+  }
+
+  func read(_ path: String) -> String? {
+    if blockRead { waitForAnswer() }
+    return "{\"name\":\"shop-project\"}"
+  }
+
+  private func waitForAnswer() {
+    // A finite safety timeout also makes the unfixed implementation fail, not hang.
+    _ = release.wait(timeout: .now() + 1)
   }
 }
 
