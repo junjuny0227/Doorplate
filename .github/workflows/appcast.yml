@@ -1,0 +1,99 @@
+name: Publish appcast
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+  # GITHUB_TOKEN pushes do not start branch-based Pages builds.
+  pages: write
+
+concurrency:
+  group: appcast-gh-pages
+  cancel-in-progress: false
+
+jobs:
+  appcast:
+    runs-on: macos-latest
+    defaults:
+      run:
+        shell: bash
+    env:
+      GH_TOKEN: ${{ github.token }}
+      RELEASE_TAG: ${{ github.event.release.tag_name }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.release.tag_name }}
+      - name: Download release and Sparkle 2.10.1
+        run: |
+          set -euo pipefail
+          VERSION="${RELEASE_TAG#v}"
+          WORK_DIR="$(mktemp -d "${RUNNER_TEMP}/doorplate-appcast.XXXXXX")"
+          printf 'WORK_DIR=%s\nVERSION=%s\n' "$WORK_DIR" "$VERSION" >> "$GITHUB_ENV"
+          gh release download "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" \
+            --pattern "Doorplate-${VERSION}.zip" --dir "$WORK_DIR"
+          curl --fail --location --retry 3 \
+            "https://github.com/sparkle-project/Sparkle/releases/download/2.10.1/Sparkle-2.10.1.tar.xz" \
+            --output "${WORK_DIR}/Sparkle-2.10.1.tar.xz"
+          mkdir -p "${WORK_DIR}/sparkle" "${WORK_DIR}/unpacked"
+          tar -xJf "${WORK_DIR}/Sparkle-2.10.1.tar.xz" -C "${WORK_DIR}/sparkle" "bin/sign_update"
+          ditto -x -k "${WORK_DIR}/Doorplate-${VERSION}.zip" "${WORK_DIR}/unpacked"
+          BUILD="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' \
+            "${WORK_DIR}/unpacked/Doorplate.app/Contents/Info.plist")"
+          printf 'BUILD=%s\n' "$BUILD" >> "$GITHUB_ENV"
+      - name: Sign archive and immediately remove private key
+        env:
+          SPARKLE_ED_PRIVATE_KEY: ${{ secrets.SPARKLE_ED_PRIVATE_KEY }}
+        run: |
+          set -euo pipefail
+          umask 077
+          KEY_FILE="$(mktemp "${RUNNER_TEMP}/sparkle-key.XXXXXX")"
+          trap 'rm -f "$KEY_FILE"' EXIT
+          test -n "$SPARKLE_ED_PRIVATE_KEY"
+          printf '%s' "$SPARKLE_ED_PRIVATE_KEY" > "$KEY_FILE"
+          unset SPARKLE_ED_PRIVATE_KEY
+          SIGN_OUTPUT="$("${WORK_DIR}/sparkle/bin/sign_update" \
+            --ed-key-file "$KEY_FILE" "${WORK_DIR}/Doorplate-${VERSION}.zip")"
+          rm -f "$KEY_FILE"
+          trap - EXIT
+          printf '%s' "$SIGN_OUTPUT" > "${WORK_DIR}/sign-output.txt"
+      - name: Update gh-pages feed
+        run: |
+          set -euo pipefail
+          PAGES_DIR="${WORK_DIR}/pages"
+          if git ls-remote --exit-code --heads origin "refs/heads/gh-pages"; then
+            git fetch origin "refs/heads/gh-pages:refs/remotes/origin/gh-pages"
+            git worktree add -B gh-pages "$PAGES_DIR" "refs/remotes/origin/gh-pages"
+          else
+            status="$?"
+            # Exit 2 means no matching branch; transport/auth failures must fail.
+            test "$status" -eq 2
+            git worktree add --detach "$PAGES_DIR" HEAD
+            git -C "$PAGES_DIR" switch --orphan gh-pages
+          fi
+          SIGN_OUTPUT="$(< "${WORK_DIR}/sign-output.txt")"
+          URL="https://github.com/${GITHUB_REPOSITORY}/releases/download/${RELEASE_TAG}/Doorplate-${VERSION}.zip"
+          swift run --package-path "Packages/ReleaseTools" appcast add \
+            --file "${PAGES_DIR}/appcast.xml" --version "$VERSION" --build "$BUILD" \
+            --url "$URL" --sign-output "$SIGN_OUTPUT"
+          git -C "$PAGES_DIR" config user.name 'github-actions[bot]'
+          git -C "$PAGES_DIR" config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git -C "$PAGES_DIR" add -- "appcast.xml"
+          if ! git -C "$PAGES_DIR" diff --cached --quiet; then
+            git -C "$PAGES_DIR" commit -m "Update appcast for ${RELEASE_TAG}"
+            git -C "$PAGES_DIR" push origin "HEAD:refs/heads/gh-pages"
+          fi
+      - name: Request Pages build (requires user Pages setup)
+        run: |
+          set -euo pipefail
+          gh api --method POST "repos/${GITHUB_REPOSITORY}/pages/builds"
+      - name: Clean temporary artifacts
+        if: ${{ always() }}
+        run: |
+          set -euo pipefail
+          if [[ -n "${WORK_DIR:-}" ]]; then
+            git worktree remove --force "${WORK_DIR}/pages" || true
+            rm -rf "$WORK_DIR"
+          fi
