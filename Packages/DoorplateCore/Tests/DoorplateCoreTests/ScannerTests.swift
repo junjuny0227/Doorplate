@@ -76,6 +76,11 @@ import Testing
     #expect(result.snapshot.apps.map(\.tool) == ["gradle"])
   }
 
+  /// The probe stays blocked for the whole test, so a scan that waited on it would never return.
+  /// The bound only has to tell "returned after the 20 ms lookup budget" from "stuck"; it is
+  /// generous because shared CI runners took ~225 ms for a scan that is ~20 ms locally.
+  static let unblockedScanBound: Duration = .seconds(2)
+
   @Test(arguments: [false, true])
   func blockedProjectLookupKeepsScansUpdating(blockRead: Bool) async throws {
     let files = BlockingProjectProbe(blockRead: blockRead)
@@ -94,7 +99,7 @@ import Testing
     let clock = ContinuousClock()
     let start = clock.now
     let first = try #require(await scanner.scan(settings: SnapshotSettings()))
-    #expect(start.duration(to: clock.now) < .milliseconds(200))
+    #expect(start.duration(to: clock.now) < Self.unblockedScanBound)
     #expect(first.snapshot.apps.map(\.title) == ["node"])
     #expect(first.failedAt == nil)
 
@@ -102,7 +107,7 @@ import Testing
     source.listenerRecords = [Listener(pid: 101, port: 9090, address: "::1")]
     let nextStart = clock.now
     let next = try #require(await scanner.scan(settings: SnapshotSettings()))
-    #expect(nextStart.duration(to: clock.now) < .milliseconds(200))
+    #expect(nextStart.duration(to: clock.now) < Self.unblockedScanBound)
     #expect(next.snapshot.apps.map { $0.primary.port } == [9090])
     #expect(next.snapshot.apps.map(\.title) == ["node"])
     #expect(files.attempts == 1)
@@ -135,7 +140,7 @@ import Testing
     let clock = ContinuousClock()
     let start = clock.now
     let result = try #require(await scanner.scan(settings: SnapshotSettings()))
-    #expect(start.duration(to: clock.now) < .milliseconds(200))
+    #expect(start.duration(to: clock.now) < Self.unblockedScanBound)
     #expect(result.snapshot.apps.count == 30)
     #expect(result.snapshot.apps.allSatisfy { $0.title == "node" })
     source.listenerRecords = []
