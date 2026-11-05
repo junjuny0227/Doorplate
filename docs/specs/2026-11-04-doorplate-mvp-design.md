@@ -242,6 +242,7 @@ pid마다 이름, 실행 파일 경로, argv, cwd, 부모 pid, 부모의 argv, �
 | java + 부모가 Gradle 데몬 | 앱 | `gradle` |
 | java + 부모가 Maven 런처 | 앱 | `maven` |
 | java + `-jar <파일>` | 앱 | `java` |
+| 실행 파일 이름이 `adb`인 Android Debug Bridge 서버(cwd·argv·포트와 무관) | 개발 도구(숨김), 제목 `adb` | `adb` |
 | 부모가 `cargo run`, 또는 실행 파일 경로에 `target/debug`·`target/release` | 앱 | `cargo` |
 | python + `manage.py runserver`·`uvicorn`·`flask`·`gunicorn` | 앱 | `django`·`uvicorn`·`flask`·`gunicorn` |
 | ruby + `puma`·`rails` | 앱 | `rails` |

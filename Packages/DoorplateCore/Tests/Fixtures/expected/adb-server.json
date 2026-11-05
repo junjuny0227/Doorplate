@@ -1,0 +1,46 @@
+{
+  "apps" : [
+
+  ],
+  "badgeCount" : 0,
+  "docker" : [
+
+  ],
+  "dockerStatus" : "absent",
+  "hasLongRunning" : false,
+  "hidden" : [
+    {
+      "canTerminate" : true,
+      "directory" : "\/Users\/dev\/coupin-plus",
+      "extras" : [
+
+      ],
+      "id" : "pid:130",
+      "isLongRunning" : false,
+      "likelyHTTP" : true,
+      "primary" : {
+        "exposure" : "loopback",
+        "port" : 5037
+      },
+      "repositoryRoot" : "\/Users\/dev\/coupin-plus",
+      "section" : {
+        "hidden" : {
+          "_0" : "devTool"
+        }
+      },
+      "startedAt" : "2026-11-04T05:20:00Z",
+      "target" : {
+        "process" : {
+          "pid" : 130,
+          "startedAt" : "2026-11-04T05:20:00Z"
+        }
+      },
+      "title" : "adb",
+      "tool" : "adb"
+    }
+  ],
+  "scannedAt" : "2026-11-04T06:00:00Z",
+  "system" : [
+
+  ]
+}
