@@ -443,7 +443,7 @@ Finder에서 보기
 - 성공 기준(2절)의 메뉴 지연, 유휴 CPU, 메모리
 - 폴더 접근 허락(TCC): `~/Desktop`, `~/Downloads`, iCloud Drive 안의 프로젝트에서 폴더마다 허락 창이 한 번 뜨는지, 허락하면 프로젝트 이름이, 거부하면 폴더 이름이 나오는지(실험은 `~/Documents`만 확인했다)
 - `~/Downloads`에서 옮기지 않고 바로 실행했을 때: App Translocation으로 실행되는지, Sparkle 업데이트가 거부되는지, 13.1절 안내와 맞는지
-- Homebrew cask 설치와 업데이트: 설치한 앱에 격리 표시가 남는지, 첫 실행, `brew upgrade` 뒤와 Sparkle 업데이트 뒤의 실행
+- Homebrew cask 업데이트: `brew upgrade` 뒤와 Sparkle 업데이트 뒤의 실행(0.1.1 릴리스 때). 설치와 첫 실행은 0.1.0에서 확인했다(13.2절)
 
 ## 13. 배포
 
@@ -462,7 +462,8 @@ Apple Developer Program에 가입하지 않는다. Developer ID 서명과 공증
 ### 13.2 배포 경로
 
 - GitHub Releases: Universal 앱 zip(`ditto -c -k --keepParent`)과 SHA-256.
-- Homebrew: 자체 tap의 cask(`brew install --cask junjuny0227/tap/doorplate`). cask caveats에 13.1 절차를 적는다. 공식 cask는 서명·공증이 없어서 목표로 두지 않는다.
+- Homebrew: 자체 tap의 cask(`brew install --cask junjuny0227/tap/doorplate`). cask caveats에 13.1 절차를 적는다. 공식 cask는 서명·공증이 없어서 목표로 두지 않는다. tap 저장소 `junjuny0227/homebrew-tap`은 Repot formula와 함께 쓴다(`Casks/doorplate.rb`, `Formula/repot.rb`).
+- 0.1.0(2026-11-05) 첫 릴리스에서 확인: cask 설치본에도 격리 표시가 남아 13.1절 "열지 않음" 창으로 막히고, "그래도 열기"로 열린다. caveats가 출력된다. 브라우저로 받은 zip도 같다.
 
 ### 13.3 업데이트
 
