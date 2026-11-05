@@ -13,7 +13,11 @@ public struct ProjectInfo: Sendable, Equatable {
 
 public struct ProjectResolver: Sendable {
   private let files: any FileProbe
-  public init(files: any FileProbe) { self.files = files }
+  let homeDirectory: String
+  public init(files: any FileProbe) {
+    self.files = files
+    self.homeDirectory = files.homeDirectory
+  }
   public func resolve(startingAt directory: String) -> ProjectInfo? {
     let start = standardized(directory)
     let home = standardized(files.homeDirectory)
@@ -24,7 +28,7 @@ public struct ProjectResolver: Sendable {
         let path = join(current, file)
         let presence = files.presence(path)
         if presence == .denied {
-          return ProjectInfo(name: leaf(start), directory: start, repositoryRoot: nil)
+          return inaccessibleProject(startingAt: start)
         }
         guard presence == .present else { continue }
         if file == ".git" {
@@ -39,6 +43,14 @@ public struct ProjectResolver: Sendable {
     }
     return nil
   }
+  /// Shared fallback for denied access and protected lookups still awaiting permission.
+  /// This only derives a name from the path; it must never probe the filesystem.
+  func inaccessibleProject(startingAt directory: String) -> ProjectInfo? {
+    let start = standardized(directory)
+    guard start != "/", start != standardized(homeDirectory) else { return nil }
+    return ProjectInfo(name: leaf(start), directory: start, repositoryRoot: nil)
+  }
+
   public static func startDirectory(for process: ProcessRecord) -> String? {
     let args = process.arguments ?? []
     if let i = args.firstIndex(of: "-jar"), args.indices.contains(i + 1) {
