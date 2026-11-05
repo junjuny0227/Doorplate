@@ -443,7 +443,7 @@ Finder에서 보기
 - 성공 기준(2절)의 메뉴 지연, 유휴 CPU, 메모리
 - 폴더 접근 허락(TCC): `~/Desktop`, `~/Downloads`, iCloud Drive 안의 프로젝트에서 폴더마다 허락 창이 한 번 뜨는지, 허락하면 프로젝트 이름이, 거부하면 폴더 이름이 나오는지(실험은 `~/Documents`만 확인했다)
 - `~/Downloads`에서 옮기지 않고 바로 실행했을 때: App Translocation으로 실행되는지, Sparkle 업데이트가 거부되는지, 13.1절 안내와 맞는지
-- Homebrew cask 업데이트: `brew upgrade` 뒤와 Sparkle 업데이트 뒤의 실행(0.1.1 릴리스 때). 설치와 첫 실행은 0.1.0에서 확인했다(13.2절)
+- Homebrew cask 업데이트: 0.1.1에서 확인했다. cask 설치본도 Sparkle로 막힘 없이 업데이트되고, `auto_updates true` 때문에 `brew upgrade`는 `--greedy`일 때만 다시 설치한다. 다시 설치한 앱도 막힘 창 없이 열렸다(docs/checklists/release.md 7단계)
 
 ## 13. 배포
 
