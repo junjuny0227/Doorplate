@@ -11,6 +11,7 @@ permissions:
 jobs:
   core:
     runs-on: macos-latest
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
       - run: swift --version
@@ -20,12 +21,14 @@ jobs:
       - run: swift test --package-path Packages/DoorplateMenu
   release-tools:
     runs-on: macos-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - run: swift --version
       - run: swift test --package-path Packages/ReleaseTools
   app:
     runs-on: macos-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - run: brew install xcodegen

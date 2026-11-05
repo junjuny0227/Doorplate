@@ -2,7 +2,8 @@ import DoorplateCore
 import Foundation
 import Testing
 
-@Suite struct ScannerTests {
+// Name stalled scan/continuation tests before the CI job's hard timeout.
+@Suite(.timeLimit(.minutes(1))) struct ScannerTests {
   private let now = Date(timeIntervalSince1970: 1_793_772_000)
 
   @Test func secondScanWhileRunningReturnsNil() async throws {

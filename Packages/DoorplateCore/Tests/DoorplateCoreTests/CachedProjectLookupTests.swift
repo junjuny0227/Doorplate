@@ -3,7 +3,8 @@ import Testing
 
 @testable import DoorplateCore
 
-@Suite struct CachedProjectLookupTests {
+// Cache preparation bridges asynchronous tests to the blocking filesystem worker.
+@Suite(.timeLimit(.minutes(1))) struct CachedProjectLookupTests {
   private let directory = "/Users/dev/shop"
 
   @Test func fastLookupsResolveOnFirstScanAndShareDirectory() async throws {
