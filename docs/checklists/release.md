@@ -35,6 +35,8 @@ gh secret list -R junjuny0227/Doorplate
 
 ### 2. 첫 공개 후 Pages 설정
 
+> 0.1.0(2026-11-05) 실제 결과: 첫 appcast 실행이 `gh-pages`를 만들었고 `Request Pages build`도 성공으로 끝났다(Pages가 없을 때도 실패하지 않음). Pages는 `gh api --method POST repos/junjuny0227/Doorplate/pages -f "source[branch]=gh-pages" -f "source[path]=/"`로 설정했고, 1분 안에 appcast URL이 200을 돌려줬다. 다시 돌릴 필요는 없었다.
+
 첫 appcast 실행이 `gh-pages` 브랜치를 만든 뒤, 사용자가 GitHub 저장소 **Settings → Pages → Build and deployment → Source: Deploy from a branch → Branch: gh-pages → /(root) → Save**를 설정한다. 브랜치가 아직 없으면 선택할 수 없으므로 먼저 아래 첫 릴리스 공개 단계까지 진행한다.
 
 첫 실행의 `Request Pages build` 단계는 설정 전에는 실패할 수 있다. 브랜치 생성·appcast 커밋이 성공했는지 확인하고 Pages를 설정한 다음, Actions의 **Publish appcast → 해당 실행 → Re-run failed jobs**로 재시도한다. 태그나 릴리스를 다시 만들지 않는다. 이후에는 워크플로가 Pages 빌드를 명시적으로 요청한다. `GITHUB_TOKEN` push만으로는 Pages 빌드가 시작되지 않기 때문에 이 요청에만 필요한 `pages: write`를 `contents: write`와 함께 허용한다(그 외 권한 없음).
@@ -103,8 +105,9 @@ tap이 없다면 먼저 사용자가 `junjuny0227/homebrew-tap` 공개 저장소
 ```
 
 - [ ] 렌더링된 버전·zip URL·sha256을 공개 릴리스와 대조한다.
-- [ ] 사용자가 tap의 `Casks/doorplate.rb`만 commit/push한다.
+- [ ] 사용자가 tap의 `Casks/doorplate.rb`만 commit/push한다. tap 저장소는 Repot formula와 함께 쓰므로 `Formula/`는 건드리지 않는다. 첫 릴리스 전에는 `Casks/` 폴더가 없어 `update-cask.sh`가 거부하므로 `mkdir -p Casks`가 먼저 필요했다.
 - [ ] 사용자 승인 후 `brew install --cask junjuny0227/tap/doorplate`로 설치하고 `xattr -p com.apple.quarantine /Applications/Doorplate.app` 출력 여부, 그래도 열기 창 여부, 실행 결과를 기록한다. 결과에 따라 이 문서와 스펙 14절 Sparkle 행을 갱신한다. 미실행 상태를 통과로 적지 않는다.
+  - 0.1.0(2026-11-05) 결과: caveats 출력됨. cask 설치본에도 격리 표시가 남음(`0181;…`, 앱 이름 칸 비어 있음). 첫 실행이 13.1절의 "열지 않음" 창으로 막혔고, "완료" → 개인정보 보호 및 보안 "그래도 열기"로 열림. zip을 브라우저로 받아 연 경우도 같은 창이었다.
 
 ### 7. 이전 버전에서 업데이트 (다음 릴리스 때)
 
