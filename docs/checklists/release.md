@@ -19,11 +19,13 @@
     KEY_TOOL="build/SourcePackages/artifacts/sparkle/Sparkle/bin/generate_keys"
   fi
   test -x "$KEY_TOOL"
-  KEY_FILE="$(mktemp "${TMPDIR:?}/doorplate-secret.XXXXXX")"
-  trap 'rm -f "$KEY_FILE"' EXIT
+  # generate_keys -x refuses an existing file, so export into a new file in a private temp dir.
+  KEY_DIR="$(mktemp -d "${TMPDIR:?}/doorplate-secret.XXXXXX")"
+  KEY_FILE="$KEY_DIR/key"
+  trap 'rm -rf "$KEY_DIR"' EXIT
   "$KEY_TOOL" --account doorplate -x "$KEY_FILE"
   gh secret set SPARKLE_ED_PRIVATE_KEY -R junjuny0227/Doorplate < "$KEY_FILE"
-  rm -f "$KEY_FILE"
+  rm -rf "$KEY_DIR"
   trap - EXIT
 )
 gh secret list -R junjuny0227/Doorplate
