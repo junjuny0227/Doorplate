@@ -21,9 +21,10 @@
 | `swift run --package-path Packages/DoorplateCore doorplate-scan` (`--fixture`) | verified (exit 0, 2026-11-05) | 계획 2 Task 11 (실제 기기를 읽기만 함) |
 | `swift test --package-path Packages/DoorplateMenu` | verified (exit 0, 2026-11-05) | 계획 3 Task 1 |
 | `xcodegen generate && xcodebuild -project Doorplate.xcodeproj -scheme Doorplate -configuration Debug -derivedDataPath build CODE_SIGN_IDENTITY=- build` | verified (exit 0, 2026-11-05) | 계획 3 Task 3 |
-| `swift test --package-path Packages/ReleaseTools` | unverified | 계획 4 Task 3 (Sparkle을 쓸 때만) |
-| `scripts/build-release.sh v<버전>` | unverified | 계획 4 Task 1 |
-| `actionlint .github/workflows/*.yml` | unverified | 계획 4 Task 4 |
+| `swift test --package-path Packages/ReleaseTools` | verified (exit 0, 2026-11-05) | 계획 4 Task 3 (Sparkle을 쓸 때만) |
+| `scripts/build-release.sh v<버전>` | verified (exit 0, 2026-11-05) | 계획 4 Task 1 |
+| `actionlint .github/workflows/*.yml` | verified (exit 0, 2026-11-05) | 계획 4 Task 4 |
+| `scripts/make-icon.sh` | verified (exit 0, 2026-11-05) | 계획 4 Task 2 |
 
 - 실험 앱(`spikes/ProbeApp`)의 빌드·실행 명령은 계획 1 Task 1의 Interfaces에 있다. `spikes/`는 계획 1 마지막 Task에서 지운다.
 - XcodeGen은 `brew install xcodegen`으로 설치한다.
@@ -37,7 +38,7 @@
 |---|---|---|---|
 | `Packages/DoorplateCore/Tests/Fixtures/expected/*.json` | `Tests/Fixtures/scenarios/*.json`과 Core 판단 규칙 | `UPDATE_GOLDEN=1 swift test --package-path Packages/DoorplateCore --filter ScenarioTests` | `swift test`. diff를 읽고 의도한 변경인지 확인한 뒤 커밋한다 |
 | `Doorplate.xcodeproj` | `project.yml` | `xcodegen generate` | 빌드. 커밋하지 않는다 |
-| `App/Resources/Assets.xcassets/AppIcon.appiconset/` | `assets/AppIcon.svg` | `scripts/make-icon.sh` | 빌드 (계획 4 Task 2) |
+| `App/Resources/Assets.xcassets/AppIcon.appiconset/` | `assets/AppIcon.svg` | `scripts/make-icon.sh` (Xcode 도구만 씀: `scripts/render-icon.swift`) | 다시 실행해 `git status`에 변경이 없고, 빌드에 AppIcon 경고가 없다 (계획 4 Task 2) |
 | `appcast.xml` (`gh-pages` 브랜치) | 공개한 릴리스의 zip | `.github/workflows/appcast.yml` (`Packages/ReleaseTools`의 `appcast add`) | `AppcastTests`, 릴리스 체크리스트의 `curl` 확인 |
 | tap 저장소의 `Casks/doorplate.rb` | `packaging/homebrew/doorplate.rb.template`, 릴리스의 `.sha256` | `scripts/update-cask.sh <버전> <sha256 파일> <tap 폴더>` | `brew style` |
 | `docs/spikes/samples/*.json` | 실험 Task 4의 Docker 원본 응답 | 사용자 이름이 든 경로를 `/Users/dev`로 바꿔 복사 | 계획 2 Task 9의 Docker 테스트 |
@@ -59,6 +60,8 @@
 - 실험 계획이 스펙 14절과 다른 질문 수·번호를 쓴 채로 병합되어, 구현 전에 정합성 PR을 따로 내야 했다. 질문이나 절 번호를 문서에 쓸 때는 스펙의 표와 대조한다.
 - `gh`의 기본 계정이 이 저장소에 권한이 없는 계정이면 `gh pr create`가 `must be a collaborator`로 실패한다(PR 생성 1회 실패). 기본 계정을 바꾸지 말고 `GH_TOKEN=$(gh auth token --user junjuny0227) gh …`로 그 명령에만 토큰을 넘긴다.
 - CI(`macos-latest`)는 로컬보다 낮은 Swift(2026-11 기준 6.3.3)를 쓴다. 로컬에서 통과한 코드가 CI에서 컴파일되지 않아 main의 core 검사가 PR 20개 가까이 실패한 채 병합됐다. PR의 `core`·`app` 검사가 통과한 뒤에 병합한다.
+- AppKit(NSImage)의 SVG 렌더링은 `<filter>`와 `fill-opacity`를 무시하고, `qlmanage`는 SVG를 흰 불투명 배경으로 렌더링한다. `assets/AppIcon.svg`의 그림자는 `opacity`를 준 도형으로 그린다.
+- 작업자가 CI 검사를 기다리지 않고 "대기 중"으로 보고하고 끝낸 적이 있다(PR #55). PR을 넘겨받으면 `gh pr checks`로 통과를 직접 확인한 뒤 병합한다.
 
 ## 규칙
 
