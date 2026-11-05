@@ -52,6 +52,7 @@ private struct LoginQuestionView: View {
 @MainActor final class LoginItem: ObservableObject {
   @Published private(set) var isEnabled = false
   @Published private(set) var requiresApproval = false
+  private var questionWindowController: LoginQuestionWindowController?
 
   init() { refresh() }
 
@@ -84,13 +85,11 @@ private struct LoginQuestionView: View {
 
   func askOnFirstLaunch(settings: SettingsStore) {
     guard !settings.hasAskedOpenAtLogin else { return }
-    // Persist before presenting: a nested app event must not present a second question.
+    // Closing the window or quitting also counts as answering “Not Now”.
     settings.hasAskedOpenAtLogin = true
-    let alert = NSAlert()
-    alert.messageText = L10n.text(.firstLaunchTitle)
-    alert.addButton(withTitle: L10n.text(.firstLaunchYes))
-    alert.addButton(withTitle: L10n.text(.firstLaunchNo))
-    NSApp.activate(ignoringOtherApps: true)
-    if alert.runModal() == .alertFirstButtonReturn { setEnabled(true) }
+    questionWindowController = LoginQuestionWindowController { [weak self] in
+      self?.setEnabled(true)
+    }
+    questionWindowController?.open()
   }
 }
