@@ -3,7 +3,7 @@ options:
   deploymentTarget:
     macOS: "14.0"
   developmentLanguage: en
-  knownRegions: [en, ko]
+  knownRegions: [en, ko, ja, zh-Hans]
 packages:
   DoorplateCore:
     path: Packages/DoorplateCore

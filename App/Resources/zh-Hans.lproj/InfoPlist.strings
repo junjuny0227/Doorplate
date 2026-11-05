@@ -1,0 +1,3 @@
+"NSDocumentsFolderUsageDescription" = "Doorplate读取package.json等项目文件，以显示每个端口所属的项目。";
+"NSDesktopFolderUsageDescription" = "Doorplate读取package.json等项目文件，以显示每个端口所属的项目。";
+"NSDownloadsFolderUsageDescription" = "Doorplate读取package.json等项目文件，以显示每个端口所属的项目。";
