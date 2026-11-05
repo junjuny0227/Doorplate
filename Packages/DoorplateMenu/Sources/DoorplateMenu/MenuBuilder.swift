@@ -231,6 +231,8 @@ private final class CommandBox {
             command: .copy("localhost:\(extra.port)")))
       }
     }
+    // Spec 3: other apps and runtimes stay unstoppable even when shown, so they get no stop item.
+    if entry.section == .hidden(.otherApp) { return menu }
     separator(menu, id: "stop.separator")
     let stopTitle: String
     switch entry.target {
