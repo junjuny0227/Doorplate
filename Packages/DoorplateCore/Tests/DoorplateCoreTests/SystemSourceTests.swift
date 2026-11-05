@@ -119,6 +119,11 @@ struct SystemSourceTests {
     #expect(probe.presence(directory.appendingPathComponent("missing").path) == .absent)
     #expect(probe.read(directory.appendingPathComponent("missing").path) == nil)
     #expect(probe.presence(file.appendingPathComponent("child").path) == .absent)
+    // TCC shape: stat succeeds but open is refused.
+    try #require(chmod(file.path, 0) == 0)
+    #expect(probe.presence(file.path) == .denied)
+    #expect(probe.read(file.path) == nil)
+    try #require(chmod(file.path, 0o600) == 0)
     try #require(chmod(directory.path, 0) == 0)
     defer { _ = chmod(directory.path, 0o700) }
     #expect(probe.presence(file.path) == .denied)
