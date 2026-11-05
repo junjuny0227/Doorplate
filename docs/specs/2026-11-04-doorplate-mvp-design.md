@@ -174,8 +174,11 @@ Packages/DoorplateMenu/       AppKit 허용, 메뉴 코드·문구·표시 규�
   Sources/DoorplateMenu/Resources/en.lproj/Localizable.strings
   Sources/DoorplateMenu/Resources/ko.lproj/Localizable.strings
   Tests/DoorplateMenuTests/   swift test로 메뉴·문구 검증
+Packages/ReleaseTools/       Sparkle appcast 생성 도구·테스트 (Sparkle을 쓸 때만)
 App/                         AppDelegate, StatusItemController, ActionPerformer, Settings/
 App/Resources/               Info.plist (LSUIElement), ko.lproj/InfoPlist.strings
+scripts/                     빌드·버전 검사·아이콘 생성·cask 갱신 스크립트
+packaging/homebrew/          Homebrew cask 템플릿
 docs/specs, docs/plans
 .github/workflows/
 ```
