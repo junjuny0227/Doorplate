@@ -14,7 +14,7 @@ Doorplate는 열려 있는 포트마다 어느 프로젝트의 서버인지 보�
 [![CI](https://github.com/junjuny0227/Doorplate/actions/workflows/ci.yml/badge.svg)](https://github.com/junjuny0227/Doorplate/actions/workflows/ci.yml)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 
-[**다운로드**](https://github.com/junjuny0227/Doorplate/releases/latest) · [English](README.md) · [Homebrew](#설치) · [설계 문서](docs/specs/2026-11-04-doorplate-mvp-design.md)
+[**다운로드**](https://github.com/junjuny0227/Doorplate/releases/latest) · [English](README.md) · [日本語](README.ja.md) · [简体中文](README.zh-Hans.md) · [Homebrew](#설치) · [설계 문서](docs/specs/2026-11-04-doorplate-mvp-design.md)
 
 <img src="docs/images/menu.png" width="440" alt="Doorplate 메뉴: 프로젝트 이름과 오른쪽의 도구 이름으로 표시된 앱 서버, macOS 서비스 행, Compose 서비스와 컨테이너 이름을 보여 주는 Docker 구역.">
 
@@ -41,7 +41,7 @@ Doorplate는 열려 있는 포트마다 어느 프로젝트의 서버인지 보�
 - **실시간으로 바뀝니다.** 메뉴를 연 채로도 목록이 갱신되고, 오래 켜진 서버는 주황
   글자(`· 3일째`)로 표시합니다.
 - **스스로 업데이트합니다.** 서명된 업데이트를 받습니다(Sparkle).
-- **한국어와 영어**를 지원합니다.
+- **영어, 한국어, 일본어, 중국어(간체)**를 지원합니다.
 
 ## 자세히 보기
 
