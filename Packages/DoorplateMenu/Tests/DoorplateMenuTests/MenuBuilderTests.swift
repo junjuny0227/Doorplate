@@ -106,6 +106,7 @@ import Testing
     #expect(try submenu().items.last === originalStop)
     #expect(original.title.contains("changed"))
     #expect(!originalStop.isEnabled)
+    #expect(originalStop.attributedTitle == nil)
     builder.refresh(
       menu, outcome: outcome(apps: [entry(), entry(id: "pid:102")]), state: MenuState())
     #expect(try row() !== original)
@@ -126,6 +127,7 @@ import Testing
     #expect(try row().title.contains("Stopping…"))
     #expect(!menu.items.contains(where: { $0.isAlternate }))
     #expect(try submenu().items.last?.isEnabled == false)
+    #expect(try submenu().items.last?.attributedTitle == nil)
   }
   @Test func nonHTTPPutsCopyFirst() throws {
     populate(outcome(apps: [entry(likelyHTTP: false)]))

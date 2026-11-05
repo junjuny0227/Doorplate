@@ -239,7 +239,9 @@ private final class CommandBox {
     }
     let stop = item(stopTitle, id: "stop", command: .stop(ref(entry)))
     stop.isEnabled = entry.canTerminate && !stopping && !dockerUnavailable
-    if !docker {
+    // A red attributed title only fades to pink when disabled, so keep the plain title then and
+    // let AppKit draw the standard gray disabled text.
+    if !docker && stop.isEnabled {
       stop.attributedTitle = NSAttributedString(
         string: stopTitle,
         attributes: [.foregroundColor: NSColor.systemRed, .font: NSFont.menuFont(ofSize: 0)])
