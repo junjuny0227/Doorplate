@@ -27,7 +27,7 @@
 | 시나리오 | 기대 제목·도구 | 결과 | 날짜 |
 |---|---|---|---|
 | Docker Compose: Docker Desktop | 제목은 Compose 서비스 이름(`postgres`), 오른쪽 열은 컨테이너 이름(`shop-db`). Docker 런타임 행은 숨김. "컨테이너 정지"가 API로 정지 | 미확인(사용자 점검) | |
-| Docker Compose: OrbStack | 위와 같음. 런타임 `OrbStack`은 숨김 | 미확인(사용자 점검) | |
+| Docker Compose: OrbStack | 위와 같음. 런타임 `OrbStack`은 숨김 | 통과(메뉴, 0.1.0): Docker 구역에 `8088 web` · `shop-web`, OrbStack 행 없음. 하위 메뉴는 열기·복사·Compose 폴더·컨테이너 정지(정보 줄 없음). Compose 폴더 항목은 Finder에서 폴더를 선택해 보여 줌. 컨테이너 정지 후 행이 사라지고 컨테이너는 `Exited (0)`, OrbStack은 계속 실행 | 2026-11-05 |
 
 ## 시스템·숨김
 
