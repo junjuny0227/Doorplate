@@ -43,6 +43,29 @@ private func detect(_ p: ProcessRecord, parent: ProcessRecord? = nil, ports: [UI
         args: ["java", "org.jetbrains.kotlin.daemon.KotlinCompileDaemon"])
     ).tool == "kotlin daemon")
 }
+@Test func adbServerHidden() {
+  #expect(
+    detect(
+      proc(
+        "adb", path: "/Users/dev/Library/Android/sdk/platform-tools/adb",
+        args: ["adb", "-L", "tcp:5037", "fork-server", "server", "--reply-fd", "4"]),
+      ports: [5037]) == ToolMatch(tool: "adb", section: .hidden(.devTool), title: "adb"))
+}
+@Test func adbWithoutArgumentsHidden() {
+  #expect(
+    detect(ProcessRecord(pid: 1, name: "adb"), ports: [5037])
+      == ToolMatch(tool: "adb", section: .hidden(.devTool), title: "adb"))
+}
+@Test func adbLookalikeIsNotDeveloperTool() {
+  #expect(
+    detect(proc("adb-helper", path: "/Users/dev/bin/adb-helper", args: ["adb-helper"]), ports: [5037])
+      == ToolMatch(tool: "adb-helper", section: .app, title: nil))
+}
+@Test func adbArgumentDoesNotHideNodeServer() {
+  #expect(
+    detect(proc("node", path: "/opt/homebrew/bin/node", args: ["node", "adb"]), ports: [5037])
+      == ToolMatch(tool: "node", section: .app, title: nil))
+}
 @Test func gradleBootRunChild() {
   #expect(
     detect(
