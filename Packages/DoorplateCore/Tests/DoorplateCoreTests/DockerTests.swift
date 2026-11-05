@@ -4,7 +4,8 @@ import Testing
 
 @testable import DoorplateCore
 
-struct DockerTests {
+// Socket fixtures block Dispatch workers and wait for them during teardown.
+@Suite(.timeLimit(.minutes(1))) struct DockerTests {
   private final class InspectGate: @unchecked Sendable {
     private let condition = NSCondition()
     private var arrivals = 0

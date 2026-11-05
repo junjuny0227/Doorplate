@@ -3,7 +3,8 @@ import DoorplateCore
 import Foundation
 import Testing
 
-struct TerminatorTests {
+// Real child-process tests include blocking handshakes and waitUntilExit calls.
+@Suite(.timeLimit(.minutes(1))) struct TerminatorTests {
   private let started = Date(timeIntervalSince1970: 1_000)
   private let pid: Int32 = 101
 
