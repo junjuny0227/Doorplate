@@ -67,6 +67,6 @@
 
 - 브랜치는 계획마다 정해져 있다: `spike/feasibility`, `feat/core`, `feat/app`, `ci/release`. 문서만 고칠 때는 `docs/<주제>`다.
 - 커밋 메시지는 영어 Conventional Commits다(`feat(core): …`, `docs: …`). 각 계획 Task의 마지막 단계에 메시지가 적혀 있다.
-- 문서(`docs/`)는 한국어, README는 영어(`README.md`)와 한국어(`README.ko.md`)다. 앱 문구는 `DoorplateMenu`의 `L10n`을 거치고, `en.lproj`와 `ko.lproj`에 같은 키를 둔다.
+- 문서(`docs/`)는 한국어, README는 영어(`README.md`), 한국어(`README.ko.md`), 일본어(`README.ja.md`), 중국어(간체, `README.zh-Hans.md`)다. 앱 문구는 `DoorplateMenu`의 `L10n`을 거치고, `en.lproj`, `ko.lproj`, `ja.lproj`, `zh-Hans.lproj`에 같은 키를 둔다.
 - 원격 push, 태그, 릴리스 공개, tap 저장소 생성, GitHub Pages 설정, Secrets 등록은 실행 전에 사용자에게 확인을 받는다. 릴리스는 draft로 만들고 사용자가 공개한다. 0.x는 prerelease가 아닌 정식 릴리스이고 이름에 `(beta)`를 붙인다.
 <!-- omh:agent-instructions:end -->
