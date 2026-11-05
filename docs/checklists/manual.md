@@ -13,14 +13,14 @@
 |---|---|---|---|
 | vite (`npm run dev`) | `package.json`의 `name` · `vite` | 미확인(사용자 점검) | |
 | next (`next dev`) | `package.json`의 `name` · `next` | 미확인(사용자 점검) | |
-| `gradle bootRun` | `settings.gradle(.kts)`의 `rootProject.name` · `gradle`. Gradle 데몬 자신은 숨김 | 미확인(사용자 점검) | |
-| `mvn spring-boot:run` | `pom.xml`의 `artifactId` · `maven` | 미확인(사용자 점검) | |
+| `gradle bootRun` | `settings.gradle(.kts)`의 `rootProject.name` · `gradle`. Gradle 데몬 자신은 숨김 | 미확인(도구 없음) | 2026-11-05 |
+| `mvn spring-boot:run` | `pom.xml`의 `artifactId` · `maven` | 미확인(도구 없음) | 2026-11-05 |
 | IntelliJ 실행(Spring) | 프로젝트 표식 이름 · 실행 방식에 맞는 도구(`gradle`·`maven`·`java`). IntelliJ 자신의 포트는 숨김 | 미확인(사용자 점검) | |
 | `java -jar`(프로젝트 밖) | jar가 있는 폴더 기준 이름, 표식이 없으면 jar 파일 이름 · `java` | 미확인(사용자 점검) | |
 | `cargo run` | `Cargo.toml`의 `[package] name` · `cargo` | 미확인(사용자 점검) | |
 | Django (`manage.py runserver`) | `pyproject.toml`의 `[project] name`(없으면 `.git` 폴더 이름) · `django` | 미확인(사용자 점검) | |
 | FastAPI (`uvicorn`) | `pyproject.toml`의 `[project] name`(없으면 `.git` 폴더 이름) · `uvicorn`. `--reload`의 worker가 아닌 주인 프로세스 한 행 | 미확인(사용자 점검) | |
-| Rails | `.git` 폴더 이름 · `rails` | 미확인(사용자 점검) | |
+| Rails | `.git` 폴더 이름 · `rails` | 미확인(도구 없음) | 2026-11-05 |
 
 ## Docker Compose
 
