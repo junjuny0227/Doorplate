@@ -5,7 +5,15 @@ import Testing
 
 struct L10nTests {
   private func strings(_ language: String) throws -> [String: String] {
-    let folder = try #require(Bundle.module.url(forResource: language, withExtension: "lproj"))
+    // SwiftPM versions differ in whether localization directory names retain their case.
+    // Find the exact language without Bundle's fallback to English masking a missing resource.
+    let resources = try #require(Bundle.module.resourceURL)
+    let folders = try FileManager.default.contentsOfDirectory(
+      at: resources, includingPropertiesForKeys: nil)
+    let folder = try #require(
+      folders.first {
+        $0.lastPathComponent.caseInsensitiveCompare("\(language).lproj") == .orderedSame
+      })
     let dictionary = try #require(
       NSDictionary(contentsOf: folder.appendingPathComponent("Localizable.strings")))
     return try #require(dictionary as? [String: String])
