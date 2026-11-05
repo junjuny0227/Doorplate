@@ -16,10 +16,7 @@ open the menu and read `5173  @acme/web  vite`.
 
 [**Download**](https://github.com/junjuny0227/Doorplate/releases/latest) · [한국어](README.ko.md) · [Homebrew](#install) · [Design (Korean)](docs/specs/2026-11-04-doorplate-mvp-design.md)
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/images/menu-dark.png">
-  <img src="docs/images/menu-light.png" width="440" alt="Doorplate's menu: app servers named by project with their tool on the right, a macOS service row, and a Docker section listing Compose services with their container names.">
-</picture>
+<img src="docs/images/menu.png" width="440" alt="Doorplate's menu: app servers named by project with their tool on the right, a macOS service row, and a Docker section listing Compose services with their container names.">
 
 </div>
 
@@ -51,17 +48,11 @@ open the menu and read `5173  @acme/web  vite`.
 <table>
   <tr>
     <td width="50%">
-      <picture>
-        <source media="(prefers-color-scheme: dark)" srcset="docs/images/submenu-dark.png">
-        <img src="docs/images/submenu-light.png" alt="An app server's submenu: Open in Browser, Show in Finder, Open in Terminal, Copy Address, and a red Stop item with the PID.">
-      </picture>
+      <img src="docs/images/submenu.png" alt="An app server's submenu: Open in Browser, Show in Finder, Open in Terminal, Copy Address, and a red Stop item with the PID.">
       <p align="center"><b>Servers</b>: open, copy or stop from the row</p>
     </td>
     <td width="50%">
-      <picture>
-        <source media="(prefers-color-scheme: dark)" srcset="docs/images/docker-dark.png">
-        <img src="docs/images/docker-light.png" alt="A Docker Compose row's submenu: Open in Browser, Copy Address, Show Compose Folder in Finder, and Stop Container.">
-      </picture>
+      <img src="docs/images/docker.png" alt="A Docker Compose row's submenu: Copy Address, Show Compose Folder in Finder, and Stop Container. Open in Browser appears only for ports that serve HTTP.">
       <p align="center"><b>Docker</b>: Compose services by name</p>
     </td>
   </tr>

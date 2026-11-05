@@ -16,10 +16,7 @@ Doorplate는 열려 있는 포트마다 어느 프로젝트의 서버인지 보�
 
 [**다운로드**](https://github.com/junjuny0227/Doorplate/releases/latest) · [English](README.md) · [Homebrew](#설치) · [설계 문서](docs/specs/2026-11-04-doorplate-mvp-design.md)
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="docs/images/menu-dark.png">
-  <img src="docs/images/menu-light.png" width="440" alt="Doorplate 메뉴: 프로젝트 이름과 오른쪽의 도구 이름으로 표시된 앱 서버, macOS 서비스 행, Compose 서비스와 컨테이너 이름을 보여 주는 Docker 구역.">
-</picture>
+<img src="docs/images/menu.png" width="440" alt="Doorplate 메뉴: 프로젝트 이름과 오른쪽의 도구 이름으로 표시된 앱 서버, macOS 서비스 행, Compose 서비스와 컨테이너 이름을 보여 주는 Docker 구역.">
 
 </div>
 
@@ -51,17 +48,11 @@ Doorplate는 열려 있는 포트마다 어느 프로젝트의 서버인지 보�
 <table>
   <tr>
     <td width="50%">
-      <picture>
-        <source media="(prefers-color-scheme: dark)" srcset="docs/images/submenu-dark.png">
-        <img src="docs/images/submenu-light.png" alt="앱 서버의 하위 메뉴: 브라우저에서 열기, Finder에서 보기, 터미널에서 열기, 주소 복사, PID가 붙은 빨간 종료 항목.">
-      </picture>
+      <img src="docs/images/submenu.png" alt="앱 서버의 하위 메뉴: 브라우저에서 열기, Finder에서 보기, 터미널에서 열기, 주소 복사, PID가 붙은 빨간 종료 항목.">
       <p align="center"><b>서버</b>: 행에서 열기, 복사, 종료</p>
     </td>
     <td width="50%">
-      <picture>
-        <source media="(prefers-color-scheme: dark)" srcset="docs/images/docker-dark.png">
-        <img src="docs/images/docker-light.png" alt="Docker Compose 행의 하위 메뉴: 브라우저에서 열기, 주소 복사, Compose 폴더를 Finder에서 보기, 컨테이너 정지.">
-      </picture>
+      <img src="docs/images/docker.png" alt="Docker Compose 행의 하위 메뉴: 주소 복사, Compose 폴더를 Finder에서 보기, 컨테이너 정지. 브라우저에서 열기는 HTTP 포트에만 나옵니다.">
       <p align="center"><b>Docker</b>: Compose 서비스 이름으로</p>
     </td>
   </tr>
