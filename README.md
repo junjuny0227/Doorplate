@@ -1,70 +1,115 @@
-[English](README.md) · [한국어](README.ko.md)
+<div align="center">
+
+<img src="assets/AppIcon.svg" width="128" height="128" alt="">
 
 # Doorplate
 
 **A nameplate on every port's door.**
 
-Doorplate is a macOS menu bar app that shows which project each listening port belongs to. Instead of running `lsof -i :3000`, finding a pid and guessing which server it is, open the menu and see `5173  @repot/desktop  vite`. It names JVM and monorepo servers correctly, too.
+Doorplate is a macOS menu bar app that shows which project each listening port
+belongs to. Instead of running `lsof -i :3000` and guessing which server owns the pid,
+open the menu and read `5173  @acme/web  vite`.
 
-Doorplate is in beta (0.x).
+[![Latest release](https://img.shields.io/github/v/release/junjuny0227/Doorplate?label=beta&color=0a84ff)](https://github.com/junjuny0227/Doorplate/releases/latest)
+[![CI](https://github.com/junjuny0227/Doorplate/actions/workflows/ci.yml/badge.svg)](https://github.com/junjuny0227/Doorplate/actions/workflows/ci.yml)
+[![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 
-## Menu
+[**Download**](https://github.com/junjuny0227/Doorplate/releases/latest) · [한국어](README.ko.md) · [Homebrew](#install) · [Design (Korean)](docs/specs/2026-11-04-doorplate-mvp-design.md)
 
-```
-Running · 5
-● 3000  @repot/site                    vite ▸
-● 5173  @repot/desktop                 vite ▸
-● 8080  shop-api · 3d                gradle ▸
-──────────
-◌ 5000  AirPlay Receiver (macOS)            ▸
-──────────
-Docker
-● 5432  postgres                    shop-db ▸
-● 6379  redis                    shop-redis ▸
-──────────
-3 hidden                                    ▸
-──────────
-Settings…                                ⌘,
-Quit Doorplate                           ⌘Q
-```
+<img src="docs/images/menu.png" width="440" alt="Doorplate's menu: app servers named by project with their tool on the right, a macOS service row, and a Docker section listing Compose services with their container names.">
 
-- The number in the header matches the number in the menu bar: app servers and Docker containers.
-- `· 3d` (shown in orange) marks a server that has been running for a long time.
-- Hover a row for its submenu: Open in Browser, Show in Finder, Open in Terminal, Copy Address, and Stop (PID …). Hold ⌥ to turn a row into a one-click Stop item.
-- Docker rows show the Compose service name, with the container name on the right.
+</div>
+
+## What it does
+
+- **Names every server.** Each listening port gets the name of the project it runs
+  from (`package.json`, `Cargo.toml`, `pyproject.toml`, Gradle, Maven, `go.mod` or a
+  `.git` folder) and the tool that started it. JVM and monorepo servers too.
+- **Understands Docker Compose.** Published container ports show the Compose service
+  name, with the container name on the right. Works with Docker Desktop, OrbStack and
+  Colima.
+- **Hides the noise.** IDEs, build daemons and other apps stay hidden until you choose
+  to show them in Settings. Worker processes that share a socket appear as one row;
+  debugger, inspector and LiveReload ports are grouped under their server.
+- **Explains macOS's own ports.** AirPlay Receiver on 5000 and 7000 gets its own row,
+  with where to turn it off.
+- **Acts on a row.** Open in the browser, show in Finder, open a terminal there, copy
+  the address, or stop the server. Hold ⌥ to turn a row into a one-click Stop item.
+- **Stops carefully.** Stop asks first and sends SIGTERM. If the server is still
+  running ten seconds later, Doorplate offers to wait or force stop. Containers stop
+  through the Docker API; Docker itself is never stopped.
+- **Stays live.** The list updates while the menu is open, and servers running for a
+  long time are marked in orange (`· 3d`).
+- **Updates itself** with signed updates (Sparkle).
+- **Speaks** English and 한국어.
+
+## A closer look
+
+<table>
+  <tr>
+    <td width="50%">
+      <img src="docs/images/submenu.png" alt="An app server's submenu: Open in Browser, Show in Finder, Open in Terminal, Copy Address, and a red Stop item with the PID.">
+      <p align="center"><b>Servers</b>: open, copy or stop from the row</p>
+    </td>
+    <td width="50%">
+      <img src="docs/images/docker.png" alt="A Docker Compose row's submenu: Copy Address, Show Compose Folder in Finder, and Stop Container. Open in Browser appears only for ports that serve HTTP.">
+      <p align="center"><b>Docker</b>: Compose services by name</p>
+    </td>
+  </tr>
+</table>
 
 ## What it recognizes
 
-Doorplate names each server by the nearest project marker above its working directory (`package.json`, `Cargo.toml`, `pyproject.toml`, `settings.gradle(.kts)`, `pom.xml`, `go.mod`, or a `.git` folder) and labels the tool:
+| Stack | Servers |
+| --- | --- |
+| Node | vite, next, nuxt, astro, remix, webpack |
+| JVM | `gradle bootRun`, `mvn spring-boot:run`, `java -jar`, IntelliJ run configurations. Gradle and Kotlin daemons are hidden; JDWP debugger ports are grouped under their server |
+| Rust | `cargo run`, binaries under `target/debug` or `target/release` |
+| Python | Django (`manage.py runserver`), uvicorn, Flask, gunicorn |
+| Ruby | Rails, puma |
+| Docker | Published ports of running containers, by Compose service name |
 
-- **Node**: vite, next, nuxt, astro, remix, webpack
-- **JVM**: `gradle bootRun`, `mvn spring-boot:run`, `java -jar`; Gradle and Kotlin daemons are hidden. Debugger ports (JDWP) are grouped under their server.
-- **Rust**: `cargo run` and binaries under `target/debug` or `target/release`
-- **Python**: Django (`manage.py runserver`), uvicorn, Flask, gunicorn
-- **Ruby**: Rails, puma
-- **Docker Compose**: published ports of running containers, by service name. Works with Docker Desktop, OrbStack and Colima.
+A server is named after the nearest project marker above its working directory. When
+there is none, Doorplate uses the folder name.
 
-Worker processes that share a listening socket (gunicorn, puma cluster, Node cluster) appear as one row. Node inspector and LiveReload ports are grouped under their server. IDEs, macOS services and other apps are hidden.
+## Principles
+
+- **Local only.** Doorplate reads process and socket information on your Mac and talks
+  to Docker only through its local unix socket. It never connects to your ports.
+- **No administrator rights.** No `sudo`, no helper tools.
+- **Network only for updates.** Nothing leaves your Mac. The one request is the update
+  check against the appcast on GitHub Pages
+  (`https://junjuny0227.github.io/Doorplate/appcast.xml`); automatic checks can be
+  turned off in Settings. No telemetry or usage statistics.
 
 ## Install
 
-Requires macOS 14 or later. Doorplate is in beta.
-
-With Homebrew:
+Requires macOS 14 or later (Apple silicon and Intel).
 
 ```sh
 brew install --cask junjuny0227/tap/doorplate
 ```
 
-Or download `Doorplate-<version>.zip` from [Releases](https://github.com/junjuny0227/Doorplate/releases) and unzip it. The `.sha256` file next to it holds the checksum.
+Or download `Doorplate-<version>.zip` from
+[Releases](https://github.com/junjuny0227/Doorplate/releases/latest), unzip it, and
+check it against the `.sha256` file next to it.
 
-## First open
+### First open
 
-Doorplate is signed ad hoc and not notarized by Apple, so macOS blocks the first launch. On macOS 15 and later, right-click → Open no longer gets past this.
+Doorplate is signed ad hoc and not notarized by Apple, so macOS blocks the first
+launch. On macOS 15 and later, right-click → Open no longer gets past this.
 
-1. Before opening it, move `Doorplate.app` to your Applications folder (`/Applications`) in Finder. If you open the app where it was downloaded, macOS runs it from a temporary location (App Translocation) and Doorplate cannot update itself.
-2. Open the app. macOS shows "“Doorplate.app” Not Opened" ("Apple could not verify “Doorplate.app” is free of malware that may harm your Mac or compromise your privacy."). Click **Done**. Do not click **Move to Trash**: it moves the app to the Trash.
-3. Open System Settings > Privacy & Security, click **Open Anyway** next to the message about Doorplate, confirm with your password or Touch ID, then click **Open Anyway** in the dialog that appears.
+1. Before opening it, move `Doorplate.app` to your Applications folder
+   (`/Applications`) in Finder. If you open the app where it was downloaded, macOS runs
+   it from a temporary location (App Translocation) and Doorplate cannot update itself.
+   Homebrew does this for you.
+2. Open the app. macOS shows "“Doorplate.app” Not Opened" ("Apple could not verify
+   “Doorplate.app” is free of malware that may harm your Mac or compromise your
+   privacy."). Click **Done**. Do not click **Move to Trash**: it moves the app to the
+   Trash.
+3. Open **System Settings › Privacy & Security**, click **Open Anyway** next to the
+   message about Doorplate, confirm with your password or Touch ID, then click **Open
+   Anyway** in the dialog that appears.
 
 If you are comfortable with Terminal, you can run this instead of steps 2–3:
 
@@ -72,15 +117,25 @@ If you are comfortable with Terminal, you can run this instead of steps 2–3:
 xattr -dr com.apple.quarantine /Applications/Doorplate.app
 ```
 
-This removes the download quarantine flag that macOS adds to files from the internet, so Gatekeeper no longer stops the app.
+This removes the download quarantine flag that macOS adds to files from the internet,
+so Gatekeeper no longer stops the app.
 
-## Privacy
+### Folder access
 
-- Nothing leaves your Mac. Doorplate's only network request is the update check against its appcast on GitHub Pages (`https://junjuny0227.github.io/Doorplate/appcast.xml`). You can turn off automatic checks in Settings.
-- No telemetry or usage statistics.
-- Doorplate reads process and socket information locally, and talks to Docker only through its local unix socket. It never connects to your ports.
-- To show a project's name, Doorplate reads files such as `package.json`. If your projects live in `~/Documents`, `~/Desktop`, `~/Downloads` or iCloud Drive, macOS asks whether Doorplate may access that folder ("Doorplate reads project files such as package.json to show which project owns each port."). If you deny it, those servers are named after their folder instead.
-- Because Doorplate is signed ad hoc, macOS asks again once per protected folder after each update.
+To show a project's name, Doorplate reads files such as `package.json`. If your
+projects live in `~/Documents`, `~/Desktop`, `~/Downloads` or iCloud Drive, macOS asks
+whether Doorplate may access that folder ("Doorplate reads project files such as
+package.json to show which project owns each port."). If you deny it, those servers
+are named after their folder instead. Because Doorplate is signed ad hoc, macOS asks
+again once per protected folder after each update.
+
+### Updates
+
+Doorplate checks for updates once a day; choose **Check for Updates…** in the menu to
+check now. An update is verified against Doorplate's update signing key before it is
+installed. The Homebrew cask leaves updates to the app (`auto_updates`), so plain
+`brew upgrade` skips it; `brew upgrade --cask --greedy doorplate` reinstalls it through
+Homebrew.
 
 ## Build from source
 
@@ -92,8 +147,22 @@ xcodegen generate
 xcodebuild -project Doorplate.xcodeproj -scheme Doorplate -configuration Debug -derivedDataPath build CODE_SIGN_IDENTITY=- build
 ```
 
-The app is at `build/Build/Products/Debug/Doorplate.app`.
+The app is at `build/Build/Products/Debug/Doorplate.app`. The scanner lives in
+`Packages/DoorplateCore` and has no UI dependencies:
+
+```sh
+swift test --package-path Packages/DoorplateCore
+swift run --package-path Packages/DoorplateCore doorplate-scan
+```
+
+`doorplate-scan` prints what Doorplate sees on this Mac as JSON. It only reads.
+
+## Docs
+
+- [MVP design](docs/specs/2026-11-04-doorplate-mvp-design.md) (Korean)
+- [Implementation plans](docs/plans/) (Korean)
+- [Manual checks](docs/checklists/manual.md) and [release checklist](docs/checklists/release.md) (Korean)
 
 ## License
 
-[Apache-2.0](LICENSE)
+[Apache-2.0](LICENSE).
