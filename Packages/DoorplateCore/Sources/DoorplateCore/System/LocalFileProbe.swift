@@ -8,9 +8,17 @@ public struct LocalFileProbe: FileProbe {
 
   public func presence(_ path: String) -> FilePresence {
     var info = stat()
-    if stat(path, &info) == 0 { return .present }
-    switch errno {
-    case ENOENT, ENOTDIR: return .absent
+    guard stat(path, &info) == 0 else { return Self.presence(forError: errno) }
+    // TCC lets stat see files in protected folders and only refuses open, so open once to
+    // tell a denied folder from a readable one.
+    let fd = open(path, O_RDONLY | O_NONBLOCK | O_CLOEXEC)
+    guard fd >= 0 else { return Self.presence(forError: errno) == .denied ? .denied : .present }
+    close(fd)
+    return .present
+  }
+
+  private static func presence(forError code: Int32) -> FilePresence {
+    switch code {
     case EPERM, EACCES: return .denied
     default: return .absent
     }
