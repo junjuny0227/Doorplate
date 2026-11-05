@@ -76,13 +76,15 @@ import Testing
     #expect(result.snapshot.apps.map(\.tool) == ["gradle"])
   }
 
-  @Test func blockedProjectLookupKeepsScansUpdating() async throws {
-    let files = BlockingProjectProbe()
+  @Test(arguments: [false, true])
+  func blockedProjectLookupKeepsScansUpdating(blockRead: Bool) async throws {
+    let files = BlockingProjectProbe(blockRead: blockRead)
     defer { files.release.signal() }
     let source = FakeProcessSource(
       listeners: [Listener(pid: 101, port: 8080, address: "::1")],
       processes: [
-        ProcessRecord(pid: 101, name: "node", executablePath: "/usr/bin/node",
+        ProcessRecord(
+          pid: 101, name: "node", executablePath: "/usr/bin/node",
           cwd: "/Users/dev/shop", startedAt: now, uid: 501)
       ])
     let date = now
@@ -116,6 +118,31 @@ import Testing
     #expect(titles == ["shop-project"])
   }
 
+  @Test func manyPendingDirectoriesShareOneWaitBudget() async throws {
+    let files = BlockingProjectProbe(blockRead: false)
+    defer { files.release.signal() }
+    let records = (101...130).map { pid in
+      ProcessRecord(
+        pid: Int32(pid), name: "node", executablePath: "/usr/bin/node",
+        cwd: pid == 101 ? "/Users/dev/shop" : "/Users/dev/z-project-\(pid)")
+    }
+    let source = FakeProcessSource(
+      listeners: records.map { Listener(pid: $0.pid, port: UInt16($0.pid), address: "::1") },
+      processes: records)
+    let scanner = Scanner(
+      processes: source, files: files, docker: FakeDockerSource(), currentUID: 501,
+      now: { Date() })
+    let clock = ContinuousClock()
+    let start = clock.now
+    let result = try #require(await scanner.scan(settings: SnapshotSettings()))
+    #expect(start.duration(to: clock.now) < .milliseconds(200))
+    #expect(result.snapshot.apps.count == 30)
+    #expect(result.snapshot.apps.allSatisfy { $0.title == "node" })
+    source.listenerRecords = []
+    let empty = try #require(await scanner.scan(settings: SnapshotSettings()))
+    #expect(empty.snapshot.apps.isEmpty)
+  }
+
   private func makeScanner(
     processes: any ProcessSource = FakeProcessSource(),
     docker: any DockerSource = FakeDockerSource()
@@ -131,18 +158,28 @@ private final class BlockingProjectProbe: FileProbe, @unchecked Sendable {
   let homeDirectory = "/Users/dev"
   let release = DispatchSemaphore(value: 0)
   private let lock = NSLock()
+  private let blockRead: Bool
   private var count = 0
   var attempts: Int { lock.withLock { count } }
+
+  init(blockRead: Bool) { self.blockRead = blockRead }
 
   func presence(_ path: String) -> FilePresence {
     guard path == "/Users/dev/shop/package.json" else { return .absent }
     lock.withLock { count += 1 }
-    // A finite safety timeout also makes the unfixed implementation fail, not hang.
-    _ = release.wait(timeout: .now() + 1)
+    if !blockRead { waitForAnswer() }
     return .present
   }
 
-  func read(_ path: String) -> String? { "{\"name\":\"shop-project\"}" }
+  func read(_ path: String) -> String? {
+    if blockRead { waitForAnswer() }
+    return "{\"name\":\"shop-project\"}"
+  }
+
+  private func waitForAnswer() {
+    // A finite safety timeout also makes the unfixed implementation fail, not hang.
+    _ = release.wait(timeout: .now() + 1)
+  }
 }
 
 private final class ScanClock: @unchecked Sendable {

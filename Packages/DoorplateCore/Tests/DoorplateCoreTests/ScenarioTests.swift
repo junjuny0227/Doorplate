@@ -24,11 +24,12 @@ import Testing
     case .absent: dockerResult = .failure(.absent)
     case .notResponding: dockerResult = .failure(.notResponding)
     }
+    let files = FakeFileProbe(home: fixture.home, files: fixture.files, denied: fixture.denied)
     let scanner = Scanner(
       processes: FakeProcessSource(listeners: fixture.listeners, processes: fixture.processes),
-      files: FakeFileProbe(home: fixture.home, files: fixture.files, denied: fixture.denied),
+      files: files,
       docker: FakeDockerSource(result: dockerResult), currentUID: fixture.currentUID,
-      now: { fixture.now })
+      now: { fixture.now }, fixtureLookup: ProjectResolver(files: files))
     let outcome = try #require(await scanner.scan(settings: fixture.settings))
     #expect(outcome.failedAt == nil)
     let encoder = JSONEncoder()

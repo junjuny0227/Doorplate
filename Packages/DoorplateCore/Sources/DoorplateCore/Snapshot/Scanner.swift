@@ -14,7 +14,9 @@ public struct ScanOutcome: Sendable, Equatable {
 public actor Scanner {
   private let processes: any ProcessSource
   private let docker: any DockerSource
-  private let classifier: Classifier
+  private let projects: CachedProjectLookup
+  private let fixtureLookup: (any ProjectLookup)?
+  private let currentUID: UInt32
   private let now: @Sendable () -> Date
   private let logger = Logger(subsystem: "io.github.junjuny0227.doorplate", category: "scan")
   private var isScanning = false
@@ -22,11 +24,14 @@ public actor Scanner {
 
   public init(
     processes: any ProcessSource, files: any FileProbe, docker: any DockerSource,
-    currentUID: UInt32, now: @escaping @Sendable () -> Date
+    currentUID: UInt32, now: @escaping @Sendable () -> Date,
+    fixtureLookup: (any ProjectLookup)? = nil
   ) {
     self.processes = processes
     self.docker = docker
-    classifier = Classifier(resolver: ProjectResolver(files: files), currentUID: currentUID)
+    self.fixtureLookup = fixtureLookup
+    projects = CachedProjectLookup(resolver: ProjectResolver(files: files))
+    self.currentUID = currentUID
     self.now = now
   }
 
@@ -63,6 +68,19 @@ public actor Scanner {
       containers = []
       dockerStatus = error == .absent ? .absent : .notResponding
     }
+    let publishedPorts = Set(containers.flatMap { $0.publishedPorts.map(\.port) })
+    let projectDirectories = Set(
+      listeners.filter { !publishedPorts.contains($0.port) }.compactMap {
+        records[$0.pid].flatMap { ProjectResolver.startDirectory(for: $0) }
+      })
+    let resolved: any ProjectLookup
+    if let fixtureLookup {
+      // Fixture replay is synchronous and has no filesystem access or timing-dependent fallback.
+      resolved = fixtureLookup
+    } else {
+      resolved = await projects.prepare(directories: projectDirectories)
+    }
+    let classifier = Classifier(resolver: resolved, currentUID: currentUID)
     let entries = classifier.classify(
       listeners: listeners, processes: records, containers: containers)
     let snapshot = SnapshotBuilder.build(
