@@ -7,7 +7,8 @@ import UniformTypeIdentifiers
 
 let arguments = CommandLine.arguments.dropFirst()
 guard arguments.count >= 3 else {
-  FileHandle.standardError.write(Data("usage: render-icon.swift <input.svg> <output-dir> <name>:<pixels> ...\n".utf8))
+  FileHandle.standardError.write(
+    Data("usage: render-icon.swift <input.svg> <output-dir> <name>:<pixels> ...\n".utf8))
   exit(64)
 }
 let input = URL(fileURLWithPath: arguments[arguments.startIndex])
@@ -39,7 +40,8 @@ for spec in arguments.dropFirst(2) {
 
   let url = outputDirectory.appendingPathComponent(String(parts[0]))
   guard let cgImage = context.makeImage(),
-    let destination = CGImageDestinationCreateWithURL(url as CFURL, UTType.png.identifier as CFString, 1, nil)
+    let destination = CGImageDestinationCreateWithURL(
+      url as CFURL, UTType.png.identifier as CFString, 1, nil)
   else { exit(1) }
   CGImageDestinationAddImage(destination, cgImage, nil)
   guard CGImageDestinationFinalize(destination) else {
