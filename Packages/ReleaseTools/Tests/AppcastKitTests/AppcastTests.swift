@@ -26,7 +26,9 @@ struct AppcastTests {
     #expect(root.attribute(forName: "version")?.stringValue == "2.0")
     #expect(root.namespace(forPrefix: "sparkle")?.stringValue == sparkle)
     #expect(try document.nodes(forXPath: "/rss/channel/item").isEmpty)
-    #expect(try document.nodes(forXPath: "/rss/channel/title").first?.stringValue == "Doorplate & friends")
+    #expect(
+      try document.nodes(forXPath: "/rss/channel/title").first?.stringValue == "Doorplate & friends"
+    )
   }
 
   @Test func writesEnclosureAttributes() throws {
@@ -38,9 +40,14 @@ struct AppcastTests {
     #expect(enclosure.attribute(forName: "type")?.stringValue == "application/octet-stream")
     #expect(enclosure.attribute(forLocalName: "edSignature", uri: sparkle)?.stringValue == "abc")
     #expect(entry.elements(forLocalName: "version", uri: sparkle).first?.stringValue == "1")
-    #expect(entry.elements(forLocalName: "shortVersionString", uri: sparkle).first?.stringValue == "0.1.0")
-    #expect(entry.elements(forLocalName: "minimumSystemVersion", uri: sparkle).first?.stringValue == "14.0")
-    #expect(entry.elements(forName: "pubDate").first?.stringValue == "Thu, 01 Jan 1970 00:00:00 +0000")
+    #expect(
+      entry.elements(forLocalName: "shortVersionString", uri: sparkle).first?.stringValue == "0.1.0"
+    )
+    #expect(
+      entry.elements(forLocalName: "minimumSystemVersion", uri: sparkle).first?.stringValue
+        == "14.0")
+    #expect(
+      entry.elements(forName: "pubDate").first?.stringValue == "Thu, 01 Jan 1970 00:00:00 +0000")
   }
 
   @Test func keepsExistingItems() throws {
@@ -49,9 +56,15 @@ struct AppcastTests {
     let document = try XMLDocument(xmlString: updated)
     let entries = try document.nodes(forXPath: "/rss/channel/item").compactMap { $0 as? XMLElement }
     #expect(entries.count == 2)
-    #expect(entries.first?.elements(forLocalName: "shortVersionString", uri: sparkle).first?.stringValue == "0.1.1")
-    #expect(entries.last?.elements(forLocalName: "shortVersionString", uri: sparkle).first?.stringValue == "0.1.0")
-    #expect(try document.nodes(forXPath: "/rss/channel/title").first?.stringValue == "Doorplate & friends")
+    #expect(
+      entries.first?.elements(forLocalName: "shortVersionString", uri: sparkle).first?.stringValue
+        == "0.1.1")
+    #expect(
+      entries.last?.elements(forLocalName: "shortVersionString", uri: sparkle).first?.stringValue
+        == "0.1.0")
+    #expect(
+      try document.nodes(forXPath: "/rss/channel/title").first?.stringValue == "Doorplate & friends"
+    )
   }
 
   @Test func replacesSameBuild() throws {
@@ -62,8 +75,11 @@ struct AppcastTests {
     let entries = try document.nodes(forXPath: "/rss/channel/item").compactMap { $0 as? XMLElement }
     #expect(entries.count == 2)
     let enclosure = try #require(entries.first?.elements(forName: "enclosure").first)
-    #expect(enclosure.attribute(forLocalName: "edSignature", uri: sparkle)?.stringValue == "replacement+/=")
-    #expect(entries.first?.elements(forLocalName: "version", uri: sparkle).first?.stringValue == "1")
+    #expect(
+      enclosure.attribute(forLocalName: "edSignature", uri: sparkle)?.stringValue
+        == "replacement+/=")
+    #expect(
+      entries.first?.elements(forLocalName: "version", uri: sparkle).first?.stringValue == "1")
   }
 
   @Test func parsesSignUpdateOutput() throws {
