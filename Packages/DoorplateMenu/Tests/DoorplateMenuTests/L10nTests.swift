@@ -31,23 +31,42 @@ struct L10nTests {
       .deletingLastPathComponent()
   }
 
-  @Test func everyKeyHasKorean() throws {
+  @Test(arguments: ["en", "ko", "ja", "zh-Hans"])
+  func everyLanguageHasEveryKey(_ language: String) throws {
     let english = try strings("en")
-    let korean = try strings("ko")
+    let localized = try strings(language)
     #expect(!english.isEmpty)
-    #expect(Set(english.keys) == Set(korean.keys))
+    #expect(Set(english.keys) == Set(localized.keys))
     #expect(Set(english.keys) == Set(L10n.Key.allCases.map(\.rawValue)))
-    #expect(korean.values.allSatisfy { !$0.isEmpty })
-    #expect(english.values.allSatisfy { !$0.isEmpty })
+    #expect(localized.values.allSatisfy { !$0.isEmpty })
   }
 
-  @Test func formatSpecifiersMatch() throws {
+  @Test(arguments: ["en", "ko", "ja", "zh-Hans"])
+  func formatSpecifiersMatch(_ language: String) throws {
     let english = try strings("en")
-    let korean = try strings("ko")
+    let localized = try strings(language)
     for key in L10n.Key.allCases {
       let en = try specifiers(try #require(english[key.rawValue]))
-      let ko = try specifiers(try #require(korean[key.rawValue]))
-      #expect(en == ko, "\(key.rawValue): \(en) vs \(ko)")
+      let translated = try specifiers(try #require(localized[key.rawValue]))
+      #expect(en == translated, "\(language) \(key.rawValue): \(en) vs \(translated)")
+    }
+  }
+
+  @Test(arguments: ["ko", "ja", "zh-Hans"])
+  func infoPlistUsageDescriptionKeysMatch(_ language: String) throws {
+    let resources = repositoryRoot.appendingPathComponent("App/Resources")
+    let info = try #require(
+      NSDictionary(contentsOf: resources.appendingPathComponent("Info.plist")) as? [String: Any])
+    let localized = try #require(
+      NSDictionary(
+        contentsOf: resources.appendingPathComponent("\(language).lproj/InfoPlist.strings"))
+        as? [String: String])
+    let usageKeys = Set(info.keys.filter { $0.hasSuffix("UsageDescription") })
+    #expect(!usageKeys.isEmpty)
+    #expect(Set(localized.keys) == usageKeys)
+    #expect(localized.values.allSatisfy { !$0.isEmpty })
+    for (key, value) in localized {
+      #expect(value != info[key] as? String, "\(language) \(key) is not translated")
     }
   }
 
