@@ -15,7 +15,7 @@
 | next (`next dev`) | `package.json`의 `name` · `next` | Core 스캔 통과: scan-next · next (메뉴 미확인) | 2026-11-05 |
 | `gradle bootRun` | `settings.gradle(.kts)`의 `rootProject.name` · `gradle`. Gradle 데몬 자신은 숨김 | 미확인(도구 없음) | 2026-11-05 |
 | `mvn spring-boot:run` | `pom.xml`의 `artifactId` · `maven` | 미확인(도구 없음) | 2026-11-05 |
-| IntelliJ 실행(Spring) | 프로젝트 표식 이름 · 실행 방식에 맞는 도구(`gradle`·`maven`·`java`). IntelliJ 자신의 포트는 숨김 | 미확인(사용자 점검) | |
+| IntelliJ 실행(Spring) | 프로젝트 표식 이름 · 실행 방식에 맞는 도구(`gradle`·`maven`·`java`). IntelliJ 자신의 포트는 숨김 | 통과(메뉴): `8080 spring-demo` · `java`. IntelliJ가 Gradle을 거치지 않고 `java`로 직접 띄움(부모 프로세스가 IntelliJ). 개발 도구 표시를 켜면 IntelliJ 자신의 포트와 Gradle 데몬(`java` · `gradle daemon`)이 따로 보임 | 2026-11-05 |
 | `java -jar`(프로젝트 밖) | jar가 있는 폴더 기준 이름, 표식이 없으면 jar 파일 이름 · `java` | Core 스캔 통과: app.jar · java (메뉴 미확인) | 2026-11-05 |
 | `cargo run` | `Cargo.toml`의 `[package] name` · `cargo` | Core 스캔 통과: scan-cargo · cargo (메뉴 미확인) | 2026-11-05 |
 | Django (`manage.py runserver`) | `pyproject.toml`의 `[project] name`(없으면 `.git` 폴더 이름) · `django` | Core 스캔 통과: scan-django · django (메뉴 미확인) | 2026-11-05 |
