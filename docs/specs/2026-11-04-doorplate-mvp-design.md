@@ -87,7 +87,7 @@ pid 재확인과 단계적 종료(SIGTERM → 확인 후 SIGKILL)는 Berth와 ma
 9. 오래 켜진 서버 표시(기본 24시간).
 10. 설정 창: 로그인 시 실행, 오래 켜짐 기준, 개발 도구 포트 표시, 다른 앱 포트 표시, 터미널 앱, 업데이트 확인.
 11. 앱 업데이트(13절).
-12. 언어: 영어 원본과 한국어. 시스템 언어를 따른다.
+12. 언어: 영어 원본과 한국어, 일본어, 중국어(간체). 시스템 언어를 따른다.
 
 ### MVP에서 뺀다
 
@@ -95,7 +95,6 @@ pid 재확인과 단계적 종료(SIGTERM → 확인 후 SIGKILL)는 Berth와 ma
 - 프로젝트별 묶음 보기
 - UDP, 원격 연결, LISTEN이 아닌 연결
 - 메뉴를 여는 전역 단축키
-- 일본어·중국어
 - Windows, Linux
 - Developer ID 서명과 공증(13절)
 
@@ -173,10 +172,12 @@ Packages/DoorplateMenu/       AppKit 허용, 메뉴 코드·문구·표시 규�
   Sources/DoorplateMenu/      MenuBuilder, StatusBadge, StopCoordinator, SettingsStore, L10n
   Sources/DoorplateMenu/Resources/en.lproj/Localizable.strings
   Sources/DoorplateMenu/Resources/ko.lproj/Localizable.strings
+  Sources/DoorplateMenu/Resources/ja.lproj/Localizable.strings
+  Sources/DoorplateMenu/Resources/zh-Hans.lproj/Localizable.strings
   Tests/DoorplateMenuTests/   swift test로 메뉴·문구 검증
 Packages/ReleaseTools/       Sparkle appcast 생성 도구·테스트 (Sparkle을 쓸 때만)
 App/                         AppDelegate, StatusItemController, ActionPerformer, Settings/
-App/Resources/               Info.plist (LSUIElement), ko.lproj/InfoPlist.strings
+App/Resources/               Info.plist (LSUIElement), {ko,ja,zh-Hans}.lproj/InfoPlist.strings
 scripts/                     빌드·버전 검사·아이콘 생성·cask 갱신 스크립트
 packaging/homebrew/          Homebrew cask 템플릿
 docs/specs, docs/plans
@@ -429,7 +430,7 @@ Finder에서 보기
 - 메뉴 코드와 문구는 AppKit을 허용하는 `Packages/DoorplateMenu`에 두고 `swift test`로 검증한다. 별도 `AppTests/`와 `xcodebuild test`는 두지 않는다. 앱 연결은 빌드와 수동 점검으로 확인한다.
 - `MenuBuilder`: Snapshot fixture로 만든 `NSMenu`의 항목 제목, 활성 여부, ⌥ 대체 항목, `likelyHTTP` 거짓일 때의 순서.
 - `StatusBadge`, `DurationText`, `PathText`: 서버 수가 0일 때 숫자 숨김, 오래 켜짐 점, 기간 단위와 홈 경로 축약.
-- 문구는 `.xcstrings` 대신 SPM 리소스 `en.lproj/Localizable.strings`와 `ko.lproj/Localizable.strings`를 쓴다. 복수형 문구는 없으며 두 언어의 키와 `L10n.Key` 집합, 형식 지정자의 개수·순서, 한국어 로딩을 검사한다.
+- 문구는 `.xcstrings` 대신 SPM 리소스 `{en,ko,ja,zh-Hans}.lproj/Localizable.strings`를 쓴다. 복수형 문구는 없으며 네 언어의 키와 `L10n.Key` 집합, 형식 지정자의 개수·순서, 한국어 로딩을 검사한다. 폴더 접근 설명도 한국어·일본어·중국어(간체)의 키와 Info.plist 원본 키의 일치를 검사한다.
 
 ### 12.4 진단 명령
 
@@ -457,7 +458,7 @@ Apple Developer Program에 가입하지 않는다. Developer ID 서명과 공증
   2. 앱을 연다. 다음 창이 뜨며 막힌다. 제목 "'Doorplate.app'을(를) 열지 않음", 본문 "Apple은 'Doorplate.app'에 사용자의 Mac에 손상을 입히거나 사용자의 개인 정보에 침입할 수 있는 악성 코드가 없음을 확인할 수 없습니다.", 버튼 [휴지통으로 이동] [완료]. "완료"를 누른다("휴지통으로 이동"은 앱을 휴지통으로 옮긴다).
   3. 시스템 설정 > 개인정보 보호 및 보안에서 "그래도 열기"를 누르고 암호나 Touch ID로 확인한 뒤, 다시 뜨는 창에서 "그래도 열기"를 누른다.
   4. 터미널에 익숙하면 `xattr -dr com.apple.quarantine /Applications/Doorplate.app`도 안내한다. 이 명령이 무엇을 하는지(다운로드 격리 표시 제거)도 함께 적는다.
-- **폴더 접근 허락(TCC)**: Info.plist에 `NSDocumentsFolderUsageDescription`, `NSDesktopFolderUsageDescription`, `NSDownloadsFolderUsageDescription`을 둔다. 문구는 "Doorplate reads project files such as package.json to show which project owns each port."이고, 한국어는 `ko.lproj/InfoPlist.strings`에 둔다. ad-hoc 서명 앱은 macOS가 빌드마다 바뀌는 해시로 앱을 구분하므로, 업데이트하면 허락을 다시 묻는다(14절 실험에서 1.0 → 1.1 업데이트 뒤 확인). 보호 폴더마다 업데이트당 한 번이며, 릴리스 노트에 적는다.
+- **폴더 접근 허락(TCC)**: Info.plist에 `NSDocumentsFolderUsageDescription`, `NSDesktopFolderUsageDescription`, `NSDownloadsFolderUsageDescription`을 둔다. 문구는 "Doorplate reads project files such as package.json to show which project owns each port."이고, 한국어·일본어·중국어(간체)는 각각 `{ko,ja,zh-Hans}.lproj/InfoPlist.strings`에 둔다. ad-hoc 서명 앱은 macOS가 빌드마다 바뀌는 해시로 앱을 구분하므로, 업데이트하면 허락을 다시 묻는다(14절 실험에서 1.0 → 1.1 업데이트 뒤 확인). 보호 폴더마다 업데이트당 한 번이며, 릴리스 노트에 적는다.
 
 ### 13.2 배포 경로
 
@@ -518,7 +519,6 @@ Apple Developer Program에 가입하지 않는다. Developer ID 서명과 공증
 - git 브랜치 표시
 - 자주 쓰는 포트 고정
 - 프로젝트별 묶음 보기
-- 일본어·중국어
 - Developer ID 서명과 공증(13.6절)
 - 브라우저 첫 설치용 DMG. 응용 프로그램 폴더로 끌어 옮기는 창을 보여 줘 다운로드 폴더에서 바로 여는 실수(13.1절)를 줄인다. Sparkle 업데이트와 Homebrew cask는 zip을 그대로 쓰고, DMG는 릴리스 자산으로만 함께 올린다(`hdiutil`, 외부 도구 없음). 브라우저로 받는 사용자가 생기면 한다(2026-11-05 결정)
 - Windows(WSL 내부 조회 포함), Linux. 실제 요청이 쌓이면 별도 제품으로 검토한다.

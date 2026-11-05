@@ -14,7 +14,7 @@ open the menu and read `5173  @acme/web  vite`.
 [![CI](https://github.com/junjuny0227/Doorplate/actions/workflows/ci.yml/badge.svg)](https://github.com/junjuny0227/Doorplate/actions/workflows/ci.yml)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-blue)](LICENSE)
 
-[**Download**](https://github.com/junjuny0227/Doorplate/releases/latest) · [한국어](README.ko.md) · [Homebrew](#install) · [Design (Korean)](docs/specs/2026-11-04-doorplate-mvp-design.md)
+[**Download**](https://github.com/junjuny0227/Doorplate/releases/latest) · [한국어](README.ko.md) · [日本語](README.ja.md) · [简体中文](README.zh-Hans.md) · [Homebrew](#install) · [Design (Korean)](docs/specs/2026-11-04-doorplate-mvp-design.md)
 
 <img src="docs/images/menu.png" width="440" alt="Doorplate's menu: app servers named by project with their tool on the right, a macOS service row, and a Docker section listing Compose services with their container names.">
 
@@ -41,7 +41,7 @@ open the menu and read `5173  @acme/web  vite`.
 - **Stays live.** The list updates while the menu is open, and servers running for a
   long time are marked in orange (`· 3d`).
 - **Updates itself** with signed updates (Sparkle).
-- **Speaks** English and 한국어.
+- **Speaks** English, 한국어, 日本語 and 简体中文.
 
 ## A closer look
 
