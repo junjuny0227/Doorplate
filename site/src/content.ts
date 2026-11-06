@@ -108,10 +108,6 @@ export function content(locale: Locale) {
       links: [
         { href: REPO, label: 'GitHub' },
         { href: RELEASES_URL, label: m.footer.links.releases },
-        {
-          href: `${REPO}/blob/main/docs/specs/2026-11-04-doorplate-mvp-design.md`,
-          label: m.footer.links.design,
-        },
         { href: `${REPO}/blob/main/LICENSE`, label: m.footer.links.license },
       ],
       languages: m.footer.languages,
