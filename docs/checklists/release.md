@@ -46,7 +46,7 @@ gh secret list -R junjuny0227/Doorplate
 ### 1. 버전 PR
 
 - [ ] `project.yml`의 `MARKETING_VERSION`을 배포 버전으로 바꾼다. `CURRENT_PROJECT_VERSION`은 이전 배포보다 1 큰 정수로 올린다. 첫 릴리스는 `0.1.0` / `1`이다.
-- [ ] PR의 모든 검사(`lint`, `core`, `app`, `release-tools`, `scripts`)가 통과한 뒤 main에 합친다.
+- [ ] PR 검사가 하나도 실패하지 않은 뒤 main에 합친다. 버전 PR은 `project.yml`을 바꾸므로 `changes`가 모든 작업(`site`, `lint`, `core`, `app`, `release-tools`, `scripts`)을 돌린다.
 - [ ] 로컬 빌드·서명·Universal 확인은 `scripts/build-release.sh v<버전>`, `lipo -archs dist/Doorplate.app/Contents/MacOS/Doorplate`, `codesign --verify --deep --strict dist/Doorplate.app`으로 한다.
 
 ### 2. 사용자 승인 후 태그

@@ -19,7 +19,58 @@ permissions:
   contents: read
 
 jobs:
+  # Decides which jobs a change needs, like Repot's CI. A change that touches only the
+  # product site (site/, its npm and Biome config) runs `site` alone; a change that
+  # touches none of those skips `site`. Files both sides read (the app icon,
+  # project.yml for the version, this workflow) run everything. A new branch, a force
+  # push with no usable base, or the weekly schedule also runs everything.
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      site: ${{ steps.paths.outputs.site }}
+      app: ${{ steps.paths.outputs.app }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - id: paths
+        shell: bash
+        env:
+          EVENT: ${{ github.event_name }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+        run: |
+          all() {
+            echo 'site=true' >> "$GITHUB_OUTPUT"
+            echo 'app=true' >> "$GITHUB_OUTPUT"
+            exit 0
+          }
+          [[ "$EVENT" == schedule ]] && all
+          if [[ "$EVENT" == pull_request ]]; then
+            base="$PR_BASE" head="$PR_HEAD"
+          else
+            base="$PUSH_BEFORE" head="$GITHUB_SHA"
+          fi
+          if ! changed=$(git diff --name-only "$base" "$head" 2>/dev/null) || [[ -z "$changed" ]]; then
+            all
+          fi
+          printf 'Changed files:\n%s\n' "$changed"
+          shared='^(assets/AppIcon\.svg|project\.yml|\.github/workflows/ci\.yml)$'
+          site_only='^(site/|package\.json$|pnpm-lock\.yaml$|pnpm-workspace\.yaml$|biome\.json$|\.github/workflows/pages\.yml$)'
+          ignored='^(docs/|LICENSE$)|\.md$'
+          if grep -Eq "$shared|$site_only" <<< "$changed"; then
+            echo 'site=true' >> "$GITHUB_OUTPUT"
+          fi
+          # Not a pipeline: under pipefail, grep -q closing early can fail the first grep.
+          rest=$(grep -Ev "$site_only" <<< "$changed" || true)
+          if grep -Eq "$shared" <<< "$changed" || { [[ -n "$rest" ]] && grep -Evq "$ignored" <<< "$rest"; }; then
+            echo 'app=true' >> "$GITHUB_OUTPUT"
+          fi
+
   site:
+    needs: changes
+    if: needs.changes.outputs.site == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -36,6 +87,8 @@ jobs:
 
   # Formatting and the Core import boundary; writes nothing.
   lint:
+    needs: changes
+    if: needs.changes.outputs.app == 'true'
     runs-on: macos-latest
     timeout-minutes: 10
     steps:
@@ -45,6 +98,8 @@ jobs:
       - run: scripts/check-core-imports.sh
 
   core:
+    needs: changes
+    if: needs.changes.outputs.app == 'true'
     runs-on: macos-latest
     timeout-minutes: 15
     steps:
@@ -54,6 +109,8 @@ jobs:
       - run: swift test --package-path Packages/DoorplateMenu
 
   release-tools:
+    needs: changes
+    if: needs.changes.outputs.app == 'true'
     runs-on: macos-latest
     timeout-minutes: 10
     steps:
@@ -62,6 +119,8 @@ jobs:
       - run: swift test --package-path Packages/ReleaseTools
 
   app:
+    needs: changes
+    if: needs.changes.outputs.app == 'true'
     runs-on: macos-latest
     timeout-minutes: 20
     steps:
@@ -71,6 +130,8 @@ jobs:
       - run: xcodebuild -project Doorplate.xcodeproj -scheme Doorplate -configuration Debug CODE_SIGN_IDENTITY=- build
 
   scripts:
+    needs: changes
+    if: needs.changes.outputs.app == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

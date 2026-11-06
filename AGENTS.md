@@ -25,6 +25,10 @@
 | `scripts/build-release.sh v<버전>` | verified (exit 0, 2026-11-05) | 계획 4 Task 1 |
 | `actionlint .github/workflows/*.yml` | verified (exit 0, 2026-11-05) | 계획 4 Task 4 |
 | `scripts/make-icon.sh` | verified (exit 0, 2026-11-05) | 계획 4 Task 2 |
+| `pnpm install --frozen-lockfile` | verified (exit 0, 2026-11-06) | 계획 5 |
+| `pnpm exec biome ci .` | verified (exit 0, 2026-11-06) | 계획 5 |
+| `pnpm --filter @doorplate/site test` | verified (exit 0, 2026-11-06) | 계획 5 |
+| `pnpm --filter @doorplate/site build` | verified (exit 0, 2026-11-06) | 계획 5 |
 
 - 실험 앱(`spikes/ProbeApp`)의 빌드·실행 명령은 계획 1 Task 1의 Interfaces에 있다. `spikes/`는 계획 1 마지막 Task에서 지운다.
 - XcodeGen은 `brew install xcodegen`으로 설치한다.
@@ -51,7 +55,8 @@
 - 관리자 권한을 쓰지 않는다. 예외는 실험 계획의 비교용 `sudo lsof`이고, 사용자가 직접 실행한다.
 - Docker 런타임 프로세스(Docker Desktop, OrbStack, Colima 등)는 종료하지 않는다. 컨테이너는 Docker API로만 정지한다.
 - 포트에 접속해 확인하지 않는다. 네트워크는 Docker unix 소켓과 업데이트 확인뿐이고, 사용 통계를 모으지 않는다.
-- 외부 패키지는 Sparkle 하나다. 다른 의존성은 계획을 먼저 고친 뒤 추가한다.
+- 외부 패키지는 Sparkle 하나다. 다른 의존성은 계획을 먼저 고친 뒤 추가한다. `site/`의 npm 패키지(React, Vite, TypeScript, Vitest, Biome)는 제품 소개 페이지의 개발·빌드에만 쓰고 Swift 앱에 넣지 않는다(계획 5).
+- GitHub Pages는 `gh-pages` 브랜치 소스(legacy)를 유지한다. 사이트 배포는 `appcast.xml`을 삭제·수정하지 않고 옆의 정적 파일만 바꾸며, appcast 워크플로와 `appcast-gh-pages` 동시성 그룹을 함께 쓴다. Pages 소스 설정을 바꾸지 않는다.
 - Sparkle EdDSA 비밀 키는 로컬 키체인과 GitHub Secret `SPARKLE_ED_PRIVATE_KEY`에만 둔다. 출력하거나 커밋하지 않는다.
 - 실험 측정 결과(`spikes/out/`), `doorplate-scan` 출력, `--fixture` 출력에는 개인 경로와 명령줄이 들어 있다. 커밋하지 않는다.
 
@@ -59,7 +64,7 @@
 
 - 실험 계획이 스펙 14절과 다른 질문 수·번호를 쓴 채로 병합되어, 구현 전에 정합성 PR을 따로 내야 했다. 질문이나 절 번호를 문서에 쓸 때는 스펙의 표와 대조한다.
 - `gh`의 기본 계정이 이 저장소에 권한이 없는 계정이면 `gh pr create`가 `must be a collaborator`로 실패한다(PR 생성 1회 실패). 기본 계정을 바꾸지 말고 `GH_TOKEN=$(gh auth token --user junjuny0227) gh …`로 그 명령에만 토큰을 넘긴다.
-- CI(`macos-latest`)는 로컬보다 낮은 Swift(2026-11 기준 6.3.3)를 쓴다. 로컬에서 통과한 코드가 CI에서 컴파일되지 않아 main의 core 검사가 PR 20개 가까이 실패한 채 병합됐다. PR의 `core`·`app` 검사가 통과한 뒤에 병합한다.
+- CI(`macos-latest`)는 로컬보다 낮은 Swift(2026-11 기준 6.3.3)를 쓴다. 로컬에서 통과한 코드가 CI에서 컴파일되지 않아 main의 core 검사가 PR 20개 가까이 실패한 채 병합됐다. PR 검사가 하나도 실패하지 않은 뒤에 병합한다. CI의 `changes` 작업이 바뀐 파일로 필요한 작업만 고르므로, 건너뛴(skipped) 작업은 실패가 아니다. Markdown·`docs/`·`LICENSE`만 바꾼 PR은 CI가 돌지 않는다("no checks reported").
 - AppKit(NSImage)의 SVG 렌더링은 `<filter>`와 `fill-opacity`를 무시하고, `qlmanage`는 SVG를 흰 불투명 배경으로 렌더링한다. `assets/AppIcon.svg`의 그림자는 `opacity`를 준 도형으로 그린다.
 - 작업자가 CI 검사를 기다리지 않고 "대기 중"으로 보고하고 끝낸 적이 있다(PR #55). PR을 넘겨받으면 `gh pr checks`로 통과를 직접 확인한 뒤 병합한다.
 
