@@ -127,6 +127,17 @@ final class FakeDockerSource: DockerSource, Sendable {
   }
 }
 
+final class FakeQuitter: AppQuitter, Sendable {
+  private let apps: Set<Int32>
+  private let requests = FakeState<[Int32]>([])
+  init(apps: Set<Int32>) { self.apps = apps }
+  var requested: [Int32] { requests.withLock { $0 } }
+  func requestQuit(pid: Int32) async -> Bool {
+    requests.withLock { $0.append(pid) }
+    return apps.contains(pid)
+  }
+}
+
 final class FakeSignaler: ProcessSignaler, Sendable {
   struct SentSignal: Sendable, Equatable {
     var signal: Int32

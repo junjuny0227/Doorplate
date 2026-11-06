@@ -20,7 +20,8 @@ import DoorplateMenu
       currentUID: getuid(), now: { Date() })
     let prompter = AlertStopPrompter()
     let coordinator = StopCoordinator(
-      terminator: Terminator(signaler: PosixSignaler(), docker: docker), prompter: prompter,
+      terminator: Terminator(signaler: PosixSignaler(), docker: docker, quitter: AppKitQuitter()),
+      prompter: prompter,
       onChange: { [weak self] in
         guard let self, let controller = statusController, let coordinator = stopCoordinator else {
           return

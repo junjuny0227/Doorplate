@@ -10,14 +10,17 @@ public enum StopOutcome: Sendable, Equatable {
 public struct Terminator: Sendable {
   private let signaler: any ProcessSignaler
   private let docker: any DockerSource
+  private let quitter: (any AppQuitter)?
   private let gracePeriod: Duration
   private let logger = Logger(subsystem: "io.github.junjuny0227.doorplate", category: "terminate")
 
   public init(
-    signaler: any ProcessSignaler, docker: any DockerSource, gracePeriod: Duration = .seconds(10)
+    signaler: any ProcessSignaler, docker: any DockerSource, quitter: (any AppQuitter)? = nil,
+    gracePeriod: Duration = .seconds(10)
   ) {
     self.signaler = signaler
     self.docker = docker
+    self.quitter = quitter
     self.gracePeriod = gracePeriod
   }
 
@@ -50,6 +53,11 @@ public struct Terminator: Sendable {
     guard let current = signaler.startTime(of: pid),
       abs(current.timeIntervalSince(startedAt)) <= 0.001
     else { return .alreadyGone }
+
+    // A regular app gets the ⌘Q request instead of SIGTERM; SIGKILL (force stop) stays a signal.
+    if signal == SIGTERM, let quitter, await quitter.requestQuit(pid: pid) {
+      return await signaler.waitForExit(of: pid, timeout: timeout) ? .stopped : .stillRunning
+    }
 
     switch signaler.signal(signal, to: pid) {
     case .notPermitted:

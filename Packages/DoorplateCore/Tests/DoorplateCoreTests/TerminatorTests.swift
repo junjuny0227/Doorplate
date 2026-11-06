@@ -69,6 +69,45 @@ import Testing
     #expect(signaler.waits == [.init(pid: pid, timeout: .seconds(10))])
   }
 
+  @Test func regularAppGetsQuitRequestInsteadOfSigterm() async {
+    let signaler = FakeSignaler(startTimes: [pid: started])
+    let quitter = FakeQuitter(apps: [pid])
+    let terminator = Terminator(signaler: signaler, docker: FakeDockerSource(), quitter: quitter)
+    #expect(await terminator.stop(.process(pid: pid, startedAt: started)) == .stopped)
+    #expect(quitter.requested == [pid])
+    #expect(signaler.signals.isEmpty)
+    #expect(signaler.waits == [.init(pid: pid, timeout: .seconds(10))])
+  }
+
+  @Test func appThatKeepsRunningStillOffersForceStopBySignal() async {
+    let signaler = FakeSignaler(startTimes: [pid: started], exits: false)
+    let quitter = FakeQuitter(apps: [pid])
+    let terminator = Terminator(signaler: signaler, docker: FakeDockerSource(), quitter: quitter)
+    let target = Target.process(pid: pid, startedAt: started)
+    #expect(await terminator.stop(target) == .stillRunning)
+    signaler.exits = true
+    #expect(await terminator.forceStop(target) == .stopped)
+    #expect(signaler.signals == [SIGKILL])
+    #expect(quitter.requested == [pid])
+  }
+
+  @Test func nonAppProcessStillGetsSigterm() async {
+    let signaler = FakeSignaler(startTimes: [pid: started])
+    let quitter = FakeQuitter(apps: [])
+    let terminator = Terminator(signaler: signaler, docker: FakeDockerSource(), quitter: quitter)
+    #expect(await terminator.stop(.process(pid: pid, startedAt: started)) == .stopped)
+    #expect(quitter.requested == [pid])
+    #expect(signaler.signals == [SIGTERM])
+  }
+
+  @Test func reusedPIDIsNotAskedToQuit() async {
+    let signaler = FakeSignaler(startTimes: [pid: started.addingTimeInterval(5)])
+    let quitter = FakeQuitter(apps: [pid])
+    let terminator = Terminator(signaler: signaler, docker: FakeDockerSource(), quitter: quitter)
+    #expect(await terminator.stop(.process(pid: pid, startedAt: started)) == .alreadyGone)
+    #expect(quitter.requested.isEmpty)
+  }
+
   @Test func stillRunningAfterGrace() async {
     let signaler = FakeSignaler(startTimes: [pid: started], exits: false)
     let terminator = Terminator(
