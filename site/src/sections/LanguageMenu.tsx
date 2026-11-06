@@ -1,6 +1,11 @@
 import { useEffect, useRef } from 'react';
-import { LOCALES, type Locale, localeInfo, type Messages } from '../i18n';
-export function LanguageLinks({ locale }: { locale: Locale }) {
+import { useContent } from '../content';
+import { LOCALES, localeInfo, rememberLocale } from '../i18n';
+import { Globe } from '../icons';
+
+/** Links to every language version, each named in itself. Plain links: they work without JS and crawlers follow them. */
+export function LanguageLinks() {
+  const C = useContent();
   return (
     <ul className="language-links">
       {LOCALES.map((l) => (
@@ -9,7 +14,8 @@ export function LanguageLinks({ locale }: { locale: Locale }) {
             href={l.path}
             hrefLang={l.code}
             lang={l.code}
-            aria-current={l.code === locale ? 'page' : undefined}
+            aria-current={l.code === C.locale ? 'page' : undefined}
+            onClick={() => rememberLocale(l.code)}
           >
             {l.name}
           </a>
@@ -18,17 +24,16 @@ export function LanguageLinks({ locale }: { locale: Locale }) {
     </ul>
   );
 }
-export function LanguageMenu({ locale, c }: { locale: Locale; c: Messages }) {
+
+/** Header pop-up: a disclosure (works without JS) that closes on Escape or an outside click. */
+export function LanguageMenu() {
+  const C = useContent();
   const ref = useRef<HTMLDetailsElement>(null);
   useEffect(() => {
-    const close = (event: Event) => {
+    const close = (e: Event) => {
       const menu = ref.current;
-      if (
-        menu?.open &&
-        (event instanceof KeyboardEvent
-          ? event.key === 'Escape'
-          : !menu.contains(event.target as Node))
-      )
+      if (!menu?.open) return;
+      if (e instanceof KeyboardEvent ? e.key === 'Escape' : !menu.contains(e.target as Node))
         menu.open = false;
     };
     document.addEventListener('click', close);
@@ -40,12 +45,12 @@ export function LanguageMenu({ locale, c }: { locale: Locale; c: Messages }) {
   }, []);
   return (
     <details className="language-menu" ref={ref}>
-      <summary aria-label={`${c.ui.language}: ${localeInfo(locale).name}`}>
-        {localeInfo(locale).name}
-        <span aria-hidden="true">⌄</span>
+      <summary aria-label={`${C.language}: ${localeInfo(C.locale).name}`}>
+        <Globe />
+        <span lang={C.locale}>{localeInfo(C.locale).name}</span>
       </summary>
       <div className="language-popover">
-        <LanguageLinks locale={locale} />
+        <LanguageLinks />
       </div>
     </details>
   );
