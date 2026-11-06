@@ -59,7 +59,6 @@ export function Install() {
           <div className="footnote">
             <p>{C.install.macNote}</p>
             <CopyCommand command={C.install.quarantine} />
-            <p>{C.install.quarantineExplanation}</p>
             <p>
               <a href={C.install.guideUrl}>{C.install.guide}</a>
             </p>

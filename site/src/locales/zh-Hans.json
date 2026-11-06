@@ -2,32 +2,32 @@
   "meta": {
     "title": "Doorplate — 为每个端口挂上项目的门牌。",
     "description": "Doorplate 是一款 macOS 菜单栏应用，显示每个监听端口属于哪个项目。无需运行 lsof -i :3000 查找 pid，再猜测它属于哪个服务器；打开菜单就能看到 5173 @acme/web vite。",
-    "noscript": "Doorplate 显示每个监听端口属于哪个项目。请前往 GitHub 下载并查看安装指南。",
-    "noscriptLink": "下载 Doorplate"
+    "noscript": "Doorplate 显示每个监听端口属于哪个项目。",
+    "noscriptLink": "从 GitHub Releases 下载"
   },
   "tagline": "为每个端口挂上项目的门牌。",
   "pitch": "一款 macOS 菜单栏应用，显示每个监听端口属于哪个项目。",
-  "skip": "跳至正文",
+  "skip": "跳到正文",
   "nav": {
-    "how": "工作方式",
+    "how": "工作原理",
     "features": "功能",
-    "principles": "原则",
+    "principles": "设计原则",
     "tools": "支持的技术栈",
     "install": "安装"
   },
-  "sectionsNav": "页面导航",
+  "sectionsNav": "页面章节",
   "projectNav": "项目",
   "backToTop": "Doorplate，返回顶部",
   "language": "语言",
   "hero": {
     "download": "下载 Mac 版",
-    "fileHint": "Apple silicon 和 Intel 通用的一个 zip。需要 macOS 14 或更高版本。",
+    "fileHint": "Apple 芯片和 Intel 通用的一个 zip。需要 macOS 14 或更高版本。",
     "brew": "也可以用 Homebrew 安装：",
     "version": "版本 {version}",
     "otherDownloads": "其他安装方式",
-    "releaseNotes": "发布说明",
-    "beta": "未签名的测试版。",
-    "betaNote": "仅使用 ad-hoc 签名，尚未经过 Apple 公证，因此 macOS 会阻止首次启动。",
+    "releaseNotes": "发行说明",
+    "beta": "这是未签名测试版。",
+    "betaNote": "目前的构建尚未经过 Apple 公证，因此首次启动时 macOS 会阻止运行。",
     "howToOpen": "如何打开",
     "screenshotAlt": "Doorplate 菜单：按项目命名的应用服务器，右侧显示工具名称；另有 macOS 服务行，以及列出 Compose 服务和容器名称的 Docker 区域。"
   },
@@ -39,7 +39,7 @@
     "failedStatus": "无法拷贝。请选择命令并手动拷贝。"
   },
   "how": {
-    "title": "工作方式",
+    "title": "工作原理",
     "lead": "无需运行 lsof -i :3000 查找 pid，再猜测它属于哪个服务器。打开菜单就能看到 5173 @acme/web vite。",
     "steps": {
       "open": {
@@ -79,7 +79,7 @@
       },
       "stop": {
         "title": "谨慎退出",
-        "text": "退出前先征求确认，然后发送 SIGTERM。如果十秒后仍在运行，Doorplate 会让你选择继续等待或强制退出。容器通过 Docker API 停止，绝不会退出 Docker 本身。"
+        "text": "退出时发送 SIGTERM，普通应用则收到与 ⌘Q 相同的退出请求。如果十秒后仍在运行，Doorplate 会让你选择继续等待或强制退出。容器通过 Docker API 停止，绝不会退出 Docker 本身和 macOS 服务。"
       },
       "live": {
         "title": "持续更新",
@@ -107,7 +107,7 @@
         "text": "不使用 sudo，也不使用辅助工具。"
       },
       "network": {
-        "title": "仅更新需要联网",
+        "title": "仅更新时联网",
         "text": "Mac 上的信息不会外传。唯一的请求是向 GitHub Pages 上的 appcast 检查更新；可在设置中关闭自动检查。"
       },
       "telemetry": {
@@ -130,30 +130,29 @@
   },
   "install": {
     "title": "安装与首次启动",
-    "lead": "需要 Apple silicon 或 Intel Mac 上的 macOS 14 或更高版本。Doorplate 使用 ad-hoc 签名，尚未经过 Apple 公证，因此 macOS 会阻止首次启动。在 macOS 15 及更高版本中，右键点按 › 打开已无法绕过检查。",
+    "lead": "需要 Apple 芯片或 Intel Mac 上的 macOS 14 或更高版本。0.x 版本尚未经过 Apple 公证，首次启动时 macOS 会阻止运行。应用更新使用单独的签名进行验证。默认开启自动检查更新，可在设置中关闭。",
     "downloads": "下载",
-    "universal": "Apple silicon 和 Intel",
+    "universal": "Apple 芯片和 Intel",
     "checksum": "SHA-256 校验和",
     "download": "下载",
     "downloadFile": "下载 {file}",
-    "allReleases": "GitHub 上的所有发布版本",
+    "allReleases": "GitHub 上的所有版本",
     "zipNote": "解压下载的 zip，并用旁边的 .sha256 文件校验。",
     "brewTitle": "Homebrew。",
     "brewText": "cask 会把 Doorplate 移到“应用程序”文件夹，因此可以跳过第 1 步：",
     "firstLaunch": "首次启动",
     "steps": [
-      "打开前，先在 Finder 中把 Doorplate.app 移到“应用程序”文件夹（/Applications）。如果直接从下载位置打开，macOS 会从临时位置运行它（App Translocation），导致 Doorplate 无法自行更新。",
-      "打开应用。macOS 会显示“未打开‘Doorplate.app’”（“Apple 无法验证‘Doorplate.app’是否包含可能危害 Mac 安全或泄漏隐私的恶意软件。”）。点按完成。请勿点按移到废纸篓，否则应用会被移到废纸篓。",
-      "打开系统设置 › 隐私与安全性，在 Doorplate 提示旁点按仍要打开，使用密码或 Touch ID 确认，然后在弹出的对话框中再次点按仍要打开。"
+      "解压下载的 zip，并在首次打开前用 Finder 把 Doorplate.app 移到“应用程序”文件夹。如果从“下载”文件夹打开，它将无法自行更新。",
+      "打开 Doorplate。macOS 提示无法验证该应用而未打开时，点按“完成”，不要点按“移到废纸篓”。",
+      "打开“系统设置” ›“隐私与安全性”，在 Doorplate 相关提示旁点按“仍要打开”，用密码或触控 ID 确认后再点按一次“仍要打开”。只需在首次打开时操作一次。"
     ],
-    "macNote": "如果你熟悉终端，可以运行以下命令代替第 2–3 步：",
-    "quarantineExplanation": "此命令会移除 macOS 为互联网下载文件添加的隔离标记，使 Gatekeeper 不再阻止该应用。",
+    "macNote": "从 macOS 15 开始，按住 Control 点按 ›“打开”已无法绕过此检查。如果你熟悉“终端”，可以运行以下命令代替第 2–3 步：",
     "guide": "完整安装指南"
   },
   "footer": {
-    "summary": "Doorplate 免费且开源，采用 Apache-2.0 许可证。",
+    "summary": "Doorplate 是免费的开源软件，基于 Apache-2.0 许可证发布。",
     "links": {
-      "releases": "发布版本",
+      "releases": "版本发布",
       "design": "设计文档（韩语）",
       "license": "许可证"
     },

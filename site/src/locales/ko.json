@@ -2,14 +2,14 @@
   "meta": {
     "title": "Doorplate — 포트마다 문패를 달아 드립니다.",
     "description": "Doorplate는 열려 있는 포트마다 어느 프로젝트의 서버인지 보여 주는 macOS 메뉴바 앱입니다. lsof -i :3000으로 pid를 찾고 어느 서버인지 짐작하는 대신, 메뉴를 열면 5173 @acme/web vite처럼 보입니다.",
-    "noscript": "Doorplate는 열린 포트가 어느 프로젝트의 서버인지 보여 줍니다. GitHub에서 다운로드와 설치 안내를 확인하세요.",
-    "noscriptLink": "Doorplate 다운로드"
+    "noscript": "Doorplate는 열린 포트가 어느 프로젝트의 서버인지 보여 줍니다.",
+    "noscriptLink": "GitHub Releases에서 다운로드"
   },
   "tagline": "포트마다 문패를 달아 드립니다.",
   "pitch": "열려 있는 포트가 어느 프로젝트의 서버인지 보여 주는 macOS 메뉴바 앱입니다.",
   "skip": "본문으로 건너뛰기",
   "nav": {
-    "how": "사용 방법",
+    "how": "작동 방식",
     "features": "기능",
     "principles": "원칙",
     "tools": "지원 스택",
@@ -21,13 +21,13 @@
   "language": "언어",
   "hero": {
     "download": "Mac용 다운로드",
-    "fileHint": "Apple silicon과 Intel 공용 zip 하나입니다. macOS 14 이상이 필요합니다.",
+    "fileHint": "Apple 실리콘과 Intel 공용 zip 하나입니다. macOS 14 이상이 필요합니다.",
     "brew": "Homebrew로 설치할 수도 있습니다.",
     "version": "버전 {version}",
     "otherDownloads": "다른 설치 방법",
     "releaseNotes": "릴리스 노트",
-    "beta": "서명되지 않은 베타.",
-    "betaNote": "ad-hoc 서명만 했고 Apple 공증을 받지 않아, 처음 열 때 macOS가 실행을 막습니다.",
+    "beta": "서명되지 않은 베타입니다.",
+    "betaNote": "아직 Apple 공증을 거치지 않아 처음 실행할 때 macOS가 막습니다.",
     "howToOpen": "여는 방법",
     "screenshotAlt": "Doorplate 메뉴: 프로젝트 이름과 오른쪽의 도구 이름으로 표시된 앱 서버, macOS 서비스 행, Compose 서비스와 컨테이너 이름을 보여 주는 Docker 구역."
   },
@@ -39,7 +39,7 @@
     "failedStatus": "복사하지 못했습니다. 명령을 선택해 직접 복사해 주세요."
   },
   "how": {
-    "title": "사용 방법",
+    "title": "작동 방식",
     "lead": "lsof -i :3000으로 pid를 찾고 어느 서버인지 짐작할 필요가 없습니다. 메뉴를 열면 5173 @acme/web vite처럼 보입니다.",
     "steps": {
       "open": {
@@ -79,7 +79,7 @@
       },
       "stop": {
         "title": "조심해서 종료합니다",
-        "text": "종료 전에 확인을 받고 SIGTERM을 보냅니다. 10초가 지나도 서버가 살아 있으면 기다릴지 강제 종료할지 묻습니다. 컨테이너는 Docker API로 정지하고, Docker 자체는 종료하지 않습니다."
+        "text": "종료하면 SIGTERM을 보내고, 일반 앱에는 ⌘Q와 같은 종료 요청을 보냅니다. 10초가 지나도 실행 중이면 기다릴지 강제 종료할지 묻습니다. 컨테이너는 Docker API로 정지하고, Docker 자체와 macOS 서비스는 종료하지 않습니다."
       },
       "live": {
         "title": "실시간으로 바뀝니다",
@@ -107,7 +107,7 @@
         "text": "sudo도, 별도 도우미 도구도 쓰지 않습니다."
       },
       "network": {
-        "title": "네트워크는 업데이트 확인뿐",
+        "title": "업데이트에만 네트워크 사용",
         "text": "Mac 밖으로 보내는 정보는 없습니다. 요청은 GitHub Pages의 appcast로 하는 업데이트 확인 하나이고, 자동 확인은 설정에서 끌 수 있습니다."
       },
       "telemetry": {
@@ -130,9 +130,9 @@
   },
   "install": {
     "title": "설치와 첫 실행",
-    "lead": "Apple silicon 또는 Intel Mac의 macOS 14 이상이 필요합니다. Doorplate는 ad-hoc 서명만 했고 Apple 공증을 받지 않아, macOS가 첫 실행을 막습니다. macOS 15부터는 우클릭 › 열기로 넘어갈 수 없습니다.",
+    "lead": "Apple 실리콘 또는 Intel Mac의 macOS 14 이상이 필요합니다. 0.x 빌드는 Apple 공증을 받지 않아 처음 실행할 때 macOS가 막습니다. 앱 업데이트는 별도의 서명으로 검증합니다. 자동 업데이트 확인은 기본으로 켜져 있고 설정에서 끌 수 있습니다.",
     "downloads": "다운로드",
-    "universal": "Apple silicon 및 Intel",
+    "universal": "Apple 실리콘 및 Intel",
     "checksum": "SHA-256 체크섬",
     "download": "다운로드",
     "downloadFile": "{file} 다운로드",
@@ -140,25 +140,24 @@
     "zipNote": "받은 zip의 압축을 풀고, 옆에 있는 .sha256 파일로 체크섬을 확인합니다.",
     "brewTitle": "Homebrew.",
     "brewText": "cask가 Doorplate를 응용 프로그램 폴더로 옮겨 주므로 1단계는 건너뜁니다.",
-    "firstLaunch": "처음 열 때",
+    "firstLaunch": "첫 실행",
     "steps": [
-      "처음 열기 전에 Finder에서 Doorplate.app을 응용 프로그램 폴더(/Applications)로 옮깁니다. 다운로드한 자리에서 열면 macOS가 앱을 임시 위치(App Translocation)에서 실행해, Doorplate가 스스로 업데이트하지 못합니다.",
-      "앱을 엽니다. \"'Doorplate.app'을(를) 열지 않음\" 창(\"Apple은 'Doorplate.app'에 사용자의 Mac에 손상을 입히거나 사용자의 개인 정보에 침입할 수 있는 악성 코드가 없음을 확인할 수 없습니다.\")이 뜹니다. 완료를 누릅니다. 휴지통으로 이동은 누르지 않습니다. 앱이 휴지통으로 옮겨집니다.",
-      "시스템 설정 › 개인정보 보호 및 보안에서 Doorplate 안내 옆의 그래도 열기를 누르고 암호나 Touch ID로 확인한 뒤, 다시 뜨는 창에서 그래도 열기를 누릅니다."
+      "받은 zip의 압축을 풀고, 처음 열기 전에 Finder에서 Doorplate.app을 응용 프로그램 폴더로 옮깁니다. 다운로드 폴더에서 열면 스스로 업데이트하지 못합니다.",
+      "Doorplate를 엽니다. macOS가 앱을 확인할 수 없어 열지 않았다고 알리면 완료를 누릅니다. 휴지통으로 이동은 누르지 않습니다.",
+      "시스템 설정 › 개인정보 보호 및 보안을 열고, Doorplate 안내 옆의 그래도 열기를 누른 뒤 암호나 Touch ID로 확인하고 그래도 열기를 한 번 더 누릅니다. 처음 한 번만 하면 됩니다."
     ],
-    "macNote": "터미널이 익숙하다면 2–3단계 대신 다음 명령을 실행해도 됩니다.",
-    "quarantineExplanation": "이 명령은 인터넷에서 받은 파일에 macOS가 붙이는 다운로드 격리 표시를 지웁니다. 그러면 Gatekeeper가 앱을 막지 않습니다.",
+    "macNote": "macOS 15부터는 Control-클릭 › 열기로 이 확인을 넘길 수 없습니다. 터미널이 익숙하다면 2–3단계 대신 다음 명령을 실행해도 됩니다.",
     "guide": "전체 설치 안내"
   },
   "footer": {
-    "summary": "Doorplate는 무료 오픈 소스입니다. Apache-2.0 라이선스.",
+    "summary": "Doorplate는 무료 오픈 소스이며 Apache-2.0 라이선스로 배포됩니다.",
     "links": {
       "releases": "릴리스",
       "design": "설계 문서",
       "license": "라이선스"
     },
     "languages": "언어",
-    "translate": "번역 개선 돕기"
+    "translate": "번역 개선에 참여하기"
   },
   "suggest": {
     "label": "언어 제안",
