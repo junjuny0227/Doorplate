@@ -249,7 +249,8 @@ a:hover {
 button.button {
   border: 0;
   font-family: inherit;
-  cursor: default;
+  /* A web page, not an app: everything clickable shows the pointing hand, like the links. */
+  cursor: pointer;
 }
 .button:active {
   filter: brightness(0.92);
@@ -766,7 +767,7 @@ pre {
   border-radius: var(--radius-control);
   color: var(--label-2);
   list-style: none;
-  cursor: default;
+  cursor: pointer;
 }
 .language-menu summary::-webkit-details-marker {
   display: none;
@@ -999,6 +1000,10 @@ pre {
   border-radius: 2px;
   background-color: var(--label-3);
   touch-action: none;
+  cursor: grab;
+}
+.command-thumb:active {
+  cursor: grabbing;
 }
 /* A taller invisible grab area than the 4px bar. */
 .command-thumb::after {
