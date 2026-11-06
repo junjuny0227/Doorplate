@@ -70,12 +70,12 @@
       "body": "The list updates while the menu is open, and servers running for a long time are marked in orange (· 3d)."
     },
     {
-      "title": "Updates itself with signed updates (Sparkle).",
-      "body": ""
+      "title": "Updates itself.",
+      "body": "New versions install from inside the app, verified against Doorplate's update signing key (Sparkle)."
     },
     {
-      "title": "Speaks English, 한국어, 日本語 and 简体中文.",
-      "body": ""
+      "title": "Speaks your language.",
+      "body": "English, Korean, Japanese and Simplified Chinese, following your macOS language setting."
     }
   ],
   "principles": [
@@ -89,10 +89,10 @@
     },
     {
       "title": "Network only for updates.",
-      "body": "Nothing leaves your Mac. The one request is the update check against the appcast on GitHub Pages; automatic checks can be turned off in Settings. No telemetry or usage statistics."
+      "body": "Nothing leaves your Mac. The one request is the update check against the appcast on GitHub Pages; automatic checks can be turned off in Settings."
     },
     {
-      "title": "No telemetry",
+      "title": "No telemetry.",
       "body": "No usage statistics, analytics or tracking. Your ports, processes and paths stay on your Mac."
     }
   ],
