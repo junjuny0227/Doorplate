@@ -2,6 +2,14 @@
 <rss xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle" version="2.0">
     <channel>
         <item>
+            <title>Doorplate 0.2.2</title>
+            <pubDate>Fri, 06 Nov 2026 05:13:54 +0000</pubDate>
+            <sparkle:version>6</sparkle:version>
+            <sparkle:shortVersionString>0.2.2</sparkle:shortVersionString>
+            <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+            <enclosure url="https://github.com/junjuny0227/Doorplate/releases/download/v0.2.2/Doorplate-0.2.2.zip" length="2280832" type="application/octet-stream" sparkle:edSignature="Xx6m3gW2MLH6KzhnE1yhBvTsla/Kp9XOF+d8eO2kEmgqJq4r+kHHHgmPRLYE6Nxsy+O4PDPSR58WdRgRph8XAg=="></enclosure>
+        </item>
+        <item>
             <title>Doorplate 0.2.1</title>
             <pubDate>Fri, 06 Nov 2026 04:51:59 +0000</pubDate>
             <sparkle:version>5</sparkle:version>
