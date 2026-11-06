@@ -27,7 +27,9 @@ import Foundation
     showOtherApps =
       defaults.object(forKey: Key.showOtherApps) == nil
       ? false : defaults.bool(forKey: Key.showOtherApps)
-    showSystemPorts = defaults.bool(forKey: Key.showSystemPorts)
+    showSystemPorts =
+      defaults.object(forKey: Key.showSystemPorts) == nil
+      ? false : defaults.bool(forKey: Key.showSystemPorts)
     terminalBundleID = defaults.string(forKey: Key.terminalBundleID) ?? "com.apple.Terminal"
     checkForUpdates =
       defaults.object(forKey: Key.checkForUpdates) == nil
