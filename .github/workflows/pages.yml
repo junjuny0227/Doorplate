@@ -1,0 +1,81 @@
+name: Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - site/**
+      - docs/images/**
+      - assets/AppIcon.svg
+      - project.yml
+      - package.json
+      - pnpm-workspace.yaml
+      - pnpm-lock.yaml
+      - biome.json
+      - .github/workflows/pages.yml
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+
+# The appcast writer and site publisher must never race on gh-pages.
+concurrency:
+  group: appcast-gh-pages
+  cancel-in-progress: false
+
+jobs:
+  site:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Check the published release
+        run: |
+          set -euo pipefail
+          version=$(node -p 'require("node:fs").readFileSync("project.yml", "utf8").match(/MARKETING_VERSION: (\d+\.\d+\.\d+)/)[1]')
+          test -n "$version"
+          release=$(gh release view "v$version" --repo "$GITHUB_REPOSITORY" --json isDraft,assets)
+          if [ "$(jq -r .isDraft <<<"$release")" != false ]; then
+            echo "::error::Release v$version is not published"
+            exit 1
+          fi
+          if ! jq -e --arg f "Doorplate-${version}.zip" '.assets | any(.name == $f)' <<<"$release" >/dev/null; then
+            echo "::error::Release v$version has no zip asset"
+            exit 1
+          fi
+      - run: pnpm exec biome ci .
+      - run: pnpm --filter @doorplate/site test
+      - run: pnpm --filter @doorplate/site build
+      - name: Publish next to the existing appcast
+        run: |
+          set -euo pipefail
+          PAGES_DIR="${RUNNER_TEMP}/doorplate-pages"
+          git fetch origin refs/heads/gh-pages:refs/remotes/origin/gh-pages
+          git worktree add --detach "$PAGES_DIR" refs/remotes/origin/gh-pages
+          node site/scripts/stage-pages.mjs site/dist "$PAGES_DIR"
+          git -C "$PAGES_DIR" config user.name 'github-actions[bot]'
+          git -C "$PAGES_DIR" config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          if ! git -C "$PAGES_DIR" diff --cached --quiet; then
+            git -C "$PAGES_DIR" commit -m "Deploy Doorplate product site"
+            git -C "$PAGES_DIR" push origin HEAD:refs/heads/gh-pages
+          fi
+      # GITHUB_TOKEN pushes do not trigger LEGACY branch-based Pages builds.
+      - name: Request Pages build without changing its source
+        run: gh api --method POST "repos/${GITHUB_REPOSITORY}/pages/builds"
+      - name: Clean worktree
+        if: ${{ always() }}
+        run: |
+          if [ -d "${RUNNER_TEMP}/doorplate-pages" ]; then
+            git worktree remove --force "${RUNNER_TEMP}/doorplate-pages"
+          fi

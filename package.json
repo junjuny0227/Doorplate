@@ -1,0 +1,13 @@
+{
+  "name": "doorplate",
+  "private": true,
+  "packageManager": "pnpm@12.11.2",
+  "scripts": {
+    "check": "biome check .",
+    "fix": "biome check --write .",
+    "format": "biome format --write ."
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.6.4"
+  }
+}
