@@ -5,7 +5,7 @@ public struct ToolMatch: Sendable, Equatable {
   public var section: Section
   public var title: String?
   /// False for processes Doorplate must never stop even when shown: container runtimes (every
-  /// container would go down) and macOS services. Spec 3.
+  /// container would go down) and macOS services. Spec 5.
   public var stoppable: Bool
   public init(tool: String?, section: Section, title: String?, stoppable: Bool = true) {
     self.tool = tool
