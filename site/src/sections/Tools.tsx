@@ -1,27 +1,25 @@
-import type { Messages } from '../i18n';
-export function Tools({ c }: { c: Messages }) {
+import { useContent } from '../content';
+import { SymbolTile } from '../icons';
+
+export function Tools() {
+  const C = useContent();
   return (
-    <section className="section" aria-labelledby="tools-title">
-      <h2 id="tools-title">{c.sections.stacks}</h2>
-      <div className="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th scope="col">{c.ui.stack}</th>
-              <th scope="col">{c.ui.servers}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {c.stacks.map(([stack, servers]) => (
-              <tr key={stack}>
-                <th scope="row">{stack}</th>
-                <td>{servers}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+    <section className="section" id="tools" aria-labelledby="tools-title">
+      <div className="section-head">
+        <h2 id="tools-title">{C.tools.title}</h2>
       </div>
-      <p className="footnote">{c.stackNote}</p>
+      <dl className="group tools">
+        {C.tools.groups.map((g) => (
+          <div key={g.key} className="tool-row">
+            <dt>
+              <SymbolTile name={g.key} />
+              {g.name}
+            </dt>
+            <dd>{g.servers}</dd>
+          </div>
+        ))}
+      </dl>
+      <p className="footnote">{C.tools.note}</p>
     </section>
   );
 }

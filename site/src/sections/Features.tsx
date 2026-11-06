@@ -1,19 +1,25 @@
-import type { Messages } from '../i18n';
-export function Features({ c }: { c: Messages }) {
+import { useContent } from '../content';
+import { SymbolTile } from '../icons';
+
+// Repot's System Settings–style grouped list (the Tools pattern), one row per feature.
+export function Features() {
+  const C = useContent();
   return (
-    <section id="features" className="section" aria-labelledby="features-title">
-      <h2 id="features-title">{c.sections.features}</h2>
-      <div className="features">
-        {c.features.map((feature, i) => (
-          <article className="card" key={feature.title}>
-            <span className="feature-number" aria-hidden="true">
-              {String(i + 1).padStart(2, '0')}
-            </span>
-            <h3>{feature.title}</h3>
-            <p>{feature.body}</p>
-          </article>
-        ))}
+    <section className="section" id="features" aria-labelledby="features-title">
+      <div className="section-head">
+        <h2 id="features-title">{C.features.title}</h2>
       </div>
+      <ul className="group features">
+        {C.features.items.map((f) => (
+          <li key={f.key} className="feature-row">
+            <SymbolTile name={f.key} />
+            <div>
+              <h3>{f.title}</h3>
+              <p>{f.text}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }

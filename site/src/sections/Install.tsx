@@ -1,49 +1,71 @@
-import type { Locale, Messages } from '../i18n';
-import { BREW, downloadUrl, REPO } from '../version';
+import { RELEASES_URL, useContent } from '../content';
+import { DownloadArrow } from '../icons';
 import { CopyCommand } from './CopyCommand';
-export function Install({ c, locale }: { c: Messages; locale: Locale }) {
+
+export function Install() {
+  const C = useContent();
   return (
     <section className="section" id="install" aria-labelledby="install-title">
-      <h2 id="install-title">{c.sections.install}</h2>
-      <p className="lead">{c.ui.requirements}</p>
+      <div className="section-head">
+        <h2 id="install-title">{C.install.title}</h2>
+        <p className="lead">{C.install.lead}</p>
+      </div>
       <div className="install">
         <div>
-          <h3>Homebrew</h3>
-          <CopyCommand command={BREW} c={c} />
-          <div className="card download-card">
-            <h3>Doorplate-{__APP_VERSION__}.zip</h3>
-            <p>{c.ui.installNote}</p>
-            <a className="button primary" href={downloadUrl(__APP_VERSION__)}>
-              {c.ui.download}
-            </a>
-            <a href={`${downloadUrl(__APP_VERSION__)}.sha256`}>SHA-256</a>
+          <h3 className="group-title">{C.install.downloads}</h3>
+          <ul className="group files">
+            {C.install.files.map((d) => (
+              <li key={d.id} className="file-row">
+                <div className="file-label">
+                  <span>{d.label}</span>
+                  <code>{d.file}</code>
+                </div>
+                <a className="button" href={d.url} aria-label={C.install.downloadFile(d.file)}>
+                  <DownloadArrow />
+                  {C.install.download}
+                </a>
+              </li>
+            ))}
+          </ul>
+          <div className="footnote">
+            <p>{C.install.zipNote}</p>
+            <p>
+              <a href={RELEASES_URL}>{C.install.allReleases}</a>
+            </p>
           </div>
-          <p className="footnote">
-            <a href={`${REPO}/blob/main/README${locale === 'en' ? '' : `.${locale}`}.md`}>
-              {c.ui.readme} ↗
-            </a>
-          </p>
+          <div className="footnote">
+            <p>
+              <strong>{C.install.brewTitle}</strong>
+              {C.gap}
+              {C.install.brewText}
+            </p>
+            <CopyCommand command={C.brew} />
+          </div>
         </div>
         <div>
-          <h3>{c.ui.first}</h3>
-          <p className="first-intro">{c.firstOpen.intro}</p>
-          <ol className="launch">
-            {c.firstOpen.steps.map((step, i) => (
-              <li key={step}>
-                <span className="step-number" aria-hidden="true">
+          <h3 className="group-title" id="first-launch">
+            {C.install.firstLaunch}
+          </h3>
+          <ol className="group launch">
+            {C.install.steps.map((s, i) => (
+              <li key={s}>
+                <span className="step-number small" aria-hidden="true">
                   {i + 1}
                 </span>
-                <p>{step}</p>
+                <p>{s}</p>
               </li>
             ))}
           </ol>
+          <div className="footnote">
+            <p>{C.install.macNote}</p>
+            <CopyCommand command={C.install.quarantine} />
+            <p>{C.install.quarantineExplanation}</p>
+            <p>
+              <a href={C.install.guideUrl}>{C.install.guide}</a>
+            </p>
+          </div>
         </div>
       </div>
-      <details className="terminal-alternative">
-        <summary>{c.ui.quarantine}</summary>
-        <CopyCommand command="xattr -dr com.apple.quarantine /Applications/Doorplate.app" c={c} />
-        <p className="footnote">{c.firstOpen.quarantineExplanation}</p>
-      </details>
     </section>
   );
 }
