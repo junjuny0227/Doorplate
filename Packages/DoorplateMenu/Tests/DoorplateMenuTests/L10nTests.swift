@@ -1,4 +1,4 @@
-import Foundation
+import AppKit
 import Testing
 
 @testable import DoorplateMenu
@@ -47,6 +47,19 @@ struct L10nTests {
     #expect(Set(english.keys) == Set(localized.keys))
     #expect(Set(english.keys) == Set(L10n.Key.allCases.map(\.rawValue)))
     #expect(localized.values.allSatisfy { !$0.isEmpty })
+  }
+
+  @Test(arguments: [("en", "Stop"), ("ko", "종료"), ("ja", "終了"), ("zh-Hans", "退出")])
+  @MainActor func optionRowRedsOnlyTheStopWord(_ language: String, _ word: String) throws {
+    let template = try #require(try strings(language)["row.stop"])
+    let title = String(format: template, locale: nil, 5173, "shop")
+    let attributed = MenuBuilder.stopRowTitle(title, template: template)
+    var red = NSRange()
+    #expect(
+      attributed.attribute(.foregroundColor, at: 0, effectiveRange: &red) as? NSColor
+        == .systemRed)
+    #expect((title as NSString).substring(with: red) == word)
+    #expect(attributed.attribute(.foregroundColor, at: red.length, effectiveRange: nil) == nil)
   }
 
   @Test(arguments: ["en", "ko", "ja", "zh-Hans"])
