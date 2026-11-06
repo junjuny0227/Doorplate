@@ -31,8 +31,9 @@ open the menu and read `5173  @acme/web  vite`.
 - **Hides the noise.** IDEs, build daemons and other apps stay hidden until you choose
   to show them in Settings. Worker processes that share a socket appear as one row;
   debugger, inspector and LiveReload ports are grouped under their server.
-- **Explains macOS's own ports.** AirPlay Receiver on 5000 and 7000 gets its own row,
-  with where to turn it off.
+- **Explains macOS's own ports.** Turn on **Show system ports** in Settings to see
+  AirPlay and other macOS services. They stay in the hidden list by default. AirPlay
+  Receiver on 5000 and 7000 includes instructions for turning it off.
 - **Acts on a row.** Open in the browser, show in Finder, open a terminal there, copy
   the address, or stop the server. Hold ⌥ to turn a row into a one-click Stop item.
 - **Stops carefully.** Stop asks first and sends SIGTERM. If the server is still

@@ -82,10 +82,10 @@ pid 재확인과 단계적 종료(SIGTERM → 확인 후 SIGKILL)는 Berth와 ma
 4. 보조 포트 역할 표시(디버거, LiveReload, Node inspector).
 5. Docker 컨테이너를 Compose 프로젝트·서비스 이름으로 표시하고 API로 정지.
 6. 개발 도구 포트(Gradle 데몬, Kotlin 데몬, IDE)와 다른 앱 포트는 기본 숨김. 설정에서 보이게 할 수 있다.
-7. macOS AirPlay 수신(5000, 7000)을 "시스템"으로 표시하고 끄는 방법을 안내.
+7. macOS AirPlay 수신(5000, 7000)과 macOS 서비스 포트는 기본 숨김. "시스템 포트 표시"를 켜면 시스템 구역에 표시하고, AirPlay에는 끄는 방법을 안내.
 8. 동작: 브라우저에서 열기, Finder에서 보기, 터미널에서 열기, 주소 복사, 종료.
 9. 오래 켜진 서버 표시(기본 24시간).
-10. 설정 창: 로그인 시 실행, 오래 켜짐 기준, 개발 도구 포트 표시, 다른 앱 포트 표시, 터미널 앱, 업데이트 확인.
+10. 설정 창: 로그인 시 실행, 오래 켜짐 기준, 개발 도구 포트 표시, 다른 앱 포트 표시, 시스템 포트 표시, 터미널 앱, 업데이트 확인.
 11. 앱 업데이트(13절).
 12. 언어: 영어 원본과 한국어, 일본어, 중국어(간체). 시스템 언어를 따른다.
 
@@ -251,8 +251,8 @@ pid마다 이름, 실행 파일 경로, argv, cwd, 부모 pid, 부모의 argv, �
 | python + `manage.py runserver`·`uvicorn`·`flask`·`gunicorn` | 앱 | `django`·`uvicorn`·`flask`·`gunicorn` |
 | ruby + `puma`·`rails` | 앱 | `rails` |
 | IntelliJ, VS Code, Cursor 등 IDE 프로세스 | 개발 도구(숨김) | IDE 이름 |
-| ControlCenter의 5000·7000 포트 | 시스템 | `AirPlay 수신 (macOS)` |
-| macOS 서비스: 실행 파일이 `/System/`·`/usr/libexec/`·`/usr/sbin/` 아래에 있음(예: `rapportd`) | 다른 앱(숨김, 종료 불가) | 실행 파일 이름 |
+| ControlCenter의 5000·7000 포트 | 시스템(기본 숨김, 종료 불가) | `AirPlay 수신 (macOS)` |
+| macOS 서비스: 실행 파일이 `/System/`·`/usr/libexec/`·`/usr/sbin/` 아래에 있음(예: `rapportd`) | 시스템(기본 숨김, 종료 불가) | 실행 파일 이름 |
 | 실행 파일 경로에 `.app/Contents/`가 있는 다른 앱 | 다른 앱(숨김, 보이게 하면 종료 가능) | 앱 이름 |
 | 그 밖 | 앱 | 실행 파일 이름 |
 
@@ -279,9 +279,10 @@ pid마다 이름, 실행 파일 경로, argv, cwd, 부모 pid, 부모의 argv, �
 ### 7.6 Snapshot
 
 - 구역 순서: 앱 서버 → 시스템 → Docker → "숨김 N개".
+- 시스템 항목은 `showSystemPorts`가 참일 때만 시스템 구역에 두고, 거짓이면 분류(`.system`)를 유지한 채 "숨김 N개"로 옮긴다. `showOtherApps`와 독립적이다. 숨김 수는 포트 수가 아닌 행 수이며, AirPlay의 5000·7000은 한 행이다.
 - 구역 안에서는 대표 포트 번호 순. 열 때마다 순서가 바뀌지 않게 한다.
-- 오래 켜짐: `현재 시각 - 시작 시각 > 기준값`. 컨테이너는 Docker API의 시작 시각을 쓴다.
-- 메뉴바 숫자는 앱 서버와 Docker 행만 센다. 시스템 행(AirPlay)과 숨김은 세지 않는다. 시스템 행을 세면 AirPlay를 켠 사용자의 숫자가 0이 되지 않는다.
+- 오래 켜짐: `현재 시각 - 시작 시각 > 기준값`. 컨테이너는 Docker API의 시작 시각을 쓴다. 시스템 항목은 오래 켜짐 꼬리표와 메뉴바 주황 점에서 제외한다.
+- 메뉴바 숫자는 앱 서버와 Docker 행만 센다. 시스템 행(AirPlay와 macOS 서비스)과 숨김은 세지 않는다. 시스템 행을 세면 AirPlay를 켠 사용자의 숫자가 0이 되지 않는다.
 
 ```swift
 struct ServerEntry: Sendable, Equatable {
@@ -311,7 +312,7 @@ struct ServerEntry: Sendable, Equatable {
 
 ## 8. 메뉴
 
-사용자 시안을 따른다. 아래는 한국어 화면이다(영어는 `Running · 5`, `· 3d`처럼 `L10n`의 같은 키).
+사용자 시안을 따른다. 아래는 "시스템 포트 표시"를 켠 한국어 화면이다(영어는 `Running · 5`, `· 3d`처럼 `L10n`의 같은 키).
 
 ```
 실행 중 · 5                                   (회색 머리글)
@@ -370,7 +371,8 @@ Finder에서 보기
 - `likelyHTTP`가 거짓이면 "브라우저에서 열기"를 빼고 "주소 복사"를 맨 위에 둔다. `likelyHTTP`가 거짓인 경우: 포트 5432·3306·6379·27017·9092·11211, 또는 컨테이너 이미지의 짧은 이름(마지막 `/` 뒤, `:` 앞)이 `postgres`·`postgresql`·`mysql`·`mariadb`·`redis`·`valkey`·`mongo`·`mongodb`·`kafka`·`cp-kafka`·`memcached` 중 하나와 정확히 같을 때. 접두어로 판단하지 않는다(`redis-exporter`는 HTTP다).
 - "터미널에서 열기"는 설정의 터미널 앱(기본 Terminal)으로 표식 폴더를 연다.
 - 컨테이너 행: 열기·복사 → "Compose 폴더를 Finder에서 보기" → "컨테이너 정지". Compose 폴더 경로, 이미지, 실행 시간 줄은 두지 않는다.
-- 시스템 행(AirPlay): "Turn off in System Settings > General > AirDrop & Handoff" 안내만 보여 준다.
+- 시스템 행(AirPlay): "Turn off in System Settings > General > AirDrop & Handoff" 안내만 보여 준다. 다른 macOS 서비스는 대표 포트의 주소 복사만 제공한다. 시스템 행에는 종료·⌥ 대체 항목을 두지 않는다.
+- 숨긴 시스템 항목은 기존 숨김 목록처럼 포트와 제목만 보여 준다. AirPlay 제목은 표시 위치에 관계없이 앱 언어로 번역한다. "시스템 포트 표시"를 켜면 시스템 구역에서 안내 또는 주소 복사를 사용할 수 있다.
 
 ## 9. 종료 흐름
 
@@ -406,8 +408,11 @@ Finder에서 보기
 | 오래 켜짐 기준 | 24시간 |
 | 개발 도구 포트 표시 | 꺼짐 |
 | 다른 앱 포트 표시 | 꺼짐 |
+| 시스템 포트 표시 | 꺼짐. 설명: "AirPlay 등 macOS 서비스가 사용하는 포트를 표시합니다." |
 | 터미널 앱 | Terminal. 설치된 Terminal, iTerm, Ghostty, Warp 등에서 고른다 |
 | 업데이트 자동 확인 | 켜짐 |
+
+"시스템 포트 표시"는 새 설치와 기존 사용자 모두 키가 없으면 꺼짐으로 시작한다. 변경은 저장하고 즉시 재조회하며, 재실행 뒤에도 유지한다. 이전 진단 fixture의 `SnapshotSettings`에 `showSystemPorts`가 없어도 꺼짐으로 읽는다. 이 설정은 Doorplate의 표시만 바꾸며 macOS 서비스 자체는 끄지 않는다.
 
 ## 12. 테스트
 
@@ -440,7 +445,7 @@ Finder에서 보기
 
 - vite, next, `gradle bootRun`, `mvn spring-boot:run`, IntelliJ 실행(Spring), `java -jar`(프로젝트 밖), `cargo run`, Django, FastAPI(uvicorn), Rails
 - Docker Compose: Docker Desktop, OrbStack 각각
-- AirPlay 5000, Gradle 데몬 숨김
+- AirPlay 5000·macOS 서비스 기본 숨김과 시스템 포트 표시 전환(서버 수·주황 점 제외, 종료 불가), Gradle 데몬 숨김
 - 성공 기준(2절)의 메뉴 지연, 유휴 CPU, 메모리
 - 폴더 접근 허락(TCC): `~/Desktop`, `~/Downloads`, iCloud Drive 안의 프로젝트에서 폴더마다 허락 창이 한 번 뜨는지, 허락하면 프로젝트 이름이, 거부하면 폴더 이름이 나오는지(실험은 `~/Documents`만 확인했다)
 - `~/Downloads`에서 옮기지 않고 바로 실행했을 때: App Translocation으로 실행되는지, Sparkle 업데이트가 거부되는지, 13.1절 안내와 맞는지

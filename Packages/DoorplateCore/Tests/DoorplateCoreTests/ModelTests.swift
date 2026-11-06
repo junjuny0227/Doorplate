@@ -23,6 +23,7 @@ struct ModelTests {
       let decoder = JSONDecoder()
       decoder.dateDecodingStrategy = .iso8601
       let fixture = try decoder.decode(ScanFixture.self, from: Data(json.utf8))
+      #expect(!fixture.settings.showSystemPorts)
       #expect(fixture.denied.isEmpty)
       #expect(fixture.listeners.first?.socketID == nil)
       #expect(fixture.docker.containers == nil)
@@ -35,6 +36,7 @@ struct ModelTests {
     #expect(SnapshotSettings().longRunningThreshold == 86_400)
     #expect(!SnapshotSettings().showDevTools)
     #expect(!SnapshotSettings().showOtherApps)
+    #expect(!SnapshotSettings().showSystemPorts)
     #expect(Snapshot.empty(at: now).scannedAt == now)
     #expect(Snapshot.empty(at: now).badgeCount == 0)
     let entries = [
@@ -51,6 +53,15 @@ struct ModelTests {
     ]
     let data = try JSONEncoder().encode(entries)
     #expect(try JSONDecoder().decode([ServerEntry].self, from: data) == entries)
+  }
+
+  @Test(arguments: [false, true])
+  func systemPortSettingRoundTrips(_ showSystemPorts: Bool) throws {
+    let settings = SnapshotSettings(
+      longRunningThreshold: 7200, showDevTools: true, showOtherApps: true,
+      showSystemPorts: showSystemPorts)
+    let data = try JSONEncoder().encode(settings)
+    #expect(try JSONDecoder().decode(SnapshotSettings.self, from: data) == settings)
   }
 
   @Test func fakeFileProbeHonorsDeniedBoundaries() {

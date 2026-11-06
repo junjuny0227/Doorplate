@@ -113,7 +113,7 @@ private final class CommandBox {
       let submenu = NSMenu()
       submenu.autoenablesItems = false
       for entry in snapshot.hidden {
-        submenu.addItem(item("\(entry.primary.port)  \(entry.title)", id: entry.id))
+        submenu.addItem(item("\(entry.primary.port)  \(displayTitle(entry))", id: entry.id))
       }
       hidden.submenu = submenu
       hidden.isEnabled = true
@@ -144,7 +144,7 @@ private final class CommandBox {
       let stopping = state.stopping.contains(entry.id)
       let system = entry.section == .system
       let docker = entry.section == .docker
-      let title = system && entry.tool == "airplay" ? L10n.text(.systemAirplay) : entry.title
+      let title = displayTitle(entry)
       var text = "\(entry.primary.port)  \(title)"
       var suffix: String?
       if entry.isLongRunning, let startedAt = entry.startedAt {
@@ -179,7 +179,14 @@ private final class CommandBox {
     let menu = NSMenu()
     menu.autoenablesItems = false
     if entry.section == .system {
-      menu.addItem(item(L10n.text(.systemAirplayHint), id: "hint"))
+      if entry.tool == "airplay" {
+        menu.addItem(item(L10n.text(.systemAirplayHint), id: "hint"))
+      } else {
+        menu.addItem(
+          item(
+            L10n.text(.subCopyAddress), id: "copy",
+            command: .copy("localhost:\(entry.primary.port)")))
+      }
       return menu
     }
     let docker = entry.section == .docker
@@ -232,8 +239,8 @@ private final class CommandBox {
             command: .copy("localhost:\(extra.port)")))
       }
     }
-    // Spec 3: container runtimes and macOS services stay unstoppable even when shown, so they get
-    // no stop item at all. Other apps of this user can be stopped like any server.
+    // Container runtimes stay unstoppable even when shown, so they get no stop item at all.
+    // Other apps of this user can be stopped like any server.
     if entry.section == .hidden(.otherApp) && !entry.canTerminate { return menu }
     separator(menu, id: "stop.separator")
     let stopTitle: String
@@ -252,6 +259,10 @@ private final class CommandBox {
     }
     menu.addItem(stop)
     return menu
+  }
+
+  private func displayTitle(_ entry: ServerEntry) -> String {
+    entry.section == .system && entry.tool == "airplay" ? L10n.text(.systemAirplay) : entry.title
   }
 
   /// The Option row with only the stop word ("Stop", "종료", "終了", "退出") in red, so the

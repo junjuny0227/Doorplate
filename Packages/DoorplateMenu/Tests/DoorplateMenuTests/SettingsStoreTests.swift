@@ -15,6 +15,8 @@ struct SettingsStoreTests {
     #expect(store.longRunningHours == 24)
     #expect(store.showDevTools == false)
     #expect(store.showOtherApps == false)
+    #expect(store.showSystemPorts == false)
+    #expect(store.snapshotSettings.showSystemPorts == false)
     #expect(store.terminalBundleID == "com.apple.Terminal")
     #expect(store.checkForUpdates == true)
     #expect(store.snapshotSettings.longRunningThreshold == 86_400)
@@ -26,12 +28,17 @@ struct SettingsStoreTests {
     first.longRunningHours = 48
     first.showDevTools = true
     first.showOtherApps = true
+    first.showSystemPorts = true
     first.terminalBundleID = "com.googlecode.iterm2"
     first.checkForUpdates = false
     let second = SettingsStore(defaults: defaults)
     #expect(second.longRunningHours == 48)
     #expect(second.showDevTools)
     #expect(second.showOtherApps)
+    #expect(second.showSystemPorts)
+    #expect(second.snapshotSettings.showSystemPorts)
+    second.showSystemPorts = false
+    #expect(!SettingsStore(defaults: defaults).showSystemPorts)
     #expect(second.terminalBundleID == "com.googlecode.iterm2")
     #expect(second.checkForUpdates == false)
   }
@@ -42,5 +49,16 @@ struct SettingsStoreTests {
     #expect(store.longRunningHours == 1)
     store.longRunningHours = 500
     #expect(store.longRunningHours == 168)
+  }
+
+  @Test func existingPreferencesDefaultSystemPortsToHidden() {
+    let defaults = makeDefaults()
+    defaults.set(true, forKey: "showOtherApps")
+    defaults.set(true, forKey: "showDevTools")
+    let store = SettingsStore(defaults: defaults)
+    #expect(store.showOtherApps)
+    #expect(store.showDevTools)
+    #expect(!store.showSystemPorts)
+    #expect(!store.snapshotSettings.showSystemPorts)
   }
 }

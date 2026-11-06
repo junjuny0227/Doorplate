@@ -146,6 +146,8 @@ struct L10nTests {
       "settings.longRunning": "오래 켜짐 기준",
       "settings.showDevTools": "개발 도구 포트 표시",
       "settings.showOtherApps": "다른 앱 포트 표시",
+      "settings.showSystemPorts": "시스템 포트 표시",
+      "settings.showSystemPortsHint": "AirPlay 등 macOS 서비스가 사용하는 포트를 표시합니다.",
       "settings.terminal": "터미널 앱",
       "settings.autoUpdate": "업데이트 자동 확인",
     ]

@@ -7,6 +7,7 @@ import Foundation
     static let longRunningHours = "longRunningHours"
     static let showDevTools = "showDevTools"
     static let showOtherApps = "showOtherApps"
+    static let showSystemPorts = "showSystemPorts"
     static let terminalBundleID = "terminalBundleID"
     static let checkForUpdates = "checkForUpdates"
     static let askedOpenAtLogin = "askedOpenAtLogin"
@@ -26,6 +27,7 @@ import Foundation
     showOtherApps =
       defaults.object(forKey: Key.showOtherApps) == nil
       ? false : defaults.bool(forKey: Key.showOtherApps)
+    showSystemPorts = defaults.bool(forKey: Key.showSystemPorts)
     terminalBundleID = defaults.string(forKey: Key.terminalBundleID) ?? "com.apple.Terminal"
     checkForUpdates =
       defaults.object(forKey: Key.checkForUpdates) == nil
@@ -33,6 +35,7 @@ import Foundation
     defaults.set(longRunningHours, forKey: Key.longRunningHours)
     defaults.set(showDevTools, forKey: Key.showDevTools)
     defaults.set(showOtherApps, forKey: Key.showOtherApps)
+    defaults.set(showSystemPorts, forKey: Key.showSystemPorts)
     defaults.set(terminalBundleID, forKey: Key.terminalBundleID)
     defaults.set(checkForUpdates, forKey: Key.checkForUpdates)
     if defaults.object(forKey: Key.askedOpenAtLogin) == nil {
@@ -59,6 +62,10 @@ import Foundation
     didSet { defaults.set(showOtherApps, forKey: Key.showOtherApps) }
   }
 
+  @Published public var showSystemPorts: Bool {
+    didSet { defaults.set(showSystemPorts, forKey: Key.showSystemPorts) }
+  }
+
   @Published public var terminalBundleID: String {
     didSet { defaults.set(terminalBundleID, forKey: Key.terminalBundleID) }
   }
@@ -76,6 +83,7 @@ import Foundation
     SnapshotSettings(
       longRunningThreshold: TimeInterval(longRunningHours) * 3_600,
       showDevTools: showDevTools,
-      showOtherApps: showOtherApps)
+      showOtherApps: showOtherApps,
+      showSystemPorts: showSystemPorts)
   }
 }

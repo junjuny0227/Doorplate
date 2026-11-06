@@ -29,6 +29,12 @@ import SwiftUI
       }
       Toggle(L10n.text(.settingsShowDevTools), isOn: $settings.showDevTools)
       Toggle(L10n.text(.settingsShowOtherApps), isOn: $settings.showOtherApps)
+      Toggle(isOn: $settings.showSystemPorts) {
+        Text(L10n.text(.settingsShowSystemPorts))
+        Text(L10n.text(.settingsShowSystemPortsHint))
+          .font(.caption)
+          .foregroundStyle(.secondary)
+      }
       Picker(L10n.text(.settingsTerminal), selection: terminalSelection) {
         ForEach(terminals, id: \.bundleID) { app in
           Text(verbatim: app.name).tag(app.bundleID)
@@ -47,6 +53,7 @@ import SwiftUI
     .onChange(of: settings.longRunningHours) { onChange() }
     .onChange(of: settings.showDevTools) { onChange() }
     .onChange(of: settings.showOtherApps) { onChange() }
+    .onChange(of: settings.showSystemPorts) { onChange() }
     .onChange(of: settings.terminalBundleID) { onChange() }
     .onChange(of: settings.checkForUpdates) { onChange() }
   }

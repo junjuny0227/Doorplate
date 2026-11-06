@@ -11,15 +11,18 @@ public enum SnapshotBuilder {
 
     for var entry in entries {
       entry.isLongRunning =
-        entry.startedAt.map {
+        entry.section != .system
+        && (entry.startedAt.map {
           now.timeIntervalSince($0) > settings.longRunningThreshold
-        } ?? false
+        } ?? false)
 
       switch entry.section {
       case .app:
         apps.append(entry)
-      case .system:
+      case .system where settings.showSystemPorts:
         system.append(entry)
+      case .system:
+        hidden.append(entry)
       case .docker:
         docker.append(entry)
       case .hidden(.devTool) where settings.showDevTools:
