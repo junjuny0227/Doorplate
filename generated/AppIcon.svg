@@ -1,0 +1,132 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <!-- Doorplate app icon (draft A "Door"): a warm door with a brass nameplate on a deep blue plate.
+       macOS template: 1024 canvas, 824 plate (rx 185), 100 px margin.
+       Rendered by scripts/make-icon.sh (AppKit). AppKit's SVG renderer ignores filters, so every
+       drop shadow is drawn as stacked translucent rounded rects that approximate a Gaussian blur
+       (plate: dy 10, sigma 10, black 30%; frame and nameplate: dy 8, sigma 10, #0A1A33 45%). -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3B6EA8"/>
+      <stop offset="1" stop-color="#1D3A63"/>
+    </linearGradient>
+    <linearGradient id="frame" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F4F1EA"/>
+      <stop offset="1" stop-color="#D9D3C7"/>
+    </linearGradient>
+    <linearGradient id="door" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#F59E4C"/>
+      <stop offset="1" stop-color="#D2652A"/>
+    </linearGradient>
+    <linearGradient id="brass" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFE9A3"/>
+      <stop offset="0.55" stop-color="#F2C14E"/>
+      <stop offset="1" stop-color="#C9952A"/>
+    </linearGradient>
+    <radialGradient id="knob" cx="0.35" cy="0.35" r="0.7">
+      <stop offset="0" stop-color="#FFF2C2"/>
+      <stop offset="1" stop-color="#B9861F"/>
+    </radialGradient>
+    <clipPath id="plateClip"><rect x="100" y="100" width="824" height="824" rx="185" ry="185"/></clipPath>
+  </defs>
+
+  <!-- plate shadow -->
+  <g fill="#000">
+    <rect x="78" y="88" width="868" height="868" rx="207" opacity="0.005"/>
+    <rect x="82" y="92" width="860" height="860" rx="203" opacity="0.008"/>
+    <rect x="84" y="94" width="856" height="856" rx="201" opacity="0.007"/>
+    <rect x="86" y="96" width="852" height="852" rx="199" opacity="0.009"/>
+    <rect x="88" y="98" width="848" height="848" rx="197" opacity="0.012"/>
+    <rect x="90" y="100" width="844" height="844" rx="195" opacity="0.015"/>
+    <rect x="92" y="102" width="840" height="840" rx="193" opacity="0.018"/>
+    <rect x="94" y="104" width="836" height="836" rx="191" opacity="0.022"/>
+    <rect x="96" y="106" width="832" height="832" rx="189" opacity="0.024"/>
+    <rect x="98" y="108" width="828" height="828" rx="187" opacity="0.026"/>
+    <rect x="100" y="110" width="824" height="824" rx="185" opacity="0.028"/>
+    <rect x="102" y="112" width="820" height="820" rx="183" opacity="0.028"/>
+    <rect x="104" y="114" width="816" height="816" rx="181" opacity="0.027"/>
+    <rect x="106" y="116" width="812" height="812" rx="179" opacity="0.025"/>
+    <rect x="108" y="118" width="808" height="808" rx="177" opacity="0.022"/>
+    <rect x="110" y="120" width="804" height="804" rx="175" opacity="0.019"/>
+    <rect x="112" y="122" width="800" height="800" rx="173" opacity="0.016"/>
+    <rect x="114" y="124" width="796" height="796" rx="171" opacity="0.012"/>
+    <rect x="116" y="126" width="792" height="792" rx="169" opacity="0.009"/>
+    <rect x="118" y="128" width="788" height="788" rx="167" opacity="0.007"/>
+    <rect x="120" y="130" width="784" height="784" rx="165" opacity="0.005"/>
+  </g>
+  <rect x="100" y="100" width="824" height="824" rx="185" ry="185" fill="url(#bg)"/>
+
+  <!-- door frame shadow -->
+  <g fill="#0A1A33">
+    <rect x="278" y="180" width="468" height="708" rx="58" opacity="0.005"/>
+    <rect x="282" y="184" width="460" height="700" rx="54" opacity="0.008"/>
+    <rect x="284" y="186" width="456" height="696" rx="52" opacity="0.007"/>
+    <rect x="286" y="188" width="452" height="692" rx="50" opacity="0.010"/>
+    <rect x="288" y="190" width="448" height="688" rx="48" opacity="0.014"/>
+    <rect x="290" y="192" width="444" height="684" rx="46" opacity="0.018"/>
+    <rect x="292" y="194" width="440" height="680" rx="44" opacity="0.023"/>
+    <rect x="294" y="196" width="436" height="676" rx="42" opacity="0.028"/>
+    <rect x="296" y="198" width="432" height="672" rx="40" opacity="0.034"/>
+    <rect x="298" y="200" width="428" height="668" rx="38" opacity="0.038"/>
+    <rect x="300" y="202" width="424" height="664" rx="36" opacity="0.042"/>
+    <rect x="302" y="204" width="420" height="660" rx="34" opacity="0.045"/>
+    <rect x="304" y="206" width="416" height="656" rx="32" opacity="0.046"/>
+    <rect x="306" y="208" width="412" height="652" rx="30" opacity="0.046"/>
+    <rect x="308" y="210" width="408" height="648" rx="28" opacity="0.043"/>
+    <rect x="310" y="212" width="404" height="644" rx="26" opacity="0.040"/>
+    <rect x="312" y="214" width="400" height="640" rx="24" opacity="0.034"/>
+    <rect x="314" y="216" width="396" height="636" rx="22" opacity="0.029"/>
+    <rect x="316" y="218" width="392" height="632" rx="20" opacity="0.023"/>
+    <rect x="318" y="220" width="388" height="628" rx="18" opacity="0.017"/>
+    <rect x="320" y="222" width="384" height="624" rx="16" opacity="0.013"/>
+    <rect x="322" y="224" width="380" height="620" rx="14" opacity="0.009"/>
+  </g>
+  <!-- door frame -->
+  <rect x="302" y="196" width="420" height="660" rx="34" fill="url(#frame)"/>
+  <!-- door leaf -->
+  <rect x="338" y="232" width="348" height="620" rx="16" fill="url(#door)"/>
+  <!-- lower panel -->
+  <rect x="384" y="560" width="256" height="200" rx="14" fill="none" stroke="#B8521F" stroke-width="12" opacity="0.55"/>
+
+  <!-- nameplate shadow -->
+  <g fill="#0A1A33">
+    <rect x="346" y="300" width="332" height="188" rx="46" opacity="0.005"/>
+    <rect x="350" y="304" width="324" height="180" rx="42" opacity="0.008"/>
+    <rect x="352" y="306" width="320" height="176" rx="40" opacity="0.007"/>
+    <rect x="354" y="308" width="316" height="172" rx="38" opacity="0.010"/>
+    <rect x="356" y="310" width="312" height="168" rx="36" opacity="0.014"/>
+    <rect x="358" y="312" width="308" height="164" rx="34" opacity="0.018"/>
+    <rect x="360" y="314" width="304" height="160" rx="32" opacity="0.023"/>
+    <rect x="362" y="316" width="300" height="156" rx="30" opacity="0.028"/>
+    <rect x="364" y="318" width="296" height="152" rx="28" opacity="0.034"/>
+    <rect x="366" y="320" width="292" height="148" rx="26" opacity="0.038"/>
+    <rect x="368" y="322" width="288" height="144" rx="24" opacity="0.042"/>
+    <rect x="370" y="324" width="284" height="140" rx="22" opacity="0.045"/>
+    <rect x="372" y="326" width="280" height="136" rx="20" opacity="0.046"/>
+    <rect x="374" y="328" width="276" height="132" rx="18" opacity="0.046"/>
+    <rect x="376" y="330" width="272" height="128" rx="16" opacity="0.043"/>
+    <rect x="378" y="332" width="268" height="124" rx="14" opacity="0.040"/>
+    <rect x="380" y="334" width="264" height="120" rx="12" opacity="0.034"/>
+    <rect x="382" y="336" width="260" height="116" rx="10" opacity="0.029"/>
+    <rect x="384" y="338" width="256" height="112" rx="8" opacity="0.023"/>
+    <rect x="386" y="340" width="252" height="108" rx="6" opacity="0.017"/>
+    <rect x="388" y="342" width="248" height="104" rx="4" opacity="0.013"/>
+    <rect x="390" y="344" width="244" height="100" rx="2" opacity="0.009"/>
+  </g>
+  <!-- nameplate -->
+  <rect x="370" y="316" width="284" height="140" rx="22" fill="url(#brass)"/>
+  <rect x="370" y="316" width="284" height="140" rx="22" fill="none" stroke="#FFF6D5" stroke-width="4" opacity="0.7"/>
+  <!-- name lines -->
+  <rect x="410" y="352" width="204" height="30" rx="15" fill="#5A3A0E" opacity="0.85"/>
+  <rect x="410" y="400" width="120" height="22" rx="11" fill="#5A3A0E" opacity="0.55"/>
+  <circle cx="596" cy="411" r="13" fill="#2FBF71"/>
+
+  <!-- floor: the door stands on it -->
+  <g clip-path="url(#plateClip)">
+    <rect x="100" y="808" width="824" height="116" fill="#182F52"/>
+    <rect x="100" y="808" width="824" height="4" fill="#0F2240"/>
+  </g>
+
+  <!-- knob -->
+  <circle cx="634" cy="520" r="26" fill="url(#knob)"/>
+  <circle cx="634" cy="520" r="26" fill="none" stroke="#8A5F12" stroke-width="3" opacity="0.5"/>
+</svg>
