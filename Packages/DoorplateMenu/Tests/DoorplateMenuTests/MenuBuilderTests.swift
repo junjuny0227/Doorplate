@@ -117,9 +117,14 @@ import Testing
     #expect(menu.items[index + 1].isAlternate)
     #expect(menu.items[index + 1].keyEquivalentModifierMask == .option)
     #expect(menu.items[index + 1].submenu == nil)
-    let red = try #require(menu.items[index + 1].attributedTitle)
-    #expect(red.string == "Stop 5173 @repot/desktop")
-    #expect(red.attribute(.foregroundColor, at: 0, effectiveRange: nil) as? NSColor == .systemRed)
+    let title = try #require(menu.items[index + 1].attributedTitle)
+    #expect(title.string == "Stop 5173 @repot/desktop")
+    // Only the word "Stop" is red; the port and the name keep the normal menu color.
+    var red = NSRange()
+    #expect(
+      title.attribute(.foregroundColor, at: 0, effectiveRange: &red) as? NSColor == .systemRed)
+    #expect(red == NSRange(location: 0, length: 4))
+    #expect(title.attribute(.foregroundColor, at: 5, effectiveRange: nil) == nil)
     populate(outcome(apps: [entry(canTerminate: false)]))
     #expect(!menu.items.contains(where: { $0.isAlternate }))
   }

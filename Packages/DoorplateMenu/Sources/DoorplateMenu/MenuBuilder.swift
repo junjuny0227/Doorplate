@@ -169,10 +169,7 @@ private final class CommandBox {
           command: .stop(ref(entry)))
         alternate.isAlternate = true
         alternate.keyEquivalentModifierMask = .option
-        // Red like the submenu's stop item: holding Option turns the row into a destructive action.
-        alternate.attributedTitle = NSAttributedString(
-          string: alternate.title,
-          attributes: [.foregroundColor: NSColor.systemRed, .font: NSFont.menuFont(ofSize: 0)])
+        alternate.attributedTitle = Self.stopRowTitle(alternate.title)
         menu.addItem(alternate)
       }
     }
@@ -255,6 +252,24 @@ private final class CommandBox {
     }
     menu.addItem(stop)
     return menu
+  }
+
+  /// The Option row with only the stop word ("Stop", "종료", "終了", "退出") in red, so the
+  /// destructive action stands out while the port and name read as usual. The word is the text
+  /// before the first format specifier of `row.stop`, minus the " · " separator.
+  static func stopRowTitle(
+    _ title: String, template: String = L10n.text(.rowStop)
+  ) -> NSAttributedString {
+    let font = NSFont.menuFont(ofSize: 0)
+    let text = NSMutableAttributedString(string: title, attributes: [.font: font])
+    let lead = template.components(separatedBy: "%").first ?? ""
+    let word = lead.trimmingCharacters(in: CharacterSet(charactersIn: " ·"))
+    if !word.isEmpty, title.hasPrefix(word) {
+      text.addAttribute(
+        .foregroundColor, value: NSColor.systemRed,
+        range: NSRange(location: 0, length: (word as NSString).length))
+    }
+    return text
   }
 
   private func ref(_ entry: ServerEntry) -> EntryRef {
