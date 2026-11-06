@@ -87,18 +87,34 @@ struct ClassifierTests {
     #expect(entries[4].section == .hidden(.devTool))
   }
 
-  @Test func runtimeAndOtherAppsAreNeverTerminable() {
+  @Test func runtimesAndMacOSServicesAreNeverTerminable() {
     let records = [
       process(
         900, name: "com.docker.backend",
         path: "/Applications/Docker.app/Contents/MacOS/com.docker.backend"),
       process(901, name: "limactl", path: "/opt/homebrew/bin/limactl"),
-      process(902, name: "Spotify", path: "/Applications/Spotify.app/Contents/MacOS/Spotify"),
+      process(902, name: "rapportd", path: "/usr/libexec/rapportd"),
+      process(
+        903, name: "ControlCenter",
+        path: "/System/Library/CoreServices/ControlCenter.app/Contents/MacOS/ControlCenter"),
     ]
     let entries = classify(
       records.map { Listener(pid: $0.pid, port: 52000, address: "::") }, processes: records)
-    #expect(entries.count == 3)
+    #expect(entries.count == 4)
     #expect(entries.allSatisfy { $0.section == .hidden(.otherApp) && !$0.canTerminate })
+  }
+
+  @Test func otherAppsOfThisUserAreTerminable() {
+    let records = [
+      process(902, name: "Spotify", path: "/Applications/Spotify.app/Contents/MacOS/Spotify"),
+      process(
+        904, name: "Discord", path: "/Applications/Discord.app/Contents/MacOS/Discord", uid: 502),
+    ]
+    let entries = classify(
+      records.map { Listener(pid: $0.pid, port: 52000, address: "::") }, processes: records)
+    #expect(entries.allSatisfy { $0.section == .hidden(.otherApp) })
+    // Another user's app needs administrator rights, which Doorplate never uses.
+    #expect(entries.map(\.canTerminate) == [true, false])
   }
 
   private var postgres: Container {

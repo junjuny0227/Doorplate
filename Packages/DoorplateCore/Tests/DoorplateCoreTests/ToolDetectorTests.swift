@@ -176,14 +176,15 @@ private func detect(_ p: ProcessRecord, parent: ProcessRecord? = nil, ports: [UI
     ).section == .hidden(.otherApp))
 }
 @Test func otherAppHidden() {
-  #expect(
-    detect(
-      proc("Spotify", path: "/Applications/Spotify.app/Contents/MacOS/Spotify", args: ["Spotify"])
-    ).title == "Spotify")
+  let match = detect(
+    proc("Spotify", path: "/Applications/Spotify.app/Contents/MacOS/Spotify", args: ["Spotify"]))
+  #expect(match.title == "Spotify")
+  #expect(match.stoppable)
 }
 @Test func macOSServiceIsHidden() {
-  #expect(
-    detect(proc("rapportd", path: "/usr/libexec/rapportd", args: ["rapportd"])).title == "rapportd")
+  let match = detect(proc("rapportd", path: "/usr/libexec/rapportd", args: ["rapportd"]))
+  #expect(match.title == "rapportd")
+  #expect(!match.stoppable)
 }
 @Test func unknownBinaryIsApp() {
   #expect(detect(proc("caddy", path: "/opt/homebrew/bin/caddy", args: ["caddy"])).tool == "caddy")
@@ -194,7 +195,9 @@ private func detect(_ p: ProcessRecord, parent: ProcessRecord? = nil, ports: [UI
       proc(
         "backend", path: "/Applications/Docker.app/Contents/MacOS/com.docker.backend",
         args: ["backend"])
-    ).title == "Docker")
+    )
+      == ToolMatch(
+        tool: "container runtime", section: .hidden(.otherApp), title: "Docker", stoppable: false))
 }
 @Test func orbStackHelperIsRuntime() {
   #expect(

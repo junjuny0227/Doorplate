@@ -82,6 +82,6 @@ public struct Classifier: Sendable {
       startedAt: process.startedAt,
       isLongRunning: false, likelyHTTP: HTTPGuess.likelyHTTP(port: ports.primary.port, image: nil),
       canTerminate: process.uid == currentUID && process.startedAt != nil
-        && match.section != .system && match.section != .hidden(.otherApp))
+        && match.section != .system && match.stoppable)
   }
 }
