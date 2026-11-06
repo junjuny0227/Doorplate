@@ -497,6 +497,14 @@ Apple Developer Program에 가입하지 않는다. Developer ID 서명과 공증
 
 셋째 조건(업데이트마다 폴더 접근 허락)은 14절 실험에서 충족되었다. 사용자는 2026-11-05에 가입하지 않기로 했다. 영향은 업데이트마다 보호 폴더당 허락 창 한 번이고, 거부해도 폴더 이름으로 대체된다(7.5절). 로그인 항목은 새 빌드로 바꾼 뒤에도 켜져 있어 승인을 다시 묻지 않았다.
 
+### 13.7 제품 소개 페이지
+
+- 제품 페이지는 `https://junjuny0227.github.io/Doorplate/`에서 제공한다. `site/`의 정적 HTML·CSS·JavaScript이며 영어, 한국어(`/ko/`), 일본어(`/ja/`), 중국어 간체(`/zh-Hans/`)를 지원한다. 문구와 설치 절차는 각 언어 README를 따른다.
+- 분석 도구, 추적기, 쿠키, 외부 폰트와 CDN을 쓰지 않는다. 시스템 폰트를 쓰고 밝은/어두운 모드와 모바일을 지원한다.
+- React, Vite, TypeScript, Vitest, Biome 등 npm 패키지는 사이트 전용이다. Swift 앱의 외부 의존성은 Sparkle 하나로 유지한다. 세부 작업과 검사는 `docs/plans/2026-11-06-05-site.md`를 따른다.
+- Pages는 기존 LEGACY `gh-pages` 브랜치 소스를 유지한다. 사이트 빌드 결과는 Sparkle의 `appcast.xml` 옆에 커밋하며 피드는 삭제하거나 수정하지 않는다. 두 워크플로는 `appcast-gh-pages` 동시성 그룹으로 직렬화하고 Pages build API로 공개한다. Pages 소스 설정은 바꾸지 않는다.
+- 다운로드 주소는 `project.yml`의 `MARKETING_VERSION`에 해당하는 zip이다. 공개 릴리스와 zip이 없으면 배포하지 않는다.
+
 ## 14. 첫 단계 실험
 
 본 구현 전에 확인한다. 실험 코드는 버린다. 결과(2026-11-05)는 `docs/spikes/01-feasibility.md`에 있다.

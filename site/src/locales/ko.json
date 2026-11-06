@@ -1,0 +1,125 @@
+{
+  "name": "Doorplate",
+  "tagline": "포트마다 문패를 달아 드립니다.",
+  "pitch": "Doorplate는 열려 있는 포트마다 어느 프로젝트의 서버인지 보여 주는 macOS 메뉴바 앱입니다. lsof -i :3000으로 pid를 찾고 어느 서버인지 짐작하는 대신, 메뉴를 열면 5173 @acme/web vite처럼 보입니다.",
+  "meta": {
+    "title": "Doorplate — 포트마다 문패를 달아 드립니다.",
+    "description": "Doorplate는 열려 있는 포트마다 어느 프로젝트의 서버인지 보여 주는 macOS 메뉴바 앱입니다. lsof -i :3000으로 pid를 찾고 어느 서버인지 짐작하는 대신, 메뉴를 열면 5173 @acme/web vite처럼 보입니다.",
+    "noscript": "Doorplate는 열린 포트가 어느 프로젝트의 서버인지 보여 줍니다. GitHub에서 다운로드와 설치 안내를 확인하세요.",
+    "noscriptLink": "Doorplate 다운로드"
+  },
+  "ui": {
+    "skip": "본문으로 건너뛰기",
+    "language": "언어",
+    "download": "macOS용 다운로드",
+    "copy": "복사",
+    "copied": "복사됨",
+    "copyFailed": "복사하지 못했습니다. 명령을 선택해 직접 복사해 주세요.",
+    "requirements": "macOS 14 이상 · Apple silicon 및 Intel",
+    "beta": "미공증 베타",
+    "betaNote": "ad-hoc 서명만 했고 Apple 공증을 받지 않았습니다. 처음 열 때 몇 단계가 더 필요합니다.",
+    "first": "처음 열 때",
+    "readme": "전체 설치 안내",
+    "releases": "릴리스",
+    "design": "설계 문서",
+    "stack": "스택",
+    "servers": "서버",
+    "installNote": "zip을 받아 압축을 풀고, 릴리스의 .sha256 파일로 체크섬을 확인합니다.",
+    "quarantine": "터미널로 여는 방법 (2–3단계 대신)",
+    "privacy": "사용 통계 없음",
+    "privacyBody": "사용 통계, 분석, 추적을 하지 않습니다. 포트·프로세스·경로 정보는 Mac 안에 남습니다.",
+    "noscript": "Doorplate는 열린 포트가 어느 프로젝트의 서버인지 보여 줍니다. GitHub에서 다운로드와 설치 안내를 확인하세요.",
+    "noscriptLink": "Doorplate 다운로드",
+    "serverCaption": "서버: 행에서 열기, 복사, 종료",
+    "dockerCaption": "Docker: Compose 서비스 이름으로"
+  },
+  "sections": {
+    "features": "하는 일",
+    "screenshots": "자세히 보기",
+    "stacks": "무엇을 알아보나",
+    "principles": "원칙",
+    "install": "설치"
+  },
+  "features": [
+    {
+      "title": "서버마다 이름을 붙입니다.",
+      "body": "열린 포트마다 서버가 실행된 프로젝트의 이름 (package.json, Cargo.toml, pyproject.toml, Gradle, Maven, go.mod, .git 폴더)과 서버를 띄운 도구를 보여 줍니다. JVM과 모노레포 서버도 정확하게 붙입니다."
+    },
+    {
+      "title": "Docker Compose를 알아봅니다.",
+      "body": "컨테이너가 게시한 포트를 Compose 서비스 이름으로 보여 주고, 오른쪽에 컨테이너 이름을 둡니다. Docker Desktop, OrbStack, Colima에서 동작합니다."
+    },
+    {
+      "title": "필요 없는 것은 숨깁니다.",
+      "body": "IDE, 빌드 데몬, 다른 앱은 설정에서 켜기 전까지 숨깁니다. 소켓을 나눠 쓰는 worker 프로세스는 한 행으로, 디버거·inspector·LiveReload 포트는 해당 서버 아래에 묶습니다."
+    },
+    {
+      "title": "macOS 자체 포트도 알려 줍니다.",
+      "body": "5000·7000번의 AirPlay 수신은 따로 한 행으로 보여 주고, 끄는 곳을 안내합니다."
+    },
+    {
+      "title": "행에서 바로 다룹니다.",
+      "body": "브라우저에서 열기, Finder에서 보기, 그 폴더에서 터미널 열기, 주소 복사, 서버 종료. ⌥를 누르고 있으면 행이 바로 종료하는 항목으로 바뀝니다."
+    },
+    {
+      "title": "조심해서 종료합니다.",
+      "body": "종료 전에 확인을 받고 SIGTERM을 보냅니다. 10초가 지나도 서버가 살아 있으면 기다릴지 강제 종료할지 묻습니다. 컨테이너는 Docker API로 정지하고, Docker 자체는 종료하지 않습니다."
+    },
+    {
+      "title": "실시간으로 바뀝니다.",
+      "body": "메뉴를 연 채로도 목록이 갱신되고, 오래 켜진 서버는 주황 글자(· 3일째)로 표시합니다."
+    },
+    {
+      "title": "스스로 업데이트합니다.",
+      "body": "서명된 업데이트를 받습니다(Sparkle)."
+    },
+    {
+      "title": "영어, 한국어, 일본어, 중국어(간체)를 지원합니다.",
+      "body": ""
+    }
+  ],
+  "principles": [
+    {
+      "title": "로컬 전용.",
+      "body": "프로세스와 소켓 정보는 Mac 안에서만 읽고, Docker와는 로컬 unix 소켓으로만 통신합니다. 포트에 접속해 확인하지 않습니다."
+    },
+    {
+      "title": "관리자 권한 없음.",
+      "body": "sudo도, 별도 도우미 도구도 쓰지 않습니다."
+    },
+    {
+      "title": "네트워크는 업데이트 확인뿐.",
+      "body": "Mac 밖으로 보내는 정보는 없습니다. 요청은 GitHub Pages의 appcast로 하는 업데이트 확인 하나이고, 자동 확인은 설정에서 끌 수 있습니다. 사용 통계를 모으지 않습니다."
+    },
+    {
+      "title": "사용 통계 없음",
+      "body": "사용 통계, 분석, 추적을 하지 않습니다. 포트·프로세스·경로 정보는 Mac 안에 남습니다."
+    }
+  ],
+  "screenshots": {
+    "menuAlt": "Doorplate 메뉴: 프로젝트 이름과 오른쪽의 도구 이름으로 표시된 앱 서버, macOS 서비스 행, Compose 서비스와 컨테이너 이름을 보여 주는 Docker 구역.",
+    "serverAlt": "앱 서버의 하위 메뉴: 브라우저에서 열기, Finder에서 보기, 터미널에서 열기, 주소 복사, PID가 붙은 빨간 종료 항목.",
+    "dockerAlt": "Docker Compose 행의 하위 메뉴: 주소 복사, Compose 폴더를 Finder에서 보기, 컨테이너 정지. 브라우저에서 열기는 HTTP 포트에만 나옵니다."
+  },
+  "stacks": [
+    ["Node", "vite, next, nuxt, astro, remix, webpack"],
+    [
+      "JVM",
+      "gradle bootRun, mvn spring-boot:run, java -jar, IntelliJ 실행 구성. Gradle·Kotlin 데몬은 숨기고, JDWP 디버거 포트는 해당 서버 아래에 묶습니다"
+    ],
+    ["Rust", "cargo run, target/debug·target/release 아래의 실행 파일"],
+    ["Python", "Django(manage.py runserver), uvicorn, Flask, gunicorn"],
+    ["Ruby", "Rails, puma"],
+    ["Docker", "실행 중인 컨테이너가 게시한 포트, Compose 서비스 이름으로"]
+  ],
+  "stackNote": "서버 이름은 작업 폴더에서 위로 올라가며 가장 가까운 프로젝트 표식에서 가져옵니다. 표식이 없으면 폴더 이름을 씁니다.",
+  "firstOpen": {
+    "intro": "Doorplate는 ad-hoc 서명만 했고 Apple 공증을 받지 않았으므로, macOS가 첫 실행을 막습니다. macOS 15부터는 우클릭 → 열기로 넘어갈 수 없습니다.",
+    "steps": [
+      "처음 열기 전에 Finder에서 Doorplate.app을 응용 프로그램 폴더(/Applications)로 옮깁니다. 다운로드한 자리에서 열면 macOS가 앱을 임시 위치(App Translocation)에서 실행해, Doorplate가 스스로 업데이트하지 못합니다. Homebrew는 이 단계를 대신 해 줍니다.",
+      "앱을 엽니다. \"'Doorplate.app'을(를) 열지 않음\" 창(\"Apple은 'Doorplate.app'에 사용자의 Mac에 손상을 입히거나 사용자의 개인 정보에 침입할 수 있는 악성 코드가 없음을 확인할 수 없습니다.\")이 뜹니다. 완료를 누릅니다. 휴지통으로 이동은 누르지 않습니다. 앱이 휴지통으로 옮겨집니다.",
+      "시스템 설정 › 개인정보 보호 및 보안에서 Doorplate 안내 옆의 그래도 열기를 누르고 암호나 Touch ID로 확인한 뒤, 다시 뜨는 창에서 그래도 열기를 누릅니다."
+    ],
+    "quarantineExplanation": "이 명령은 인터넷에서 받은 파일에 macOS가 붙이는 다운로드 격리 표시를 지웁니다. 그러면 Gatekeeper가 앱을 막지 않습니다."
+  }
+}

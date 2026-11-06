@@ -4,3 +4,5 @@
 DerivedData/
 build/
 dist/
+node_modules/
+site/dist/

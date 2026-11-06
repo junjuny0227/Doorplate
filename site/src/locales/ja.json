@@ -1,0 +1,125 @@
+{
+  "name": "Doorplate",
+  "tagline": "すべてのポートに、プロジェクトの表札を。",
+  "pitch": "Doorplate は、接続を待ち受けている各ポートがどのプロジェクトのものかを表示する macOS メニューバーアプリです。 lsof -i :3000 で pid を調べてサーバを推測する代わりに、メニューを開けば 5173 @acme/web vite と表示されます。",
+  "meta": {
+    "title": "Doorplate — すべてのポートに、プロジェクトの表札を。",
+    "description": "Doorplate は、接続を待ち受けている各ポートがどのプロジェクトのものかを表示する macOS メニューバーアプリです。 lsof -i :3000 で pid を調べてサーバを推測する代わりに、メニューを開けば 5173 @acme/web vite と表示されます。",
+    "noscript": "Doorplate は各ポートがどのプロジェクトのものかを表示します。ダウンロードとインストール手順は GitHub でご確認ください。",
+    "noscriptLink": "Doorplate をダウンロード"
+  },
+  "ui": {
+    "skip": "本文へスキップ",
+    "language": "言語",
+    "download": "macOS 版をダウンロード",
+    "copy": "コピー",
+    "copied": "コピーしました",
+    "copyFailed": "コピーできませんでした。コマンドを選択して手動でコピーしてください。",
+    "requirements": "macOS 14 以降 · Apple silicon / Intel",
+    "beta": "未公証のベータ版",
+    "betaNote": "ad-hoc 署名で、Apple の公証を受けていません。初回起動には追加の手順が必要です。",
+    "first": "初回起動",
+    "readme": "インストールの詳しい手順",
+    "releases": "リリース",
+    "design": "設計ドキュメント（韓国語）",
+    "stack": "スタック",
+    "servers": "サーバ",
+    "installNote": "zip をダウンロードして展開し、リリースの .sha256 ファイルで検証してください。",
+    "quarantine": "ターミナルでの代替手順（手順 2–3）",
+    "privacy": "テレメトリなし",
+    "privacyBody": "利用統計、解析、追跡はありません。ポート・プロセス・パスの情報は Mac 内に留まります。",
+    "noscript": "Doorplate は各ポートがどのプロジェクトのものかを表示します。ダウンロードとインストール手順は GitHub でご確認ください。",
+    "noscriptLink": "Doorplate をダウンロード",
+    "serverCaption": "サーバ：行から開く、コピー、終了",
+    "dockerCaption": "Docker：Compose サービスを名前で表示"
+  },
+  "sections": {
+    "features": "できること",
+    "screenshots": "画面で見る",
+    "stacks": "検出できるもの",
+    "principles": "基本方針",
+    "install": "インストール"
+  },
+  "features": [
+    {
+      "title": "各サーバに名前を付けます。",
+      "body": "待ち受けポートごとに、実行元のプロジェクト名 （package.json、Cargo.toml、pyproject.toml、Gradle、Maven、go.mod、.git フォルダから取得）と、 起動したツールを表示します。JVM やモノレポのサーバにも対応しています。"
+    },
+    {
+      "title": "Docker Compose に対応しています。",
+      "body": "コンテナの公開ポートを Compose サービス名で表示し、 右側にコンテナ名を添えます。Docker Desktop、OrbStack、Colima で使えます。"
+    },
+    {
+      "title": "不要な情報を隠します。",
+      "body": "IDE、ビルドデーモン、ほかのアプリは、設定で表示を選ぶまで非表示です。 ソケットを共有するワーカープロセスは 1 行にまとめ、デバッガ、インスペクタ、LiveReload のポートは そのサーバの下にまとめます。"
+    },
+    {
+      "title": "macOS 自体のポートも説明します。",
+      "body": "5000 と 7000 の AirPlay レシーバーは専用の行に表示し、 オフにできる設定の場所も案内します。"
+    },
+    {
+      "title": "行から操作できます。",
+      "body": "ブラウザで開く、Finder に表示、その場所をターミナルで開く、 アドレスをコピー、サーバを終了。⌥ を押すと、行がワンクリックで終了できる項目に変わります。"
+    },
+    {
+      "title": "慎重に終了します。",
+      "body": "終了前に確認し、SIGTERM を送ります。10 秒後も実行中なら、待機を続けるか 強制終了するかを選べます。コンテナは Docker API で停止し、Docker 自体は終了しません。"
+    },
+    {
+      "title": "表示を更新し続けます。",
+      "body": "メニューを開いている間も一覧が更新され、長時間実行中のサーバは オレンジ色（· 3d）で示されます。"
+    },
+    {
+      "title": "アプリ自体を更新できます。",
+      "body": "署名済みアップデート（Sparkle）を使います。"
+    },
+    {
+      "title": "複数の言語に対応しています。",
+      "body": "English、한국어、日本語、简体中文。"
+    }
+  ],
+  "principles": [
+    {
+      "title": "ローカルで完結します。",
+      "body": "Mac のプロセスとソケットの情報を読み取り、Docker とはローカルの unix ソケット経由でのみ通信します。各ポートに接続することはありません。"
+    },
+    {
+      "title": "管理者権限は不要です。",
+      "body": "sudo もヘルパーツールも使いません。"
+    },
+    {
+      "title": "ネットワーク通信はアップデートのみです。",
+      "body": "Mac の情報を外部に送りません。通信は GitHub Pages の appcastへのアップデート確認のみです。 自動確認は設定で無効にできます。テレメトリや利用統計は収集しません。"
+    },
+    {
+      "title": "テレメトリなし",
+      "body": "利用統計、解析、追跡はありません。ポート・プロセス・パスの情報は Mac 内に留まります。"
+    }
+  ],
+  "screenshots": {
+    "menuAlt": "Doorplate のメニュー：プロジェクト名と右側のツール名で表示されるアプリサーバ、macOS サービスの行、Compose サービスとコンテナ名を表示する Docker セクション。",
+    "serverAlt": "アプリサーバのサブメニュー：ブラウザで開く、Finder に表示、ターミナルで開く、アドレスをコピー、PID 付きの赤い終了項目。",
+    "dockerAlt": "Docker Compose の行のサブメニュー：アドレスをコピー、Compose フォルダを Finder に表示、コンテナを停止。ブラウザで開くは HTTP を提供するポートにのみ表示されます。"
+  },
+  "stacks": [
+    ["Node", "vite, next, nuxt, astro, remix, webpack"],
+    [
+      "JVM",
+      "gradle bootRun、mvn spring-boot:run、java -jar、IntelliJ の実行構成。Gradle と Kotlin のデーモンは非表示にし、JDWP デバッガのポートはサーバの下にまとめます"
+    ],
+    ["Rust", "cargo run、target/debug または target/release 内のバイナリ"],
+    ["Python", "Django（manage.py runserver）、uvicorn、Flask、gunicorn"],
+    ["Ruby", "Rails, puma"],
+    ["Docker", "実行中のコンテナの公開ポートを Compose サービス名で表示"]
+  ],
+  "stackNote": "作業ディレクトリから親にたどって最初に見つかるプロジェクトの目印を使って、サーバに名前を付けます。 見つからなければ、フォルダ名を使います。",
+  "firstOpen": {
+    "intro": "Doorplate は ad-hoc 署名で、Apple の公証を受けていないため、macOS が初回起動をブロックします。 macOS 15 以降では、右クリック → 開くでは回避できません。",
+    "steps": [
+      "開く前に、Finder で Doorplate.app をアプリケーションフォルダ（/Applications）に移動します。 ダウンロードした場所で開くと、macOS が一時的な場所から実行するため（App Translocation）、 Doorplate が自身をアップデートできません。Homebrew ではこの移動が自動で行われます。",
+      "アプリを開くと、macOS が「“Doorplate.app”は開かれませんでした」 （「“Doorplate.app”にMacに損害を与えたり、プライバシーを侵害する可能性のあるマルウェアが 含まれていないことをAppleは検証できませんでした。」）と表示します。完了をクリックします。 ゴミ箱に入れるはクリックしないでください。アプリがゴミ箱に移動されます。",
+      "システム設定 › プライバシーとセキュリティを開き、Doorplate の案内の横にある このまま開くをクリックします。パスワードまたは Touch ID で確認し、表示されるダイアログで もう一度このまま開くをクリックします。"
+    ],
+    "quarantineExplanation": "これは、インターネットからダウンロードしたファイルに macOS が付ける隔離フラグを削除するため、 Gatekeeper がアプリをブロックしなくなります。"
+  }
+}

@@ -1,0 +1,125 @@
+{
+  "name": "Doorplate",
+  "tagline": "为每个端口挂上项目的门牌。",
+  "pitch": "Doorplate 是一款 macOS 菜单栏应用，显示每个监听端口属于哪个项目。 无需运行 lsof -i :3000 查找 pid，再猜测它属于哪个服务器；打开菜单就能看到 5173 @acme/web vite。",
+  "meta": {
+    "title": "Doorplate — 为每个端口挂上项目的门牌。",
+    "description": "Doorplate 是一款 macOS 菜单栏应用，显示每个监听端口属于哪个项目。 无需运行 lsof -i :3000 查找 pid，再猜测它属于哪个服务器；打开菜单就能看到 5173 @acme/web vite。",
+    "noscript": "Doorplate 显示每个监听端口属于哪个项目。请前往 GitHub 下载并查看安装指南。",
+    "noscriptLink": "下载 Doorplate"
+  },
+  "ui": {
+    "skip": "跳至正文",
+    "language": "语言",
+    "download": "下载 macOS 版",
+    "copy": "拷贝",
+    "copied": "已拷贝",
+    "copyFailed": "无法拷贝。请选择命令并手动拷贝。",
+    "requirements": "macOS 14 或更高版本 · Apple silicon 和 Intel",
+    "beta": "未公证的测试版",
+    "betaNote": "仅使用 ad-hoc 签名，尚未经过 Apple 公证。首次打开需要额外步骤。",
+    "first": "首次打开",
+    "readme": "完整安装指南",
+    "releases": "发布版本",
+    "design": "设计文档（韩语）",
+    "stack": "技术栈",
+    "servers": "服务器",
+    "installNote": "下载 zip 并解压，然后使用发布版本中的 .sha256 文件校验。",
+    "quarantine": "终端替代方法（代替第 2–3 步）",
+    "privacy": "无遥测",
+    "privacyBody": "不收集使用统计，不进行分析或追踪。端口、进程和路径信息只保留在你的 Mac 上。",
+    "noscript": "Doorplate 显示每个监听端口属于哪个项目。请前往 GitHub 下载并查看安装指南。",
+    "noscriptLink": "下载 Doorplate",
+    "serverCaption": "服务器：从行内打开、拷贝或退出",
+    "dockerCaption": "Docker：按名称显示 Compose 服务"
+  },
+  "sections": {
+    "features": "功能",
+    "screenshots": "界面一览",
+    "stacks": "可识别的内容",
+    "principles": "原则",
+    "install": "安装"
+  },
+  "features": [
+    {
+      "title": "为每个服务器显示名称。",
+      "body": "为每个监听端口显示运行它的项目名称 （从 package.json、Cargo.toml、pyproject.toml、Gradle、Maven、go.mod 或 .git 文件夹获取）， 以及启动它的工具。也支持 JVM 和单仓库中的服务器。"
+    },
+    {
+      "title": "支持 Docker Compose。",
+      "body": "容器的发布端口显示为 Compose 服务名称，右侧显示容器名称。 可与 Docker Desktop、OrbStack 和 Colima 配合使用。"
+    },
+    {
+      "title": "隐藏干扰项。",
+      "body": "IDE、构建守护进程和其他应用默认隐藏，直到你在设置中选择显示。 共享同一套接字的工作进程合并为一行；调试器、检查器和 LiveReload 端口归到所属服务器下。"
+    },
+    {
+      "title": "解释 macOS 自身的端口。",
+      "body": "5000 和 7000 上的 AirPlay 接收器单独显示，并说明在哪里关闭。"
+    },
+    {
+      "title": "直接从行内操作。",
+      "body": "在浏览器中打开、在 Finder 中显示、在该位置打开终端、拷贝地址或退出服务器。 按住 ⌥，即可把一行变成单击退出的菜单项。"
+    },
+    {
+      "title": "谨慎退出。",
+      "body": "退出前先征求确认，然后发送 SIGTERM。如果十秒后仍在运行，Doorplate 会让你选择 继续等待或强制退出。容器通过 Docker API 停止，绝不会退出 Docker 本身。"
+    },
+    {
+      "title": "持续更新。",
+      "body": "菜单打开时列表也会更新，长时间运行的服务器用橙色标记（· 3d）。"
+    },
+    {
+      "title": "应用内更新。",
+      "body": "使用经过签名的更新（Sparkle）。"
+    },
+    {
+      "title": "支持多种语言：English、한국어、日本語 和 简体中文。",
+      "body": ""
+    }
+  ],
+  "principles": [
+    {
+      "title": "仅在本机运行。",
+      "body": "Doorplate 读取 Mac 上的进程和套接字信息，只通过本地 unix 套接字与 Docker 通信，绝不会连接你的端口。"
+    },
+    {
+      "title": "无需管理员权限。",
+      "body": "不使用 sudo，也不使用辅助工具。"
+    },
+    {
+      "title": "仅更新需要联网。",
+      "body": "Mac 上的信息不会外传。唯一的请求是向 GitHub Pages 上的 appcast 检查更新；可在设置中关闭自动检查。 不收集遥测数据或使用统计。"
+    },
+    {
+      "title": "无遥测",
+      "body": "不收集使用统计，不进行分析或追踪。端口、进程和路径信息只保留在你的 Mac 上。"
+    }
+  ],
+  "screenshots": {
+    "menuAlt": "Doorplate 菜单：按项目命名的应用服务器，右侧显示工具名称；另有 macOS 服务行，以及列出 Compose 服务和容器名称的 Docker 区域。",
+    "serverAlt": "应用服务器的子菜单：在浏览器中打开、在 Finder 中显示、在终端中打开、拷贝地址，以及带有 PID 的红色退出项。",
+    "dockerAlt": "Docker Compose 行的子菜单：拷贝地址、在 Finder 中显示 Compose 文件夹、停止容器。只有提供 HTTP 服务的端口才显示在浏览器中打开。"
+  },
+  "stacks": [
+    ["Node", "vite, next, nuxt, astro, remix, webpack"],
+    [
+      "JVM",
+      "gradle bootRun、mvn spring-boot:run、java -jar、IntelliJ 运行配置。隐藏 Gradle 和 Kotlin 守护进程，将 JDWP 调试器端口归到所属服务器下"
+    ],
+    ["Rust", "cargo run、target/debug 或 target/release 下的二进制文件"],
+    ["Python", "Django（manage.py runserver）、uvicorn、Flask、gunicorn"],
+    ["Ruby", "Rails, puma"],
+    ["Docker", "正在运行的容器的发布端口，按 Compose 服务名称显示"]
+  ],
+  "stackNote": "从服务器的工作目录向上查找最近的项目标记，以此确定名称。没有项目标记时，Doorplate 使用文件夹名称。",
+  "firstOpen": {
+    "intro": "Doorplate 使用 ad-hoc 签名，尚未经过 Apple 公证，因此 macOS 会阻止首次启动。 在 macOS 15 及更高版本中，右键点按 → 打开已无法绕过检查。",
+    "steps": [
+      "打开前，先在 Finder 中把 Doorplate.app 移到“应用程序”文件夹（/Applications）。 如果直接从下载位置打开，macOS 会从临时位置运行它（App Translocation），导致 Doorplate 无法自行更新。 通过 Homebrew 安装时会自动完成这一步。",
+      "打开应用。macOS 会显示“未打开‘Doorplate.app’” （“Apple 无法验证‘Doorplate.app’是否包含可能危害 Mac 安全或泄漏隐私的恶意软件。”）。 点按完成。请勿点按移到废纸篓，否则应用会被移到废纸篓。",
+      "打开系统设置 › 隐私与安全性，在 Doorplate 提示旁点按仍要打开， 使用密码或 Touch ID 确认，然后在弹出的对话框中再次点按仍要打开。"
+    ],
+    "quarantineExplanation": "此命令会移除 macOS 为互联网下载文件添加的隔离标记，使 Gatekeeper 不再阻止该应用。"
+  }
+}
