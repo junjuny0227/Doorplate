@@ -65,8 +65,8 @@ git push origin v0.1.0
 ### 3. draft 확인
 
 - [ ] Releases에서 `Doorplate 0.1.0 (beta)`가 **Draft**, prerelease가 아닌 정식 릴리스인지 확인한다.
-- [ ] `Doorplate-0.1.0.zip`과 `Doorplate-0.1.0.zip.sha256` 두 자산, 본문의 실제 SHA-256(`{{SHA256}}`가 남지 않음)을 확인한다.
-- [ ] 본문 끝에 GitHub가 만든 변경 목록(이전 태그 이후 PR, 브랜치 접두어로 붙은 라벨별로 묶임, `.github/release.yml`)이 있다. 공개 전에 본문 맨 위에 `## Changes` 요약을 영어로 적는다.
+- [ ] `Doorplate-0.1.0.zip`과 `Doorplate-0.1.0.zip.sha256` 두 자산, 본문의 실제 SHA-256과 버전(`{{SHA256}}`, `{{VERSION}}`가 남지 않음)을 확인한다.
+- [ ] 본문 끝에 GitHub가 만든 변경 목록(이전 태그 이후 PR, 브랜치 접두어로 붙은 라벨별로 묶임, `.github/release.yml`)이 있다. 공개 전에 본문 맨 위에 `## Highlights`를 영어로 적는다(굵은 첫 문장 뒤 짧은 설명, Repot 릴리스 노트 형식).
 - [ ] 브라우저로 두 자산을 같은 폴더에 내려받아 `shasum -a 256 -c Doorplate-0.1.0.zip.sha256`의 `OK`를 확인한다.
 - [ ] zip을 풀어 **Finder로 `/Applications`에 옮긴 뒤 처음 연다.** 차단 창에서 완료(휴지통으로 이동 아님) → 시스템 설정 → 개인정보 보호 및 보안 → 그래도 열기 → 인증 → 그래도 열기를 확인한다. 릴리스 노트와 동작이 같은지, 메뉴바 아이콘이 나타나는지 확인한다.
 
