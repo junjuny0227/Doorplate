@@ -35,7 +35,6 @@ export function Hero({ c }: { c: Messages }) {
           alt={c.screenshots.menuAlt}
           fetchPriority="high"
         />
-        <figcaption>{c.sections.screenshots}</figcaption>
       </figure>
     </section>
   );

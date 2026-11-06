@@ -393,17 +393,10 @@ h3 {
   font-variant-numeric: tabular-nums;
   margin-bottom: 16px;
 }
-.also {
-  margin-top: 24px;
-  color: var(--muted);
-  font-size: 15px;
-}
-.also li + li {
-  margin-top: 8px;
-}
-.also strong {
-  color: var(--label);
-  font-weight: 600;
+@media (min-width: 1000px) {
+  .features {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 .screenshots {
   display: grid;
