@@ -4,10 +4,14 @@ public struct ToolMatch: Sendable, Equatable {
   public var tool: String?
   public var section: Section
   public var title: String?
-  public init(tool: String?, section: Section, title: String?) {
+  /// False for processes Doorplate must never stop even when shown: container runtimes (every
+  /// container would go down) and macOS services. Spec 3.
+  public var stoppable: Bool
+  public init(tool: String?, section: Section, title: String?, stoppable: Bool = true) {
     self.tool = tool
     self.section = section
     self.title = title
+    self.stoppable = stoppable
   }
 }
 
@@ -41,12 +45,12 @@ public enum ToolDetector {
       switch rule {
       case .runtime:
         if let enclosingApp, runtimes.contains(enclosingApp) {
-          return match("container runtime", .hidden(.otherApp), enclosingApp)
+          return match("container runtime", .hidden(.otherApp), enclosingApp, stoppable: false)
         }
         if ["limactl", "vfkit", "gvproxy", "krunkit"].contains(executable)
           || executable.hasPrefix("qemu-system-")
         {
-          return match("container runtime", .hidden(.otherApp), executable)
+          return match("container runtime", .hidden(.otherApp), executable, stoppable: false)
         }
       case .node:
         if executable == "node" || process.name.hasPrefix("next-server")
@@ -123,7 +127,7 @@ public enum ToolDetector {
         if path.hasPrefix("/System/") || path.hasPrefix("/usr/libexec/")
           || path.hasPrefix("/usr/sbin/")
         {
-          return match(nil, .hidden(.otherApp), executable)
+          return match(nil, .hidden(.otherApp), executable, stoppable: false)
         }
         if path.contains(".app/Contents/") {
           return match(nil, .hidden(.otherApp), enclosingApp ?? executable)
@@ -133,9 +137,9 @@ public enum ToolDetector {
     }
     return match(executable, .app)
   }
-  private static func match(_ tool: String?, _ section: Section, _ title: String? = nil)
-    -> ToolMatch
-  { ToolMatch(tool: tool, section: section, title: title) }
+  private static func match(
+    _ tool: String?, _ section: Section, _ title: String? = nil, stoppable: Bool = true
+  ) -> ToolMatch { ToolMatch(tool: tool, section: section, title: title, stoppable: stoppable) }
   private static func outermostApp(_ path: String) -> String? {
     path.components(separatedBy: "/").filter { $0.hasSuffix(".app") }.first.map {
       String($0.dropLast(4))

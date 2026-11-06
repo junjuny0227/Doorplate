@@ -169,6 +169,10 @@ private final class CommandBox {
           command: .stop(ref(entry)))
         alternate.isAlternate = true
         alternate.keyEquivalentModifierMask = .option
+        // Red like the submenu's stop item: holding Option turns the row into a destructive action.
+        alternate.attributedTitle = NSAttributedString(
+          string: alternate.title,
+          attributes: [.foregroundColor: NSColor.systemRed, .font: NSFont.menuFont(ofSize: 0)])
         menu.addItem(alternate)
       }
     }
@@ -231,8 +235,9 @@ private final class CommandBox {
             command: .copy("localhost:\(extra.port)")))
       }
     }
-    // Spec 3: other apps and runtimes stay unstoppable even when shown, so they get no stop item.
-    if entry.section == .hidden(.otherApp) { return menu }
+    // Spec 3: container runtimes and macOS services stay unstoppable even when shown, so they get
+    // no stop item at all. Other apps of this user can be stopped like any server.
+    if entry.section == .hidden(.otherApp) && !entry.canTerminate { return menu }
     separator(menu, id: "stop.separator")
     let stopTitle: String
     switch entry.target {

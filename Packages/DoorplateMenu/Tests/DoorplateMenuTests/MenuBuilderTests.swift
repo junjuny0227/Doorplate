@@ -117,6 +117,9 @@ import Testing
     #expect(menu.items[index + 1].isAlternate)
     #expect(menu.items[index + 1].keyEquivalentModifierMask == .option)
     #expect(menu.items[index + 1].submenu == nil)
+    let red = try #require(menu.items[index + 1].attributedTitle)
+    #expect(red.string == "Stop 5173 @repot/desktop")
+    #expect(red.attribute(.foregroundColor, at: 0, effectiveRange: nil) as? NSColor == .systemRed)
     populate(outcome(apps: [entry(canTerminate: false)]))
     #expect(!menu.items.contains(where: { $0.isAlternate }))
   }
@@ -129,12 +132,19 @@ import Testing
     #expect(try submenu().items.last?.isEnabled == false)
     #expect(try submenu().items.last?.attributedTitle == nil)
   }
-  @Test func shownOtherAppHasNoStopItem() throws {
+  @Test func shownRuntimeHasNoStopItem() throws {
     populate(
-      outcome(apps: [entry(title: "Spotify", section: .hidden(.otherApp), canTerminate: false)]))
+      outcome(apps: [entry(title: "OrbStack", section: .hidden(.otherApp), canTerminate: false)]))
     let items = try submenu().items
     #expect(!items.contains { $0.title.hasPrefix("Stop") })
     #expect(items.last?.isSeparatorItem == false)
+    #expect(!menu.items.contains(where: { $0.isAlternate }))
+  }
+  @Test func shownOtherAppCanBeStopped() throws {
+    populate(outcome(apps: [entry(title: "Spotify", section: .hidden(.otherApp))]))
+    #expect(try submenu().items.last?.title == "Stop (PID 101)")
+    #expect(try submenu().items.last?.isEnabled == true)
+    #expect(menu.items.contains(where: { $0.isAlternate }))
   }
   @Test func nonHTTPPutsCopyFirst() throws {
     populate(outcome(apps: [entry(likelyHTTP: false)]))
