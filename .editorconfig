@@ -1,0 +1,22 @@
+# Basic text rules for every editor (https://editorconfig.org).
+# Swift formatting itself is done by swift-format (.swift-format); its settings win
+# where they overlap. This file covers what it does not format: Markdown, YAML, JSON,
+# strings files, shell, and editors without swift-format.
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+# Two trailing spaces are a line break in Markdown.
+[*.md]
+trim_trailing_whitespace = false
+
+# Byte-exact or generated files: golden scans, fixtures and the rendered icon stay as written.
+[{Packages/DoorplateCore/Tests/Fixtures/**,App/Resources/Assets.xcassets/**}]
+insert_final_newline = unset
+trim_trailing_whitespace = unset
