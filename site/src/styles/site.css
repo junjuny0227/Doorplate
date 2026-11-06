@@ -967,13 +967,26 @@ pre {
 .command-box .button {
   flex: none;
   min-width: 44px;
-  /* 44px pointer target without growing the visible button. */
+}
+/* 44px pointer targets around compact controls (28px buttons, header links, the language menu)
+   without changing how they look. */
+.button,
+.brand,
+.site-header nav a,
+.language-menu summary {
   position: relative;
 }
-.command-box .button::after {
+.button:not(.large)::after,
+.brand::after,
+.language-menu summary::after {
   content: "";
   position: absolute;
   inset: -8px -4px;
+}
+.site-header nav a::after {
+  content: "";
+  position: absolute;
+  inset: -14px -6px;
 }
 .command.copied .button .symbol {
   color: var(--green-text);
