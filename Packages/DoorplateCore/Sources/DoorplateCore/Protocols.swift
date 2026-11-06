@@ -25,6 +25,14 @@ public protocol DockerSource: Sendable {
 
 public enum SignalResult: Sendable, Equatable { case sent, noSuchProcess, notPermitted }
 
+/// Asks a regular macOS app to quit the way ⌘Q does (an Apple Event), so it can save its state.
+/// Apps often ignore SIGTERM; dev servers are not regular apps and keep getting SIGTERM.
+/// The implementation lives in the app target because it needs AppKit.
+public protocol AppQuitter: Sendable {
+  /// Returns true when `pid` is a regular app and the quit request was sent.
+  func requestQuit(pid: Int32) async -> Bool
+}
+
 public protocol ProcessSignaler: Sendable {
   func startTime(of pid: Int32) -> Date?
   func signal(_ sig: Int32, to pid: Int32) -> SignalResult
