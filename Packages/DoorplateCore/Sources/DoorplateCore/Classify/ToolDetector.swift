@@ -121,7 +121,8 @@ public enum ToolDetector {
         }
       case .airplay:
         if process.name == "ControlCenter" && ports.contains(where: { $0 == 5000 || $0 == 7000 }) {
-          return match("airplay", .system, "AirPlay Receiver (macOS)", stoppable: false)
+          return match(
+            ServerEntry.airPlayTool, .system, "AirPlay Receiver (macOS)", stoppable: false)
         }
       case .other:
         if path.hasPrefix("/System/") || path.hasPrefix("/usr/libexec/")

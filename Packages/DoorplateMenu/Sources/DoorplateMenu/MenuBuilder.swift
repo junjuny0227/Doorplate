@@ -179,7 +179,7 @@ private final class CommandBox {
     let menu = NSMenu()
     menu.autoenablesItems = false
     if entry.section == .system {
-      if entry.tool == "airplay" {
+      if entry.isAirPlay {
         menu.addItem(item(L10n.text(.systemAirplayHint), id: "hint"))
       } else {
         menu.addItem(
@@ -262,7 +262,7 @@ private final class CommandBox {
   }
 
   private func displayTitle(_ entry: ServerEntry) -> String {
-    entry.section == .system && entry.tool == "airplay" ? L10n.text(.systemAirplay) : entry.title
+    entry.isAirPlay ? L10n.text(.systemAirplay) : entry.title
   }
 
   /// The Option row with only the stop word ("Stop", "종료", "終了", "退出") in red, so the
