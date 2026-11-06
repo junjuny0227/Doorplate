@@ -2,14 +2,14 @@
   "meta": {
     "title": "Doorplate — すべてのポートに、プロジェクトの表札を。",
     "description": "Doorplate は、接続を待ち受けている各ポートがどのプロジェクトのものかを表示する macOS メニューバーアプリです。lsof -i :3000 で pid を調べてサーバを推測する代わりに、メニューを開けば 5173 @acme/web vite と表示されます。",
-    "noscript": "Doorplate は各ポートがどのプロジェクトのものかを表示します。ダウンロードとインストール手順は GitHub でご確認ください。",
-    "noscriptLink": "Doorplate をダウンロード"
+    "noscript": "Doorplate は各ポートがどのプロジェクトのものかを表示します。",
+    "noscriptLink": "GitHub Releases からダウンロード"
   },
   "tagline": "すべてのポートに、プロジェクトの表札を。",
   "pitch": "待ち受け中の各ポートがどのプロジェクトのものかを表示する macOS メニューバーアプリです。",
   "skip": "本文へスキップ",
   "nav": {
-    "how": "使い方",
+    "how": "仕組み",
     "features": "機能",
     "principles": "基本方針",
     "tools": "対応スタック",
@@ -21,13 +21,13 @@
   "language": "言語",
   "hero": {
     "download": "Mac 版をダウンロード",
-    "fileHint": "Apple silicon と Intel 共通の zip です。macOS 14 以降が必要です。",
+    "fileHint": "Apple シリコンと Intel 共通の zip です。macOS 14 以降が必要です。",
     "brew": "Homebrew でもインストールできます。",
     "version": "バージョン {version}",
     "otherDownloads": "ほかのインストール方法",
     "releaseNotes": "リリースノート",
-    "beta": "未署名のベータ版。",
-    "betaNote": "ad-hoc 署名で Apple の公証を受けていないため、初回起動は macOS にブロックされます。",
+    "beta": "未署名のベータ版です。",
+    "betaNote": "まだ Apple の公証を行っていないため、初回起動時に macOS がブロックします。",
     "howToOpen": "開き方",
     "screenshotAlt": "Doorplate のメニュー：プロジェクト名と右側のツール名で表示されるアプリサーバ、macOS サービスの行、Compose サービスとコンテナ名を表示する Docker セクション。"
   },
@@ -39,7 +39,7 @@
     "failedStatus": "コピーできませんでした。コマンドを選択して手動でコピーしてください。"
   },
   "how": {
-    "title": "使い方",
+    "title": "仕組み",
     "lead": "lsof -i :3000 で pid を調べてサーバを推測する必要はありません。メニューを開けば 5173 @acme/web vite と表示されます。",
     "steps": {
       "open": {
@@ -79,7 +79,7 @@
       },
       "stop": {
         "title": "慎重に終了します",
-        "text": "終了前に確認し、SIGTERM を送ります。10 秒後も実行中なら、待機を続けるか強制終了するかを選べます。コンテナは Docker API で停止し、Docker 自体は終了しません。"
+        "text": "終了時は SIGTERM を送り、通常のアプリには ⌘Q と同じ終了要求を送ります。10 秒後も実行中なら、待機を続けるか強制終了するかを選べます。コンテナは Docker API で停止し、Docker 自体と macOS のサービスは終了しません。"
       },
       "live": {
         "title": "表示を更新し続けます",
@@ -107,7 +107,7 @@
         "text": "sudo もヘルパーツールも使いません。"
       },
       "network": {
-        "title": "通信はアップデートのみ",
+        "title": "通信は更新のみ",
         "text": "Mac の情報を外部に送りません。通信は GitHub Pages の appcast へのアップデート確認のみで、自動確認は設定で無効にできます。"
       },
       "telemetry": {
@@ -130,9 +130,9 @@
   },
   "install": {
     "title": "インストールと初回起動",
-    "lead": "Apple silicon または Intel の Mac で macOS 14 以降が必要です。Doorplate は ad-hoc 署名で Apple の公証を受けていないため、初回起動は macOS にブロックされます。macOS 15 以降では、右クリック › 開くでは回避できません。",
+    "lead": "Apple シリコンまたは Intel の Mac で macOS 14 以降が必要です。0.x版は Apple の公証を受けていないため、初回起動時に macOS がブロックします。アプリ更新は別の署名で検証します。更新の自動確認は初期設定で有効ですが、設定で無効にできます。",
     "downloads": "ダウンロード",
-    "universal": "Apple silicon と Intel",
+    "universal": "Apple シリコンと Intel",
     "checksum": "SHA-256 チェックサム",
     "download": "ダウンロード",
     "downloadFile": "{file} をダウンロード",
@@ -142,16 +142,15 @@
     "brewText": "cask が Doorplate をアプリケーションフォルダに移動するので、手順 1 は不要です。",
     "firstLaunch": "初回起動",
     "steps": [
-      "開く前に、Finder で Doorplate.app をアプリケーションフォルダ（/Applications）に移動します。ダウンロードした場所で開くと、macOS が一時的な場所から実行するため（App Translocation）、Doorplate が自身をアップデートできません。",
-      "アプリを開くと、macOS が「“Doorplate.app”は開かれませんでした」（「“Doorplate.app”にMacに損害を与えたり、プライバシーを侵害する可能性のあるマルウェアが含まれていないことをAppleは検証できませんでした。」）と表示します。完了をクリックします。ゴミ箱に入れるはクリックしないでください。アプリがゴミ箱に移動されます。",
-      "システム設定 › プライバシーとセキュリティを開き、Doorplate の案内の横にあるこのまま開くをクリックします。パスワードまたは Touch ID で確認し、表示されるダイアログでもう一度このまま開くをクリックします。"
+      "ダウンロードした zip を展開し、開く前に Finder で Doorplate.app を「アプリケーション」フォルダに移動します。ダウンロードフォルダから開くと、自身をアップデートできません。",
+      "Doorplate を開きます。macOS がアプリを検証できないため開かなかったと表示したら、「完了」をクリックします。「ゴミ箱に入れる」はクリックしないでください。",
+      "システム設定 ›「プライバシーとセキュリティ」を開き、Doorplate に関するメッセージの横にある「このまま開く」をクリックし、パスワードまたは Touch ID で確認してから、もう一度「このまま開く」をクリックします。この操作は初回のみ必要です。"
     ],
-    "macNote": "ターミナルに慣れていれば、手順 2–3 の代わりに次のコマンドを実行できます。",
-    "quarantineExplanation": "インターネットからダウンロードしたファイルに macOS が付ける隔離フラグを削除するので、Gatekeeper がアプリをブロックしなくなります。",
+    "macNote": "macOS 15 以降では、Control キーを押しながらクリック ›「開く」でこの確認を回避できません。ターミナルに慣れていれば、手順 2–3 の代わりに次のコマンドを実行できます。",
     "guide": "インストールの詳しい手順"
   },
   "footer": {
-    "summary": "Doorplate は無料のオープンソースです。Apache-2.0 ライセンス。",
+    "summary": "Doorplate は無料のオープンソースソフトウェアで、Apache-2.0 ライセンスで公開しています。",
     "links": {
       "releases": "リリース",
       "design": "設計ドキュメント（韓国語）",
