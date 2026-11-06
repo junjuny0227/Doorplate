@@ -1,16 +1,22 @@
-import type { Messages } from '../i18n';
-export function Principles({ c }: { c: Messages }) {
+import { useContent } from '../content';
+import { SymbolTile } from '../icons';
+
+export function Principles() {
+  const C = useContent();
   return (
-    <section className="section" aria-labelledby="principles-title">
-      <h2 id="principles-title">{c.sections.principles}</h2>
-      <div className="principles">
-        {c.principles.map((p) => (
-          <article className="card" key={p.title}>
-            <h3>{p.title}</h3>
-            <p>{p.body}</p>
-          </article>
-        ))}
+    <section className="section" id="principles" aria-labelledby="principles-title">
+      <div className="section-head">
+        <h2 id="principles-title">{C.principles.title}</h2>
       </div>
+      <ul className="principles">
+        {C.principles.items.map((p) => (
+          <li key={p.key} className="group principle">
+            <SymbolTile name={p.key} />
+            <h3>{p.title}</h3>
+            <p>{p.text}</p>
+          </li>
+        ))}
+      </ul>
     </section>
   );
 }

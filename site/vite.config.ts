@@ -38,4 +38,6 @@ export default defineConfig({
   },
   server: { port: 1431, strictPort: true },
   preview: { port: 1431, strictPort: true },
+  // tokens.test.ts reads stylesheets as text; Vitest blanks CSS unless asked not to.
+  test: { css: true },
 });

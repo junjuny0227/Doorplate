@@ -1,38 +1,35 @@
-import { BASE, type Locale, type Messages } from '../i18n';
-import { REPO } from '../version';
+import { ICON, useContent } from '../content';
+import { Globe } from '../icons';
 import { LanguageLinks } from './LanguageMenu';
-export function Footer({ c, locale }: { c: Messages; locale: Locale }) {
+
+export function Footer() {
+  const C = useContent();
   return (
     <footer className="site-footer">
       <div className="bar">
         <div className="footer-brand">
-          <img src={`${BASE}generated/AppIcon.svg`} width={32} height={32} alt="" />
-          <span>
-            <strong>Doorplate</strong>
-            <br />
-            <a href={`${REPO}/blob/main/LICENSE`}>Apache-2.0</a>
-          </span>
+          <img src={ICON} alt="" width={32} height={32} />
+          <div>
+            <p className="footer-name">{C.name}</p>
+            <p>{C.footer.summary}</p>
+          </div>
         </div>
-        <nav aria-label="Doorplate links">
+        <nav aria-label={C.projectNav}>
           <ul>
-            <li>
-              <a href={REPO}>GitHub</a>
-            </li>
-            <li>
-              <a href={`${REPO}/releases`}>{c.ui.releases}</a>
-            </li>
-            <li>
-              <a href={`${REPO}/blob/main/docs/specs/2026-11-04-doorplate-mvp-design.md`}>
-                {c.ui.design}
-              </a>
-            </li>
+            {C.footer.links.map((l) => (
+              <li key={l.href}>
+                <a href={l.href}>{l.label}</a>
+              </li>
+            ))}
           </ul>
         </nav>
       </div>
       <div className="bar footer-languages">
-        <nav aria-label={c.ui.language}>
-          <LanguageLinks locale={locale} />
+        <nav aria-label={C.footer.languages}>
+          <Globe />
+          <LanguageLinks />
         </nav>
+        <a href={C.footer.translate.href}>{C.footer.translate.label}</a>
       </div>
     </footer>
   );

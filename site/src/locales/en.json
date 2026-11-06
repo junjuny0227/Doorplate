@@ -1,125 +1,169 @@
 {
-  "name": "Doorplate",
-  "tagline": "A nameplate on every port's door.",
-  "pitch": "Doorplate is a macOS menu bar app that shows which project each listening port belongs to. Instead of running lsof -i :3000 and guessing which server owns the pid, open the menu and read 5173 @acme/web vite.",
   "meta": {
     "title": "Doorplate — A nameplate on every port's door.",
     "description": "Doorplate is a macOS menu bar app that shows which project each listening port belongs to. Instead of running lsof -i :3000 and guessing which server owns the pid, open the menu and read 5173 @acme/web vite.",
     "noscript": "Doorplate names the project behind each listening port. Visit GitHub for downloads and the installation guide.",
     "noscriptLink": "Download Doorplate"
   },
-  "ui": {
-    "skip": "Skip to content",
-    "language": "Language",
-    "download": "Download for macOS",
-    "copy": "Copy",
-    "copied": "Copied",
-    "copyFailed": "Could not copy. Select the command and copy it manually.",
-    "requirements": "macOS 14+ · Apple silicon & Intel",
-    "beta": "Unsigned beta",
-    "betaNote": "Ad-hoc signed, not notarized by Apple. The first launch needs a few extra steps.",
-    "first": "First open",
-    "readme": "Full installation guide",
-    "releases": "Releases",
-    "design": "Design (Korean)",
-    "stack": "Stack",
-    "servers": "Servers",
-    "installNote": "Download the zip, unzip it, and verify it against the .sha256 file in the release.",
-    "quarantine": "Terminal alternative (steps 2–3)",
-    "privacy": "No telemetry",
-    "privacyBody": "No usage statistics, analytics or tracking. Your ports, processes and paths stay on your Mac.",
-    "noscript": "Doorplate names the project behind each listening port. Visit GitHub for downloads and the installation guide.",
-    "noscriptLink": "Download Doorplate",
-    "serverCaption": "Servers: open, copy or stop from the row",
-    "dockerCaption": "Docker: Compose services by name"
-  },
-  "sections": {
-    "features": "What it does",
-    "screenshots": "A closer look",
-    "stacks": "What it recognizes",
+  "tagline": "A nameplate on every port's door.",
+  "pitch": "A macOS menu bar app that shows which project each listening port belongs to.",
+  "skip": "Skip to content",
+  "nav": {
+    "how": "How it works",
+    "features": "Features",
     "principles": "Principles",
+    "tools": "Stacks",
     "install": "Install"
   },
-  "features": [
-    {
-      "title": "Names every server.",
-      "body": "Each listening port gets the name of the project it runs from (package.json, Cargo.toml, pyproject.toml, Gradle, Maven, go.mod or a .git folder) and the tool that started it. JVM and monorepo servers too."
+  "sectionsNav": "Sections",
+  "projectNav": "Project",
+  "backToTop": "Doorplate, back to top",
+  "language": "Language",
+  "hero": {
+    "download": "Download for Mac",
+    "fileHint": "One zip for Apple silicon and Intel. Requires macOS 14 or later.",
+    "brew": "Or install with Homebrew:",
+    "version": "Version {version}",
+    "otherDownloads": "Other ways to install",
+    "releaseNotes": "Release notes",
+    "beta": "Unsigned beta.",
+    "betaNote": "Doorplate is signed ad hoc and not notarized by Apple, so macOS blocks the first launch.",
+    "howToOpen": "How to open it",
+    "screenshotAlt": "Doorplate's menu: app servers named by project with their tool on the right, a macOS service row, and a Docker section listing Compose services with their container names."
+  },
+  "copy": {
+    "copy": "Copy",
+    "copied": "Copied",
+    "label": "Copy command",
+    "copiedStatus": "Copied to the clipboard.",
+    "failedStatus": "Could not copy. Select the command and copy it manually."
+  },
+  "how": {
+    "title": "How it works",
+    "lead": "Instead of running lsof -i :3000 and guessing which server owns the pid, open the menu and read 5173 @acme/web vite.",
+    "steps": {
+      "open": {
+        "title": "Open the menu",
+        "text": "Click Doorplate in the menu bar. It lists every listening port on your Mac, and the list keeps updating while the menu is open."
+      },
+      "read": {
+        "title": "Read the names",
+        "text": "Each port shows the project it runs from and the tool that started it. Docker Compose services appear by service name."
+      },
+      "act": {
+        "title": "Act on a row",
+        "text": "Open in the browser, show in Finder, open a terminal there, copy the address, or stop the server. Hold ⌥ to turn a row into a one-click Stop item."
+      }
     },
-    {
-      "title": "Understands Docker Compose.",
-      "body": "Published container ports show the Compose service name, with the container name on the right. Works with Docker Desktop, OrbStack and Colima."
-    },
-    {
-      "title": "Hides the noise.",
-      "body": "IDEs, build daemons and other apps stay hidden until you choose to show them in Settings. Worker processes that share a socket appear as one row; debugger, inspector and LiveReload ports are grouped under their server."
-    },
-    {
-      "title": "Explains macOS's own ports.",
-      "body": "AirPlay Receiver on 5000 and 7000 gets its own row, with where to turn it off."
-    },
-    {
-      "title": "Acts on a row.",
-      "body": "Open in the browser, show in Finder, open a terminal there, copy the address, or stop the server. Hold ⌥ to turn a row into a one-click Stop item."
-    },
-    {
-      "title": "Stops carefully.",
-      "body": "Stop asks first and sends SIGTERM. If the server is still running ten seconds later, Doorplate offers to wait or force stop. Containers stop through the Docker API; Docker itself is never stopped."
-    },
-    {
-      "title": "Stays live.",
-      "body": "The list updates while the menu is open, and servers running for a long time are marked in orange (· 3d)."
-    },
-    {
-      "title": "Updates itself.",
-      "body": "New versions install from inside the app, verified against Doorplate's update signing key (Sparkle)."
-    },
-    {
-      "title": "Speaks your language.",
-      "body": "English, Korean, Japanese and Simplified Chinese, following your macOS language setting."
-    }
-  ],
-  "principles": [
-    {
-      "title": "Local only.",
-      "body": "Doorplate reads process and socket information on your Mac and talks to Docker only through its local unix socket. It never connects to your ports."
-    },
-    {
-      "title": "No administrator rights.",
-      "body": "No sudo, no helper tools."
-    },
-    {
-      "title": "Network only for updates.",
-      "body": "Nothing leaves your Mac. The one request is the update check against the appcast on GitHub Pages; automatic checks can be turned off in Settings."
-    },
-    {
-      "title": "No telemetry.",
-      "body": "No usage statistics, analytics or tracking. Your ports, processes and paths stay on your Mac."
-    }
-  ],
-  "screenshots": {
-    "menuAlt": "Doorplate's menu: app servers named by project with their tool on the right, a macOS service row, and a Docker section listing Compose services with their container names.",
-    "serverAlt": "An app server's submenu: Open in Browser, Show in Finder, Open in Terminal, Copy Address, and a red Stop item with the PID.",
+    "screenshotAlt": "An app server's submenu: Open in Browser, Show in Finder, Open in Terminal, Copy Address, and a red Stop item with the PID.",
     "dockerAlt": "A Docker Compose row's submenu: Copy Address, Show Compose Folder in Finder, and Stop Container. Open in Browser appears only for ports that serve HTTP."
   },
-  "stacks": [
-    ["Node", "vite, next, nuxt, astro, remix, webpack"],
-    [
-      "JVM",
-      "gradle bootRun, mvn spring-boot:run, java -jar, IntelliJ run configurations. Gradle and Kotlin daemons are hidden; JDWP debugger ports are grouped under their server"
-    ],
-    ["Rust", "cargo run, binaries under target/debug or target/release"],
-    ["Python", "Django (manage.py runserver), uvicorn, Flask, gunicorn"],
-    ["Ruby", "Rails, puma"],
-    ["Docker", "Published ports of running containers, by Compose service name"]
-  ],
-  "stackNote": "A server is named after the nearest project marker above its working directory. When there is none, Doorplate uses the folder name.",
-  "firstOpen": {
-    "intro": "Doorplate is signed ad hoc and not notarized by Apple, so macOS blocks the first launch. On macOS 15 and later, right-click → Open no longer gets past this.",
+  "features": {
+    "title": "What it does",
+    "items": {
+      "names": {
+        "title": "Names every server",
+        "text": "Each listening port gets the name of the project it runs from (package.json, Cargo.toml, pyproject.toml, Gradle, Maven, go.mod or a .git folder) and the tool that started it. JVM and monorepo servers too."
+      },
+      "docker": {
+        "title": "Understands Docker Compose",
+        "text": "Published container ports show the Compose service name, with the container name on the right. Works with Docker Desktop, OrbStack and Colima."
+      },
+      "noise": {
+        "title": "Hides the noise",
+        "text": "IDEs, build daemons and other apps stay hidden until you choose to show them in Settings. Worker processes that share a socket appear as one row; debugger, inspector and LiveReload ports are grouped under their server."
+      },
+      "system": {
+        "title": "Explains macOS's own ports",
+        "text": "AirPlay Receiver on 5000 and 7000 gets its own row, with where to turn it off."
+      },
+      "stop": {
+        "title": "Stops carefully",
+        "text": "Stop asks first and sends SIGTERM. If the server is still running ten seconds later, Doorplate offers to wait or force stop. Containers stop through the Docker API; Docker itself is never stopped."
+      },
+      "live": {
+        "title": "Stays live",
+        "text": "The list updates while the menu is open, and servers running for a long time are marked in orange (· 3d)."
+      },
+      "updates": {
+        "title": "Updates itself",
+        "text": "New versions install from inside the app, verified against Doorplate's update signing key (Sparkle)."
+      },
+      "languages": {
+        "title": "Speaks your language",
+        "text": "English, Korean, Japanese and Simplified Chinese, following your macOS language setting."
+      }
+    }
+  },
+  "principles": {
+    "title": "Everything stays on your Mac",
+    "items": {
+      "local": {
+        "title": "Local only",
+        "text": "Doorplate reads process and socket information on your Mac and talks to Docker only through its local unix socket. It never connects to your ports."
+      },
+      "admin": {
+        "title": "No administrator rights",
+        "text": "No sudo, no helper tools."
+      },
+      "network": {
+        "title": "Network only for updates",
+        "text": "Nothing leaves your Mac. The one request is the update check against the appcast on GitHub Pages; automatic checks can be turned off in Settings."
+      },
+      "telemetry": {
+        "title": "No telemetry",
+        "text": "No usage statistics, analytics or tracking. Your ports, processes and paths stay on your Mac."
+      }
+    }
+  },
+  "tools": {
+    "title": "What it recognizes",
+    "servers": {
+      "node": "vite, next, nuxt, astro, remix, webpack",
+      "jvm": "gradle bootRun, mvn spring-boot:run, java -jar, IntelliJ run configurations. Gradle and Kotlin daemons are hidden; JDWP debugger ports are grouped under their server",
+      "rust": "cargo run, binaries under target/debug or target/release",
+      "python": "Django (manage.py runserver), uvicorn, Flask, gunicorn",
+      "ruby": "Rails, puma",
+      "docker": "Published ports of running containers, by Compose service name"
+    },
+    "note": "A server is named after the nearest project marker above its working directory. When there is none, Doorplate uses the folder name."
+  },
+  "install": {
+    "title": "Install and first launch",
+    "lead": "Requires macOS 14 or later on Apple silicon or Intel. Doorplate is signed ad hoc and not notarized by Apple, so macOS blocks the first launch. On macOS 15 and later, right-click › Open no longer gets past this.",
+    "downloads": "Downloads",
+    "universal": "Apple silicon and Intel",
+    "checksum": "SHA-256 checksum",
+    "download": "Download",
+    "downloadFile": "Download {file}",
+    "allReleases": "All releases on GitHub",
+    "zipNote": "Unzip the download and check it against the .sha256 file next to it.",
+    "brewTitle": "Homebrew.",
+    "brewText": "The cask also moves Doorplate to Applications, so step 1 is done for you:",
+    "firstLaunch": "First launch",
     "steps": [
-      "Before opening it, move Doorplate.app to your Applications folder (/Applications) in Finder. If you open the app where it was downloaded, macOS runs it from a temporary location (App Translocation) and Doorplate cannot update itself. Homebrew does this for you.",
+      "Before opening it, move Doorplate.app to your Applications folder (/Applications) in Finder. If you open the app where it was downloaded, macOS runs it from a temporary location (App Translocation) and Doorplate cannot update itself.",
       "Open the app. macOS shows \"“Doorplate.app” Not Opened\" (\"Apple could not verify “Doorplate.app” is free of malware that may harm your Mac or compromise your privacy.\"). Click Done. Do not click Move to Trash: it moves the app to the Trash.",
       "Open System Settings › Privacy & Security, click Open Anyway next to the message about Doorplate, confirm with your password or Touch ID, then click Open Anyway in the dialog that appears."
     ],
-    "quarantineExplanation": "This removes the download quarantine flag that macOS adds to files from the internet, so Gatekeeper no longer stops the app."
+    "macNote": "If you are comfortable with Terminal, you can run this instead of steps 2–3:",
+    "quarantineExplanation": "This removes the download quarantine flag that macOS adds to files from the internet, so Gatekeeper no longer stops the app.",
+    "guide": "Full installation guide"
+  },
+  "footer": {
+    "summary": "Doorplate is free and open source. Apache-2.0 license.",
+    "links": {
+      "releases": "Releases",
+      "design": "Design (Korean)",
+      "license": "License"
+    },
+    "languages": "Languages",
+    "translate": "Help improve translations"
+  },
+  "suggest": {
+    "label": "Language suggestion",
+    "text": "This page is also available in English.",
+    "switch": "Read in English",
+    "dismiss": "Dismiss"
   }
 }

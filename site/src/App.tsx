@@ -1,26 +1,54 @@
-import { type Locale, messagesFor } from './i18n';
+import { useEffect, useMemo, useState } from 'react';
+import { ContentContext, content } from './content';
+import { type Locale, STORAGE_KEY, suggestion } from './i18n';
 import { Features } from './sections/Features';
 import { Footer } from './sections/Footer';
 import { Header } from './sections/Header';
 import { Hero } from './sections/Hero';
+import { HowItWorks } from './sections/HowItWorks';
 import { Install } from './sections/Install';
+import { LocaleSuggestion } from './sections/LocaleSuggestion';
 import { Principles } from './sections/Principles';
-import { Screenshot } from './sections/Screenshot';
 import { Tools } from './sections/Tools';
-export function App({ locale }: { locale: Locale }) {
-  const c = messagesFor(locale);
+
+function savedLocale(): string | null {
+  try {
+    return localStorage.getItem(STORAGE_KEY);
+  } catch {
+    return null; // Storage unavailable: behave as if nothing was chosen.
+  }
+}
+
+export function App({
+  locale = 'en',
+  languages = globalThis.navigator?.languages,
+}: {
+  locale?: Locale;
+  languages?: readonly string[];
+}) {
+  const c = useMemo(() => content(locale), [locale]);
+  // Decided after the first paint: the static HTML never depends on the visitor's browser languages.
+  const [suggested, setSuggested] = useState<Locale | null>(null);
+
+  useEffect(() => {
+    setSuggested(suggestion(locale, savedLocale(), languages ?? []));
+  }, [locale, languages]);
+
   return (
-    <>
-      <Header locale={locale} c={c} />
+    <ContentContext.Provider value={c}>
+      <Header />
+      {suggested !== null && (
+        <LocaleSuggestion locale={suggested} onClose={() => setSuggested(null)} />
+      )}
       <main id="main">
-        <Hero c={c} />
-        <Features c={c} />
-        <Screenshot c={c} />
-        <Tools c={c} />
-        <Principles c={c} />
-        <Install c={c} locale={locale} />
+        <Hero />
+        <HowItWorks />
+        <Features />
+        <Principles />
+        <Tools />
+        <Install />
       </main>
-      <Footer c={c} locale={locale} />
-    </>
+      <Footer />
+    </ContentContext.Provider>
   );
 }
