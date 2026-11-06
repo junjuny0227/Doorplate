@@ -43,7 +43,7 @@ jobs:
           PY
           # --generate-notes appends GitHub's notes (PRs since the previous tag, grouped by
           # label per .github/release.yml) after notes.md. Edit the draft before publishing:
-          # add a "## 변경 사항 / Changes" summary on top (docs/checklists/release.md).
+          # add a "## Changes" summary on top (docs/checklists/release.md).
           gh release create "$GITHUB_REF_NAME" --verify-tag --draft --prerelease=false \
             --title "Doorplate ${VERSION} (beta)" --notes-file "notes.md" --generate-notes \
             "dist/Doorplate-${VERSION}.zip" "dist/Doorplate-${VERSION}.zip.sha256"
