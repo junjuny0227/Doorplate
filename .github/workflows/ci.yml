@@ -1,36 +1,64 @@
-name: Core CI
+name: CI
 
 on:
+  # Docs-only changes do not affect builds or tests. No .md file outside docs/ is a
+  # test input. If CI becomes a required check, switch to a job-level filter: a
+  # skipped workflow never reports, so a required check would wait forever.
   push:
     branches: [main]
+    paths-ignore: ['**/*.md', 'docs/**', 'LICENSE']
   pull_request:
+    paths-ignore: ['**/*.md', 'docs/**', 'LICENSE']
+
+  # macos-latest moves to newer Xcode and Swift without a commit here; a weekly run
+  # catches a toolchain change before the next PR does.
+  schedule:
+    - cron: '23 5 * * 1'
 
 permissions:
   contents: read
 
 jobs:
+  # Formatting and the Core import boundary; writes nothing.
+  lint:
+    runs-on: macos-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v6
+      - run: swift --version
+      - run: swift format lint --strict --recursive Packages App
+      - run: scripts/check-core-imports.sh
+
   core:
     runs-on: macos-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - run: swift --version
-      - run: scripts/check-core-imports.sh
-      - run: swift format lint --strict --recursive Packages App
       - run: swift test --package-path Packages/DoorplateCore
       - run: swift test --package-path Packages/DoorplateMenu
+
   release-tools:
     runs-on: macos-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - run: swift --version
       - run: swift test --package-path Packages/ReleaseTools
+
   app:
     runs-on: macos-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - run: brew install xcodegen
       - run: xcodegen generate
       - run: xcodebuild -project Doorplate.xcodeproj -scheme Doorplate -configuration Debug CODE_SIGN_IDENTITY=- build
+
+  scripts:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v6
+      # All warnings and errors fail CI.
+      - run: shellcheck --severity=warning scripts/*.sh
