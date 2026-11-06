@@ -75,7 +75,7 @@
       },
       "system": {
         "title": "Explains macOS's own ports",
-        "text": "AirPlay Receiver on 5000 and 7000 gets its own row, with where to turn it off."
+        "text": "Enable Show system ports in Settings to see AirPlay and other macOS services, hidden by default. AirPlay Receiver on 5000 and 7000 includes instructions for turning it off."
       },
       "stop": {
         "title": "Stops carefully",

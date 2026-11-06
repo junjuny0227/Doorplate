@@ -45,6 +45,8 @@
 "settings.hours" = "%d hours";
 "settings.showDevTools" = "Show developer tool ports";
 "settings.showOtherApps" = "Show other app ports";
+"settings.showSystemPorts" = "Show system ports";
+"settings.showSystemPortsHint" = "Show ports used by macOS services such as AirPlay.";
 "settings.terminal" = "Terminal app";
 "settings.autoUpdate" = "Check for updates automatically";
 "settings.loginRequiresApproval" = "Allow Doorplate in System Settings > General > Login Items.";

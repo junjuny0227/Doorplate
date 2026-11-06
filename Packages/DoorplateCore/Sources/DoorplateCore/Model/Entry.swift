@@ -24,6 +24,8 @@ public struct PortBinding: Sendable, Equatable, Codable {
 }
 
 public struct ServerEntry: Sendable, Equatable, Codable {
+  static let airPlayTool = "airplay"
+
   public var id: String
   public var target: Target
   public var section: Section
@@ -38,6 +40,9 @@ public struct ServerEntry: Sendable, Equatable, Codable {
   public var isLongRunning: Bool
   public var likelyHTTP: Bool
   public var canTerminate: Bool
+
+  public var isAirPlay: Bool { section == .system && tool == Self.airPlayTool }
+
   public init(
     id: String, target: Target, section: Section, title: String, tool: String? = nil,
     image: String? = nil, primary: PortBinding, extras: [PortBinding] = [],

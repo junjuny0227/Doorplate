@@ -101,7 +101,8 @@ struct ClassifierTests {
     let entries = classify(
       records.map { Listener(pid: $0.pid, port: 52000, address: "::") }, processes: records)
     #expect(entries.count == 4)
-    #expect(entries.allSatisfy { $0.section == .hidden(.otherApp) && !$0.canTerminate })
+    #expect(entries.allSatisfy { !$0.canTerminate })
+    #expect(entries.map(\.section) == [.hidden(.otherApp), .hidden(.otherApp), .system, .system])
   }
 
   @Test func otherAppsOfThisUserAreTerminable() {

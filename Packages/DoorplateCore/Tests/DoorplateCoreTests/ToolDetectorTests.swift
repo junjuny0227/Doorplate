@@ -165,15 +165,16 @@ private func detect(_ p: ProcessRecord, parent: ProcessRecord? = nil, ports: [UI
       proc(
         "ControlCenter", path: "/System/Library/CoreServices/ControlCenter", args: ["ControlCenter"]
       ), ports: [5000, 7000])
-      == ToolMatch(tool: "airplay", section: .system, title: "AirPlay Receiver (macOS)"))
+      == ToolMatch(
+        tool: "airplay", section: .system, title: "AirPlay Receiver (macOS)", stoppable: false))
 }
-@Test func controlCenterOtherPortIsHidden() {
+@Test func controlCenterOtherPortIsSystem() {
   #expect(
     detect(
       proc(
         "ControlCenter", path: "/System/Library/CoreServices/ControlCenter", args: ["ControlCenter"]
       ), ports: [49152]
-    ).section == .hidden(.otherApp))
+    ).section == .system)
 }
 @Test func otherAppHidden() {
   let match = detect(
@@ -181,10 +182,16 @@ private func detect(_ p: ProcessRecord, parent: ProcessRecord? = nil, ports: [UI
   #expect(match.title == "Spotify")
   #expect(match.stoppable)
 }
-@Test func macOSServiceIsHidden() {
-  let match = detect(proc("rapportd", path: "/usr/libexec/rapportd", args: ["rapportd"]))
-  #expect(match.title == "rapportd")
+@Test(arguments: ["/usr/libexec/rapportd", "/usr/sbin/service", "/System/Library/service"])
+func macOSServiceIsSystem(_ path: String) {
+  let match = detect(proc("service", path: path, args: []))
+  #expect(match.section == .system)
   #expect(!match.stoppable)
+}
+@Test(arguments: [UInt16(5000), 7000])
+func developmentServerOnAirPlayPortIsApp(_ port: UInt16) {
+  #expect(
+    detect(proc("api", path: "/Users/dev/bin/api", args: []), ports: [port]).section == .app)
 }
 @Test func unknownBinaryIsApp() {
   #expect(detect(proc("caddy", path: "/opt/homebrew/bin/caddy", args: ["caddy"])).tool == "caddy")

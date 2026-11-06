@@ -12,6 +12,36 @@
     {
       "canTerminate" : false,
       "extras" : [
+        {
+          "exposure" : "network",
+          "port" : 7000
+        }
+      ],
+      "id" : "pid:180",
+      "isLongRunning" : false,
+      "likelyHTTP" : true,
+      "primary" : {
+        "exposure" : "network",
+        "port" : 5000
+      },
+      "section" : {
+        "system" : {
+
+        }
+      },
+      "startedAt" : "2026-11-04T05:20:00Z",
+      "target" : {
+        "process" : {
+          "pid" : 180,
+          "startedAt" : "2026-11-04T05:20:00Z"
+        }
+      },
+      "title" : "AirPlay Receiver (macOS)",
+      "tool" : "airplay"
+    },
+    {
+      "canTerminate" : false,
+      "extras" : [
 
       ],
       "id" : "pid:182",
@@ -22,8 +52,8 @@
         "port" : 49152
       },
       "section" : {
-        "hidden" : {
-          "_0" : "otherApp"
+        "system" : {
+
         }
       },
       "startedAt" : "2026-11-04T05:20:00Z",
@@ -91,35 +121,6 @@
   ],
   "scannedAt" : "2026-11-04T06:00:00Z",
   "system" : [
-    {
-      "canTerminate" : false,
-      "extras" : [
-        {
-          "exposure" : "network",
-          "port" : 7000
-        }
-      ],
-      "id" : "pid:180",
-      "isLongRunning" : false,
-      "likelyHTTP" : true,
-      "primary" : {
-        "exposure" : "network",
-        "port" : 5000
-      },
-      "section" : {
-        "system" : {
 
-        }
-      },
-      "startedAt" : "2026-11-04T05:20:00Z",
-      "target" : {
-        "process" : {
-          "pid" : 180,
-          "startedAt" : "2026-11-04T05:20:00Z"
-        }
-      },
-      "title" : "AirPlay Receiver (macOS)",
-      "tool" : "airplay"
-    }
   ]
 }

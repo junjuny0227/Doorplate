@@ -199,6 +199,53 @@ import Testing
     #expect(hidden.items.count == 2)
     #expect(hidden.items.allSatisfy { !$0.isEnabled && $0.action == nil })
   }
+
+  @Test func systemServiceHasCopyInsteadOfAirPlayHintOrStop() throws {
+    populate(
+      outcome(system: [
+        entry(port: 49152, title: "rapportd", tool: nil, section: .system, canTerminate: false)
+      ]))
+    #expect(try row().title == "49152  rapportd")
+    #expect(!menu.items.contains(where: { $0.isAlternate }))
+    let items = try submenu().items
+    #expect(items.map { $0.identifier?.rawValue } == ["copy"])
+    try choose(#require(items.first))
+    #expect(handler.commands == [.copy("localhost:49152")])
+  }
+
+  @Test func systemSettingMovesEntriesWithoutChangingServerCount() throws {
+    let entries = [
+      entry(port: 5000, tool: "airplay", section: .system, canTerminate: false),
+      entry(
+        port: 49152, title: "rapportd", tool: nil, section: .system, id: "pid:102",
+        canTerminate: false),
+    ]
+    func result(_ showSystemPorts: Bool) -> ScanOutcome {
+      ScanOutcome(
+        snapshot: SnapshotBuilder.build(
+          entries, dockerStatus: .absent, settings: .init(showSystemPorts: showSystemPorts),
+          now: menuNow), failedAt: nil)
+    }
+
+    populate(result(false))
+    #expect(menu.items[0].title == L10n.format(.headerRunning, 0))
+    #expect(menu.items.contains { $0.identifier?.rawValue == "empty" })
+    #expect(!menu.items.contains { $0.identifier?.rawValue == "system.separator" })
+    let hidden = try #require(menu.items.first { $0.identifier?.rawValue == "hidden" }?.submenu)
+    #expect(hidden.items.map(\.title) == ["5000  \(L10n.text(.systemAirplay))", "49152  rapportd"])
+    #expect(hidden.items.allSatisfy { !$0.isEnabled && $0.action == nil && $0.submenu == nil })
+
+    builder.refresh(menu, outcome: result(true), state: MenuState())
+    #expect(menu.items[0].title == L10n.format(.headerRunning, 0))
+    #expect(try row().title == "5000  \(L10n.text(.systemAirplay))")
+    #expect(!menu.items.contains { $0.identifier?.rawValue == "hidden" || $0.isAlternate })
+
+    builder.refresh(menu, outcome: result(false), state: MenuState())
+    #expect(!menu.items.contains { $0.identifier?.rawValue == "system.separator" })
+    #expect(
+      menu.items.first { $0.identifier?.rawValue == "hidden" }?.title == L10n.format(.menuHidden, 2)
+    )
+  }
   @Test func footerItems() throws {
     populate()
     #expect(menu.items.suffix(2).map(\.title) == ["Settings…", "Quit Doorplate"])

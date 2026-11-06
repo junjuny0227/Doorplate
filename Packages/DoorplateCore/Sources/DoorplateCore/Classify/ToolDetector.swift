@@ -5,7 +5,7 @@ public struct ToolMatch: Sendable, Equatable {
   public var section: Section
   public var title: String?
   /// False for processes Doorplate must never stop even when shown: container runtimes (every
-  /// container would go down) and macOS services. Spec 3.
+  /// container would go down) and macOS services. Spec 5.
   public var stoppable: Bool
   public init(tool: String?, section: Section, title: String?, stoppable: Bool = true) {
     self.tool = tool
@@ -121,13 +121,14 @@ public enum ToolDetector {
         }
       case .airplay:
         if process.name == "ControlCenter" && ports.contains(where: { $0 == 5000 || $0 == 7000 }) {
-          return ToolMatch(tool: "airplay", section: .system, title: "AirPlay Receiver (macOS)")
+          return match(
+            ServerEntry.airPlayTool, .system, "AirPlay Receiver (macOS)", stoppable: false)
         }
       case .other:
         if path.hasPrefix("/System/") || path.hasPrefix("/usr/libexec/")
           || path.hasPrefix("/usr/sbin/")
         {
-          return match(nil, .hidden(.otherApp), executable, stoppable: false)
+          return match(nil, .system, executable, stoppable: false)
         }
         if path.contains(".app/Contents/") {
           return match(nil, .hidden(.otherApp), enclosingApp ?? executable)

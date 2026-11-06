@@ -45,6 +45,8 @@
 "settings.hours" = "%d小时";
 "settings.showDevTools" = "显示开发工具端口";
 "settings.showOtherApps" = "显示其他应用端口";
+"settings.showSystemPorts" = "显示系统端口";
+"settings.showSystemPortsHint" = "显示AirPlay等macOS服务使用的端口。";
 "settings.terminal" = "终端应用";
 "settings.autoUpdate" = "自动检查更新";
 "settings.loginRequiresApproval" = "请在系统设置 > 通用 > 登录项中允许Doorplate。";

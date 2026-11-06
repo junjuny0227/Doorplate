@@ -1,0 +1,125 @@
+{
+  "apps" : [
+
+  ],
+  "badgeCount" : 0,
+  "docker" : [
+
+  ],
+  "dockerStatus" : "absent",
+  "hasLongRunning" : false,
+  "hidden" : [
+    {
+      "canTerminate" : true,
+      "extras" : [
+
+      ],
+      "id" : "pid:181",
+      "isLongRunning" : false,
+      "likelyHTTP" : true,
+      "primary" : {
+        "exposure" : "loopback",
+        "port" : 57621
+      },
+      "section" : {
+        "hidden" : {
+          "_0" : "otherApp"
+        }
+      },
+      "startedAt" : "2026-11-04T05:20:00Z",
+      "target" : {
+        "process" : {
+          "pid" : 181,
+          "startedAt" : "2026-11-04T05:20:00Z"
+        }
+      },
+      "title" : "Spotify"
+    },
+    {
+      "canTerminate" : true,
+      "extras" : [
+
+      ],
+      "id" : "pid:183",
+      "isLongRunning" : false,
+      "likelyHTTP" : true,
+      "primary" : {
+        "exposure" : "loopback",
+        "port" : 63342
+      },
+      "section" : {
+        "hidden" : {
+          "_0" : "devTool"
+        }
+      },
+      "startedAt" : "2026-11-04T05:20:00Z",
+      "target" : {
+        "process" : {
+          "pid" : 183,
+          "startedAt" : "2026-11-04T05:20:00Z"
+        }
+      },
+      "title" : "IntelliJ IDEA",
+      "tool" : "IntelliJ IDEA"
+    }
+  ],
+  "scannedAt" : "2026-11-04T06:00:00Z",
+  "system" : [
+    {
+      "canTerminate" : false,
+      "extras" : [
+        {
+          "exposure" : "network",
+          "port" : 7000
+        }
+      ],
+      "id" : "pid:180",
+      "isLongRunning" : false,
+      "likelyHTTP" : true,
+      "primary" : {
+        "exposure" : "network",
+        "port" : 5000
+      },
+      "section" : {
+        "system" : {
+
+        }
+      },
+      "startedAt" : "2026-11-04T05:20:00Z",
+      "target" : {
+        "process" : {
+          "pid" : 180,
+          "startedAt" : "2026-11-04T05:20:00Z"
+        }
+      },
+      "title" : "AirPlay Receiver (macOS)",
+      "tool" : "airplay"
+    },
+    {
+      "canTerminate" : false,
+      "extras" : [
+
+      ],
+      "id" : "pid:182",
+      "isLongRunning" : false,
+      "likelyHTTP" : true,
+      "primary" : {
+        "exposure" : "loopback",
+        "port" : 49152
+      },
+      "section" : {
+        "system" : {
+
+        }
+      },
+      "startedAt" : "2026-11-04T05:20:00Z",
+      "target" : {
+        "process" : {
+          "pid" : 182,
+          "startedAt" : "2026-11-04T05:20:00Z"
+        }
+      },
+      "title" : "rapportd"
+    }
+  ]
+}
