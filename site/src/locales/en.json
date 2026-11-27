@@ -79,7 +79,7 @@
       },
       "stop": {
         "title": "Stops carefully",
-        "text": "Stop sends SIGTERM; regular apps get the same quit request as ⌘Q. If it is still running ten seconds later, Doorplate offers to wait or force stop. Containers stop through the Docker API; Docker itself and macOS services are never stopped."
+        "text": "Stop sends SIGTERM; regular apps get the same quit request as ⌘Q. If it is still running ten seconds later, Doorplate offers to wait or force stop. Containers stop through the Docker API; Docker itself and macOS services are never stopped. Two or more servers of one project sit under one header whose Stop All asks once before stopping them."
       },
       "live": {
         "title": "Stays live",

@@ -38,9 +38,11 @@ open the menu and read `5173  @acme/web  vite`.
   Receiver on 5000 and 7000 includes instructions for turning it off.
 - **Acts on a row.** Open in the browser, show in Finder, open a terminal there, copy
   the address, or stop the server. Hold ⌥ to turn a row into a one-click Stop item.
-- **Stops carefully.** Stop asks first and sends SIGTERM. If the server is still
-  running ten seconds later, Doorplate offers to wait or force stop. Containers stop
-  through the Docker API; Docker itself is never stopped.
+- **Stops carefully.** Stop sends SIGTERM; regular apps get the same quit request as ⌘Q.
+  If the server is still running ten seconds later, Doorplate offers to wait or force
+  stop. Containers stop through the Docker API; Docker itself is never stopped.
+- **Groups a project's servers.** Two or more servers of one repository (or Compose
+  project) sit under one header with **Stop All**, which asks once before stopping them.
 - **Stays live.** The list updates while the menu is open, and servers running for a
   long time are marked in orange (`· 3d`).
 - **Updates itself** with signed updates (Sparkle).
