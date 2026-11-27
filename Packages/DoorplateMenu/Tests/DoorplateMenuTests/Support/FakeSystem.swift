@@ -4,7 +4,7 @@ import Foundation
 
 /// Records fake process operations only; never touches a real PID.
 final class FakeSignaler: ProcessSignaler, @unchecked Sendable {
-  struct Signal: Equatable {
+  struct Signal: Hashable {
     var value: Int32
     var pid: Int32
   }
@@ -93,6 +93,13 @@ actor FakeDocker: DockerSource {
     let continuation = pendingAnswer
     pendingAnswer = nil
     continuation?.resume(returning: force)
+  }
+
+  var confirmAnswer = true
+  private(set) var confirmations: [(name: String, servers: [String])] = []
+  func confirmStopAll(name: String, servers: [String]) async -> Bool {
+    confirmations.append((name, servers))
+    return confirmAnswer
   }
 
   func report(_ message: String) { messages.append(message) }

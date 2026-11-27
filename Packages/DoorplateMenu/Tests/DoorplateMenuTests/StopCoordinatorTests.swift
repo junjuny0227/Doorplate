@@ -10,6 +10,45 @@ import Testing
     id: "pid:101", target: .process(pid: 101, startedAt: Date(timeIntervalSince1970: 1_000)),
     title: "shop-api", port: 8080)
 
+  private func refs() -> [EntryRef] {
+    [101, 102].map {
+      EntryRef(
+        id: "pid:\($0)", target: .process(pid: $0, startedAt: Date(timeIntervalSince1970: 1_000)),
+        title: "web-\($0)", port: UInt16(5_000 + $0))
+    }
+  }
+
+  @Test func stopAllAsksOnceThenStopsEveryRow() async {
+    // One exit per row: both stop within the grace period.
+    let signaler = FakeSignaler(exits: [true, true])
+    let prompter = FakePrompter()
+    let coordinator = make(signaler, prompter)
+    await coordinator.stopAll(refs(), name: "acme")
+    #expect(prompter.confirmations.map(\.name) == ["acme"])
+    #expect(prompter.confirmations.first?.servers == ["5101  web-101", "5102  web-102"])
+    #expect(
+      Set(signaler.signals) == [.init(value: SIGTERM, pid: 101), .init(value: SIGTERM, pid: 102)])
+    #expect(prompter.titles.isEmpty)
+    #expect(coordinator.stopping.isEmpty)
+  }
+
+  @Test func stopAllCancelledStopsNothing() async {
+    let signaler = FakeSignaler()
+    let prompter = FakePrompter()
+    prompter.confirmAnswer = false
+    let coordinator = make(signaler, prompter)
+    await coordinator.stopAll(refs(), name: "acme")
+    #expect(prompter.confirmations.count == 1)
+    #expect(signaler.signals.isEmpty)
+  }
+
+  @Test func stopAllWithNothingToStopDoesNotAsk() async {
+    let prompter = FakePrompter()
+    let coordinator = make(FakeSignaler(), prompter)
+    await coordinator.stopAll([], name: "acme")
+    #expect(prompter.confirmations.isEmpty)
+  }
+
   @Test func stopsGracefully() async {
     let signaler = FakeSignaler()
     let prompter = FakePrompter()
