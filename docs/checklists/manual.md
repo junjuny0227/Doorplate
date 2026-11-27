@@ -21,6 +21,7 @@
 | Django (`manage.py runserver`) | `pyproject.toml`의 `[project] name`(없으면 `.git` 폴더 이름) · `django` | Core 스캔 통과: scan-django · django (메뉴 미확인) | 2026-11-05 |
 | FastAPI (`uvicorn`) | `pyproject.toml`의 `[project] name`(없으면 `.git` 폴더 이름) · `uvicorn`. `--reload`의 worker가 아닌 주인 프로세스 한 행 | Core 스캔 통과: scan-fastapi · uvicorn (메뉴 미확인) | 2026-11-05 |
 | Rails | `.git` 폴더 이름 · `rails` | 미확인(도구 없음) | 2026-11-05 |
+| git 브랜치(저장소와 워크트리에서 서버 하나씩) | 제목 뒤 회색 `· <브랜치>`, 24자 넘으면 `…`, detached면 짧은 해시. 설정에서 끄면 사라짐 | 통과(메뉴, Debug): `47311 br-demo · main`, `47312 br-demo · feat/a-very-long-branch…`(회색), 다른 저장소의 detached HEAD는 `· caafe53` | 2026-11-27 |
 
 ## Docker Compose
 

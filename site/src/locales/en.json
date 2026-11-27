@@ -63,7 +63,7 @@
     "items": {
       "names": {
         "title": "Names every server",
-        "text": "Each listening port gets the name of the project it runs from (package.json, Cargo.toml, pyproject.toml, Gradle, Maven, go.mod or a .git folder) and the tool that started it. JVM and monorepo servers too."
+        "text": "Each listening port gets the name of the project it runs from (package.json, Cargo.toml, pyproject.toml, Gradle, Maven, go.mod or a .git folder) and the tool that started it. JVM and monorepo servers too. Inside a git repository the current branch follows in gray, so two worktrees of one project are easy to tell apart."
       },
       "docker": {
         "title": "Understands Docker Compose",

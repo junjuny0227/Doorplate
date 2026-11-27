@@ -24,7 +24,9 @@ open the menu and read `5173  @acme/web  vite`.
 
 - **Names every server.** Each listening port gets the name of the project it runs
   from (`package.json`, `Cargo.toml`, `pyproject.toml`, Gradle, Maven, `go.mod` or a
-  `.git` folder) and the tool that started it. JVM and monorepo servers too.
+  `.git` folder) and the tool that started it. JVM and monorepo servers too. Inside a
+  git repository the current branch follows in gray, so two worktrees are easy to tell
+  apart.
 - **Understands Docker Compose.** Published container ports show the Compose service
   name, with the container name on the right. Works with Docker Desktop, OrbStack and
   Colima.

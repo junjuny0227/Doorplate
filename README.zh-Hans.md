@@ -25,6 +25,7 @@ Doorplate 是一款 macOS 菜单栏应用，显示每个监听端口属于哪个
 - **为每个服务器显示名称。** 为每个监听端口显示运行它的项目名称
   （从 `package.json`、`Cargo.toml`、`pyproject.toml`、Gradle、Maven、`go.mod` 或 `.git` 文件夹获取），
   以及启动它的工具。也支持 JVM 和单仓库中的服务器。
+  在 git 仓库中还会以灰色显示当前分支，两个工作树也能一眼分清。
 - **支持 Docker Compose。** 容器的发布端口显示为 Compose 服务名称，右侧显示容器名称。
   可与 Docker Desktop、OrbStack 和 Colima 配合使用。
 - **隐藏干扰项。** IDE、构建守护进程和其他应用默认隐藏，直到你在设置中选择显示。
