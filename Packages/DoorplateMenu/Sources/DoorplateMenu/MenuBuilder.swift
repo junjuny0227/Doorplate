@@ -66,6 +66,7 @@ private final class CommandBox {
       item.keyEquivalent = replacement.keyEquivalent
       item.keyEquivalentModifierMask = replacement.keyEquivalentModifierMask
       item.isAlternate = replacement.isAlternate
+      item.indentationLevel = replacement.indentationLevel
       if let submenu = item.submenu, let newSubmenu = replacement.submenu {
         synchronize(submenu, with: newSubmenu)
       } else {
@@ -92,7 +93,7 @@ private final class CommandBox {
     if snapshot.apps.isEmpty && snapshot.docker.isEmpty {
       menu.addItem(item(L10n.text(.menuEmpty), id: "empty"))
     }
-    append(snapshot.apps, to: menu, state: state)
+    appendGrouped(snapshot.apps, to: menu, state: state)
     if !snapshot.system.isEmpty {
       separator(menu, id: "system.separator")
       append(snapshot.system, to: menu, state: state)
@@ -103,7 +104,7 @@ private final class CommandBox {
       if snapshot.dockerStatus == .notResponding {
         menu.addItem(item(L10n.text(.menuDockerNotResponding), id: "docker.failure"))
       }
-      append(
+      appendGrouped(
         snapshot.docker, to: menu, state: state,
         dockerUnavailable: snapshot.dockerStatus == .notResponding)
     }
@@ -137,8 +138,87 @@ private final class CommandBox {
     return menu
   }
 
-  private func append(
+  /// App and Docker rows, with two or more rows of one project under a group header (8.3).
+  private func appendGrouped(
     _ entries: [ServerEntry], to menu: NSMenu, state: MenuState, dockerUnavailable: Bool = false
+  ) {
+    for position in MenuGroups.group(entries) {
+      switch position {
+      case .single(let entry):
+        append([entry], to: menu, state: state, dockerUnavailable: dockerUnavailable)
+      case .group(let key, let name, let branch, let rows):
+        appendGroupHeader(
+          key: key, name: name, branch: branch, rows: rows, to: menu, state: state,
+          dockerUnavailable: dockerUnavailable)
+        append(rows, to: menu, state: state, dockerUnavailable: dockerUnavailable, indent: 1)
+      }
+    }
+  }
+
+  private func appendGroupHeader(
+    key: String, name: String, branch: String?, rows: [ServerEntry], to menu: NSMenu,
+    state: MenuState, dockerUnavailable: Bool
+  ) {
+    let docker = rows.first?.section == .docker
+    var text = name
+    var gray: NSRange?
+    if let branch {
+      let label = " · " + Self.shortBranch(branch)
+      gray = NSRange(location: (text as NSString).length, length: (label as NSString).length)
+      text += label
+    }
+    text += "\t" + L10n.format(.groupCount, rows.count)
+    let id = "group:" + key
+    let header = item(text, id: id)
+    header.attributedTitle = attributed(text, gray: gray)
+    header.isEnabled = true
+    let stoppable =
+      dockerUnavailable
+      ? []
+      : rows.filter {
+        $0.canTerminate && !state.stopping.contains($0.id)
+      }
+    let command = MenuCommand.stopAll(stoppable.map(ref), name: name)
+    let submenu = NSMenu()
+    submenu.autoenablesItems = false
+    if docker {
+      submenu.addItem(
+        item(L10n.text(.subShowComposeFolder), id: "compose", command: .revealInFinder(key)))
+    } else {
+      submenu.addItem(
+        item(L10n.text(.subShowInFinder), id: "finder", command: .revealInFinder(key)))
+      submenu.addItem(
+        item(L10n.text(.subOpenInTerminal), id: "terminal", command: .openInTerminal(key)))
+    }
+    if rows.contains(where: \.canTerminate) {
+      separator(submenu, id: "stop.separator")
+      let title = L10n.format(.groupStopAll, stoppable.count)
+      let stop = item(title, id: "stopAll", command: command)
+      stop.isEnabled = !stoppable.isEmpty
+      // Same rule as a row's stop item: red only while enabled, so disabled stays plain gray.
+      if stop.isEnabled {
+        stop.attributedTitle = NSAttributedString(
+          string: title,
+          attributes: [.foregroundColor: NSColor.systemRed, .font: NSFont.menuFont(ofSize: 0)])
+      }
+      submenu.addItem(stop)
+    }
+    header.submenu = submenu
+    menu.addItem(header)
+    if !stoppable.isEmpty {
+      let alternate = item(
+        L10n.format(.rowStopGroup, name, stoppable.count), id: id + ".alternate", command: command)
+      alternate.isAlternate = true
+      alternate.keyEquivalentModifierMask = .option
+      alternate.attributedTitle = Self.stopRowTitle(
+        alternate.title, template: L10n.text(.rowStopGroup))
+      menu.addItem(alternate)
+    }
+  }
+
+  private func append(
+    _ entries: [ServerEntry], to menu: NSMenu, state: MenuState, dockerUnavailable: Bool = false,
+    indent: Int = 0
   ) {
     for entry in entries {
       let stopping = state.stopping.contains(entry.id)
@@ -147,7 +227,8 @@ private final class CommandBox {
       let title = displayTitle(entry)
       var text = "\(entry.primary.port)  \(title)"
       var branch: NSRange?
-      if !system, !docker, let name = entry.branch {
+      // Inside a group the header carries the branch, shared by every row of that root.
+      if !system, !docker, indent == 0, let name = entry.branch {
         let label = " · " + Self.shortBranch(name)
         branch = NSRange(location: (text as NSString).length, length: (label as NSString).length)
         text += label
@@ -167,6 +248,7 @@ private final class CommandBox {
         system ? .system : docker ? .docker : entry.isLongRunning ? .longRunning : .running
       row.image = dot.image()
       row.isEnabled = true
+      row.indentationLevel = indent
       row.submenu = submenu(entry, stopping: stopping, dockerUnavailable: dockerUnavailable)
       menu.addItem(row)
       if entry.canTerminate && !system && !stopping && !dockerUnavailable {
@@ -176,6 +258,7 @@ private final class CommandBox {
         alternate.isAlternate = true
         alternate.keyEquivalentModifierMask = .option
         alternate.attributedTitle = Self.stopRowTitle(alternate.title)
+        alternate.indentationLevel = indent
         menu.addItem(alternate)
       }
     }

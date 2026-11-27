@@ -51,3 +51,9 @@
 "settings.terminal" = "ターミナルアプリ";
 "settings.autoUpdate" = "アップデートを自動的に確認";
 "settings.loginRequiresApproval" = "システム設定 > 一般 > ログイン項目でDoorplateを許可してください。";
+"row.stopGroup" = "終了 · %@（サーバ %d 個）";
+"group.count" = "サーバ %d 個";
+"group.stopAll" = "すべて終了（%d 個）";
+"alert.confirmStopAll" = "%@ のサーバ %d 個を終了しますか？";
+"alert.stop" = "終了";
+"alert.cancel" = "キャンセル";
