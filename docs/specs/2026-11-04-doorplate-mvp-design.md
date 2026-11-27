@@ -257,6 +257,8 @@ pid마다 이름, 실행 파일 경로, argv, cwd, 부모 pid, 부모의 argv, �
 | 실행 파일 경로에 `.app/Contents/`가 있는 다른 앱 | 다른 앱(숨김, 보이게 하면 종료 가능) | 앱 이름 |
 | 그 밖 | 앱 | 실행 파일 이름 |
 
+"실행 파일 이름"은 실행 파일 경로의 마지막 이름이다. 그 이름이 버전 모양(`2.1.332`처럼 점으로 나눈 숫자)이면 argv[0]의 마지막 이름을 쓴다. 버전마다 실행 파일을 따로 두고 심볼릭 링크로 실행하는 설치 방식(Claude Code의 `~/.local/bin/claude` → `versions/2.1.332`)은 커널이 링크를 따라간 파일 이름을 돌려주기 때문이다. argv[0]도 버전 모양이거나 없으면 파일 이름을 그대로 쓴다.
+
 14절 실험에서 확인한 게시 포트의 주인 프로세스는 Docker Desktop이 `com.docker.backend`(`/Applications/Docker.app/Contents/MacOS/`), OrbStack이 `OrbStack Helper`(`/Applications/OrbStack.app/Contents/Frameworks/OrbStack Helper.app/Contents/MacOS/`)다. 실행 파일 경로의 가장 바깥 `.app` 이름(`Docker`, `OrbStack`)으로 판별하므로 둘 다 첫 규칙에 걸린다.
 
 **프로젝트 이름**: 시작 폴더에서 위로 올라가며(홈 폴더에서 멈춘다) **가장 가까운 표식**의 이름을 쓴다.
