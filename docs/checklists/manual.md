@@ -22,6 +22,7 @@
 | FastAPI (`uvicorn`) | `pyproject.toml`의 `[project] name`(없으면 `.git` 폴더 이름) · `uvicorn`. `--reload`의 worker가 아닌 주인 프로세스 한 행 | Core 스캔 통과: scan-fastapi · uvicorn (메뉴 미확인) | 2026-11-05 |
 | Rails | `.git` 폴더 이름 · `rails` | 미확인(도구 없음) | 2026-11-05 |
 | git 브랜치(저장소와 워크트리에서 서버 하나씩) | 제목 뒤 회색 `· <브랜치>`, 24자 넘으면 `…`, detached면 짧은 해시. 설정에서 끄면 사라짐 | 통과(메뉴, Debug): `47311 br-demo · main`, `47312 br-demo · feat/a-very-long-branch…`(회색), 다른 저장소의 detached HEAD는 `· caafe53` | 2026-11-27 |
+| 프로젝트 묶음(한 저장소에서 서버 세 개) | 머리 행 `acme · main  서버 3개`, 안의 행은 들여 쓰고 브랜치 없음. 서버가 하나인 프로젝트는 그대로. 머리 행 하위 메뉴: Finder에서 보기, 터미널에서 열기, 빨간 전부 종료(3개). 전부 종료는 확인 창(Return은 취소) 뒤 셋 다 종료 | 묶음 표시 통과(메뉴, Debug): `acme · main  서버 3개` 아래 `8796 @acme/site`, `8797 @acme/web`, `8798 @acme/api`(들여 씀), 다른 행은 그대로. 확인 창과 실제 전부 종료는 미확인(단위 테스트만) | 2026-11-27 |
 
 ## Docker Compose
 

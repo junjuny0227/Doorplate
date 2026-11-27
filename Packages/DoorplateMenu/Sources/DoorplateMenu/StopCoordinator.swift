@@ -3,6 +3,8 @@ import DoorplateCore
 @MainActor public protocol StopPrompter: AnyObject {
   /// Returns true to force stop, or false to send SIGTERM again and wait another grace period.
   func askToForceStop(title: String) async -> Bool
+  /// Asks once before a group's Stop All (spec 9.8). `servers` lists the rows to stop.
+  func confirmStopAll(name: String, servers: [String]) async -> Bool
   func report(_ message: String)
   func signalAlreadyGone()
 }
@@ -19,6 +21,18 @@ import DoorplateCore
     self.terminator = terminator
     self.prompter = prompter
     self.onChange = onChange
+  }
+
+  /// Stops a group's rows after one confirmation. Rows already stopping are skipped, and the
+  /// rest start together so their grace periods overlap instead of adding up.
+  public func stopAll(_ refs: [EntryRef], name: String) async {
+    let pending = refs.filter { !stopping.contains($0.id) }
+    guard !pending.isEmpty,
+      await prompter.confirmStopAll(name: name, servers: pending.map { "\($0.port)  \($0.title)" })
+    else { return }
+    await withTaskGroup(of: Void.self) { group in
+      for ref in pending { group.addTask { await self.stop(ref) } }
+    }
   }
 
   public func stop(_ ref: EntryRef) async {

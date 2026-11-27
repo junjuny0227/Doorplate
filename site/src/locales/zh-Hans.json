@@ -79,7 +79,7 @@
       },
       "stop": {
         "title": "谨慎退出",
-        "text": "退出时发送 SIGTERM，普通应用则收到与 ⌘Q 相同的退出请求。如果十秒后仍在运行，Doorplate 会让你选择继续等待或强制退出。容器通过 Docker API 停止，绝不会退出 Docker 本身和 macOS 服务。"
+        "text": "退出时发送 SIGTERM，普通应用则收到与 ⌘Q 相同的退出请求。如果十秒后仍在运行，Doorplate 会让你选择继续等待或强制退出。容器通过 Docker API 停止，绝不会退出 Docker 本身和 macOS 服务。同一项目有两个以上服务器时归到一个标题行下，全部退出会先确认一次再全部退出。"
       },
       "live": {
         "title": "持续更新",

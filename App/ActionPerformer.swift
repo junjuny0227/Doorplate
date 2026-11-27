@@ -43,6 +43,8 @@ import DoorplateMenu
       NSPasteboard.general.setString(address, forType: .string)
     case .stop(let ref):
       Task { await coordinator.stop(ref) }
+    case .stopAll(let refs, let name):
+      Task { await coordinator.stopAll(refs, name: name) }
     }
   }
 

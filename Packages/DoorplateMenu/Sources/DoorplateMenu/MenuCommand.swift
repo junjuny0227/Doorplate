@@ -21,6 +21,8 @@ public enum MenuCommand: Equatable, Sendable {
   case openInTerminal(String)
   case copy(String)
   case stop(EntryRef)
+  /// A group's Stop All; asks once before stopping (spec 9.8).
+  case stopAll([EntryRef], name: String)
   case openSettings, checkForUpdates
   case openUpdatePage(URL)
   case quit

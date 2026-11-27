@@ -51,3 +51,9 @@
 "settings.terminal" = "터미널 앱";
 "settings.autoUpdate" = "업데이트 자동 확인";
 "settings.loginRequiresApproval" = "시스템 설정 > 일반 > 로그인 항목에서 Doorplate를 허용하세요.";
+"row.stopGroup" = "종료 · %@ 서버 %d개";
+"group.count" = "서버 %d개";
+"group.stopAll" = "전부 종료(%d개)";
+"alert.confirmStopAll" = "%@의 서버 %d개를 종료할까요?";
+"alert.stop" = "종료";
+"alert.cancel" = "취소";

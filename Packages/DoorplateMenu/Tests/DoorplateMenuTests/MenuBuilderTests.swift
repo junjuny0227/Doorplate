@@ -152,6 +152,110 @@ import Testing
     #expect(try row().title == "5173  @repot/desktop\tvite")
     #expect(try row("docker:abc").title == "5432  db\tshop-db")
   }
+  private func acme(_ state: MenuState = MenuState(), canTerminate: Bool = true) {
+    let root = "/Users/dev/acme"
+    populate(
+      outcome(apps: [
+        entry(
+          port: 3000, title: "@acme/site", id: "pid:101", pid: 101, directory: root + "/site",
+          root: root, canTerminate: canTerminate, branch: "main"),
+        entry(
+          port: 5173, title: "@acme/web", id: "pid:102", pid: 102, directory: root + "/web",
+          root: root, canTerminate: canTerminate, branch: "main"),
+        entry(
+          port: 8080, title: "shop-api", tool: "gradle", id: "pid:103", pid: 103,
+          root: "/Users/dev/shop"),
+      ]), state: state)
+  }
+
+  @Test func groupHeaderThenIndentedRows() throws {
+    acme()
+    let header = try row("group:/Users/dev/acme")
+    #expect(header.title == "acme · main\t2 servers")
+    #expect(header.image == nil && header.indentationLevel == 0)
+    let index = menu.index(of: header)
+    let ids = menu.items[index...].filter { !$0.isAlternate }.prefix(4).map {
+      $0.identifier?.rawValue
+    }
+    #expect(ids == ["group:/Users/dev/acme", "pid:101", "pid:102", "pid:103"])
+    // Rows inside the group are indented and leave the branch to the header.
+    #expect(try row("pid:101").title == "3000  @acme/site\tvite")
+    #expect(try row("pid:101").indentationLevel == 1)
+    #expect(menu.items[menu.index(of: try row("pid:101")) + 1].indentationLevel == 1)
+    // A project with one server keeps today's row.
+    #expect(try row("pid:103").indentationLevel == 0)
+    let gray = try #require(header.attributedTitle)
+    #expect(
+      gray.attribute(
+        .foregroundColor, at: (gray.string as NSString).range(of: " · main").location,
+        effectiveRange: nil)
+        as? NSColor == .secondaryLabelColor)
+  }
+
+  @Test func groupSubmenuOpensTheFolderAndStopsAll() throws {
+    acme()
+    let items = try #require(try row("group:/Users/dev/acme").submenu).items
+    #expect(items.map(\.title) == ["Show in Finder", "Open in Terminal", "", "Stop All (2)"])
+    #expect(
+      items.last?.attributedTitle?.attribute(.foregroundColor, at: 0, effectiveRange: nil)
+        as? NSColor == .systemRed)
+    try choose(items[0])
+    try choose(items[3])
+    #expect(handler.commands.first == .revealInFinder("/Users/dev/acme"))
+    guard case .stopAll(let refs, let name) = handler.commands.last else {
+      Issue.record("expected stopAll")
+      return
+    }
+    #expect(name == "acme")
+    #expect(refs.map(\.id) == ["pid:101", "pid:102"])
+  }
+
+  @Test func groupAlternateStopsAllWithOnlyTheStopWordRed() throws {
+    acme()
+    let index = menu.index(of: try row("group:/Users/dev/acme"))
+    let alternate = menu.items[index + 1]
+    #expect(alternate.isAlternate && alternate.keyEquivalentModifierMask == .option)
+    #expect(alternate.title == "Stop acme (2 servers)")
+    var red = NSRange()
+    #expect(
+      alternate.attributedTitle?.attribute(.foregroundColor, at: 0, effectiveRange: &red)
+        as? NSColor == .systemRed)
+    #expect(red == NSRange(location: 0, length: 4))
+  }
+
+  @Test func stoppingRowsLeaveTheGroup() throws {
+    var state = MenuState()
+    state.stopping = ["pid:101"]
+    acme(state)
+    let items = try #require(try row("group:/Users/dev/acme").submenu).items
+    #expect(items.last?.title == "Stop All (1)")
+    state.stopping = ["pid:101", "pid:102"]
+    acme(state)
+    let stop = try #require(try row("group:/Users/dev/acme").submenu?.items.last)
+    #expect(stop.title == "Stop All (0)" && !stop.isEnabled && stop.attributedTitle == nil)
+    #expect(menu.items[menu.index(of: try row("group:/Users/dev/acme")) + 1].isAlternate == false)
+  }
+
+  @Test func unstoppableGroupsHaveNoStopItem() throws {
+    acme(canTerminate: false)
+    let items = try #require(try row("group:/Users/dev/acme").submenu).items
+    #expect(items.map(\.title) == ["Show in Finder", "Open in Terminal"])
+  }
+
+  @Test func dockerGroupsShowTheComposeFolder() throws {
+    func container(_ port: UInt16, _ name: String) -> ServerEntry {
+      entry(
+        port: port, title: name, tool: "acme-\(name)", section: .docker, id: "docker:\(name)",
+        directory: "/Users/dev/acme", root: nil)
+    }
+    populate(outcome(docker: [container(5432, "db"), container(6379, "redis")], dockerStatus: .ok))
+    let header = try row("group:/Users/dev/acme")
+    #expect(header.title == "acme\t2 servers")
+    #expect(
+      header.submenu?.items.map(\.title) == ["Show Compose Folder in Finder", "", "Stop All (2)"])
+    #expect(try row("docker:db").indentationLevel == 1)
+  }
+
   @Test func alternateStopOnlyWhenTerminable() throws {
     populate(outcome(apps: [entry()]))
     let index = menu.index(of: try row())

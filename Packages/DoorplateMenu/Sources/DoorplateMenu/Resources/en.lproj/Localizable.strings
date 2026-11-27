@@ -51,3 +51,9 @@
 "settings.terminal" = "Terminal app";
 "settings.autoUpdate" = "Check for updates automatically";
 "settings.loginRequiresApproval" = "Allow Doorplate in System Settings > General > Login Items.";
+"row.stopGroup" = "Stop %@ (%d servers)";
+"group.count" = "%d servers";
+"group.stopAll" = "Stop All (%d)";
+"alert.confirmStopAll" = "Stop all servers in %@ (%d)?";
+"alert.stop" = "Stop";
+"alert.cancel" = "Cancel";

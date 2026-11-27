@@ -51,3 +51,9 @@
 "settings.terminal" = "终端应用";
 "settings.autoUpdate" = "自动检查更新";
 "settings.loginRequiresApproval" = "请在系统设置 > 通用 > 登录项中允许Doorplate。";
+"row.stopGroup" = "退出 · %@（%d 个服务器）";
+"group.count" = "%d 个服务器";
+"group.stopAll" = "全部退出（%d 个）";
+"alert.confirmStopAll" = "要退出 %@ 的 %d 个服务器吗？";
+"alert.stop" = "退出";
+"alert.cancel" = "取消";
