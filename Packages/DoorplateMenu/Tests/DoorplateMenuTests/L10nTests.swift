@@ -108,7 +108,7 @@ struct L10nTests {
   @Test func koreanHasNoStrayEnglish() throws {
     let allowed = [
       "Doorplate", "Docker", "Compose", "Finder", "PID", "AirPlay", "AirDrop", "Handoff", "macOS",
-      "LiveReload",
+      "LiveReload", "git",
     ]
     for (key, value) in try strings("ko") {
       var rest = value
@@ -148,6 +148,7 @@ struct L10nTests {
       "settings.showOtherApps": "다른 앱 포트 표시",
       "settings.showSystemPorts": "시스템 포트 표시",
       "settings.showSystemPortsHint": "AirPlay 등 macOS 서비스가 사용하는 포트를 표시합니다.",
+      "settings.showGitBranch": "git 브랜치 표시",
       "settings.terminal": "터미널 앱",
       "settings.autoUpdate": "업데이트 자동 확인",
     ]

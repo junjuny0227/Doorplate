@@ -35,6 +35,7 @@ import SwiftUI
           .font(.caption)
           .foregroundStyle(.secondary)
       }
+      Toggle(L10n.text(.settingsShowGitBranch), isOn: $settings.showGitBranch)
       Picker(L10n.text(.settingsTerminal), selection: terminalSelection) {
         ForEach(terminals, id: \.bundleID) { app in
           Text(verbatim: app.name).tag(app.bundleID)
@@ -54,6 +55,7 @@ import SwiftUI
     .onChange(of: settings.showDevTools) { onChange() }
     .onChange(of: settings.showOtherApps) { onChange() }
     .onChange(of: settings.showSystemPorts) { onChange() }
+    .onChange(of: settings.showGitBranch) { onChange() }
     .onChange(of: settings.terminalBundleID) { onChange() }
     .onChange(of: settings.checkForUpdates) { onChange() }
   }

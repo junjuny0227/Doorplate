@@ -8,6 +8,7 @@ import Foundation
     static let showDevTools = "showDevTools"
     static let showOtherApps = "showOtherApps"
     static let showSystemPorts = "showSystemPorts"
+    static let showGitBranch = "showGitBranch"
     static let terminalBundleID = "terminalBundleID"
     static let checkForUpdates = "checkForUpdates"
     static let askedOpenAtLogin = "askedOpenAtLogin"
@@ -30,6 +31,9 @@ import Foundation
     showSystemPorts =
       defaults.object(forKey: Key.showSystemPorts) == nil
       ? false : defaults.bool(forKey: Key.showSystemPorts)
+    showGitBranch =
+      defaults.object(forKey: Key.showGitBranch) == nil
+      ? true : defaults.bool(forKey: Key.showGitBranch)
     terminalBundleID = defaults.string(forKey: Key.terminalBundleID) ?? "com.apple.Terminal"
     checkForUpdates =
       defaults.object(forKey: Key.checkForUpdates) == nil
@@ -38,6 +42,7 @@ import Foundation
     defaults.set(showDevTools, forKey: Key.showDevTools)
     defaults.set(showOtherApps, forKey: Key.showOtherApps)
     defaults.set(showSystemPorts, forKey: Key.showSystemPorts)
+    defaults.set(showGitBranch, forKey: Key.showGitBranch)
     defaults.set(terminalBundleID, forKey: Key.terminalBundleID)
     defaults.set(checkForUpdates, forKey: Key.checkForUpdates)
     if defaults.object(forKey: Key.askedOpenAtLogin) == nil {
@@ -68,6 +73,10 @@ import Foundation
     didSet { defaults.set(showSystemPorts, forKey: Key.showSystemPorts) }
   }
 
+  @Published public var showGitBranch: Bool {
+    didSet { defaults.set(showGitBranch, forKey: Key.showGitBranch) }
+  }
+
   @Published public var terminalBundleID: String {
     didSet { defaults.set(terminalBundleID, forKey: Key.terminalBundleID) }
   }
@@ -86,6 +95,7 @@ import Foundation
       longRunningThreshold: TimeInterval(longRunningHours) * 3_600,
       showDevTools: showDevTools,
       showOtherApps: showOtherApps,
-      showSystemPorts: showSystemPorts)
+      showSystemPorts: showSystemPorts,
+      showGitBranch: showGitBranch)
   }
 }

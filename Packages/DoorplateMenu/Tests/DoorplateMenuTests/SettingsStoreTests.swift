@@ -17,6 +17,8 @@ struct SettingsStoreTests {
     #expect(store.showOtherApps == false)
     #expect(store.showSystemPorts == false)
     #expect(store.snapshotSettings.showSystemPorts == false)
+    #expect(store.showGitBranch)
+    #expect(store.snapshotSettings.showGitBranch)
     #expect(store.terminalBundleID == "com.apple.Terminal")
     #expect(store.checkForUpdates == true)
     #expect(store.snapshotSettings.longRunningThreshold == 86_400)
@@ -29,6 +31,7 @@ struct SettingsStoreTests {
     first.showDevTools = true
     first.showOtherApps = true
     first.showSystemPorts = true
+    first.showGitBranch = false
     first.terminalBundleID = "com.googlecode.iterm2"
     first.checkForUpdates = false
     let second = SettingsStore(defaults: defaults)
@@ -37,6 +40,8 @@ struct SettingsStoreTests {
     #expect(second.showOtherApps)
     #expect(second.showSystemPorts)
     #expect(second.snapshotSettings.showSystemPorts)
+    #expect(!second.showGitBranch)
+    #expect(!second.snapshotSettings.showGitBranch)
     second.showSystemPorts = false
     #expect(!SettingsStore(defaults: defaults).showSystemPorts)
     #expect(second.terminalBundleID == "com.googlecode.iterm2")
@@ -60,5 +65,7 @@ struct SettingsStoreTests {
     #expect(store.showDevTools)
     #expect(!store.showSystemPorts)
     #expect(!store.snapshotSettings.showSystemPorts)
+    // The branch setting is new in 0.4.0; existing users start with it on, like new ones.
+    #expect(store.showGitBranch)
   }
 }
