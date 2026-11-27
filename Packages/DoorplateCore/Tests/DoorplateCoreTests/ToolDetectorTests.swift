@@ -236,3 +236,21 @@ func developmentServerOnAirPlayPortIsApp(_ port: UInt16) {
       parent: proc("zsh", path: "/bin/zsh", args: ["zsh"])
     ).tool == "api")
 }
+@Test func versionNamedExecutableUsesTheCommandItWasStartedAs() {
+  let claude = proc(
+    "2.1.332", path: "/Users/dev/.local/share/claude/versions/2.1.332",
+    args: ["/Users/dev/.local/bin/claude", "--session-id", "x"])
+  #expect(detect(claude) == ToolMatch(tool: "claude", section: .app, title: nil))
+  #expect(ToolDetector.commandName(claude) == "claude")
+}
+@Test func versionNamedExecutableWithoutAUsefulArgvKeepsTheFileName() {
+  let bare = proc("2.1.332", path: "/opt/v/2.1.332", args: ["2.1.332"])
+  #expect(ToolDetector.commandName(bare) == "2.1.332")
+  #expect(ToolDetector.commandName(proc("x", path: "/opt/v/2.1.332", args: [])) == "2.1.332")
+}
+@Test func onlyDottedNumbersCountAsAVersion() {
+  #expect(ToolDetector.isVersion("2.1.332") && ToolDetector.isVersion("18.20"))
+  #expect(!ToolDetector.isVersion("node") && !ToolDetector.isVersion("3000"))
+  #expect(!ToolDetector.isVersion("python3.12") && !ToolDetector.isVersion("1..2"))
+  #expect(ToolDetector.commandName(proc("node", path: "/bin/node", args: ["anything"])) == "node")
+}

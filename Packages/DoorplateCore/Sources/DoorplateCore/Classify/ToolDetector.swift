@@ -33,7 +33,7 @@ public enum ToolDetector {
     -> ToolMatch
   {
     let path = process.executablePath ?? process.name
-    let executable = URL(fileURLWithPath: path).lastPathComponent
+    let executable = commandName(process)
     let args = process.arguments ?? []
     let app = outerApp(path)
     let enclosingApp = outermostApp(path)
@@ -137,6 +137,21 @@ public enum ToolDetector {
       }
     }
     return match(executable, .app)
+  }
+  /// The executable's file name, except when that file is named after a version: installers
+  /// that keep one binary per version (Claude Code's `~/.local/share/claude/versions/2.1.332`
+  /// behind a `claude` symlink) would otherwise show as "2.1.332". Then the name the program
+  /// was started with (argv[0]) is used.
+  public static func commandName(_ process: ProcessRecord) -> String {
+    let file = URL(fileURLWithPath: process.executablePath ?? process.name).lastPathComponent
+    guard isVersion(file), let first = process.arguments?.first else { return file }
+    let invoked = URL(fileURLWithPath: first).lastPathComponent
+    return invoked.isEmpty || isVersion(invoked) ? file : invoked
+  }
+  static func isVersion(_ name: String) -> Bool {
+    let parts = name.split(separator: ".", omittingEmptySubsequences: false)
+    return parts.count >= 2
+      && parts.allSatisfy { !$0.isEmpty && $0.allSatisfy(\.isASCII) && $0.allSatisfy(\.isNumber) }
   }
   private static func match(
     _ tool: String?, _ section: Section, _ title: String? = nil, stoppable: Bool = true

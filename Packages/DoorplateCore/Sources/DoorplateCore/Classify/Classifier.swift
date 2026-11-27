@@ -71,7 +71,7 @@ public struct Classifier: Sendable {
       arguments.indices.contains(index + 1)
         ? (arguments[index + 1] as NSString).lastPathComponent : nil
     }
-    let executable = process.executablePath.map { ($0 as NSString).lastPathComponent }
+    let executable = process.executablePath.map { _ in ToolDetector.commandName(process) }
     let ports = PortRoleDetector.assign(listeners, arguments: arguments)
     return ServerEntry(
       id: "pid:\(process.pid)", target: .process(pid: process.pid, startedAt: process.startedAt),
