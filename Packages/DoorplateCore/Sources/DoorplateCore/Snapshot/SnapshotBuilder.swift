@@ -10,6 +10,7 @@ public enum SnapshotBuilder {
     var hidden: [ServerEntry] = []
 
     for var entry in entries {
+      if !settings.showGitBranch { entry.branch = nil }
       entry.isLongRunning =
         entry.section != .system
         && (entry.startedAt.map {

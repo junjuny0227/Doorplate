@@ -1,0 +1,107 @@
+{
+  "apps" : [
+    {
+      "branch" : "main",
+      "canTerminate" : true,
+      "directory" : "\/Users\/dev\/shop",
+      "extras" : [
+
+      ],
+      "id" : "pid:101",
+      "isLongRunning" : false,
+      "likelyHTTP" : true,
+      "primary" : {
+        "exposure" : "loopback",
+        "port" : 5173
+      },
+      "repositoryRoot" : "\/Users\/dev\/shop",
+      "section" : {
+        "app" : {
+
+        }
+      },
+      "startedAt" : "2026-11-04T05:20:00Z",
+      "target" : {
+        "process" : {
+          "pid" : 101,
+          "startedAt" : "2026-11-04T05:20:00Z"
+        }
+      },
+      "title" : "@acme\/web",
+      "tool" : "vite"
+    },
+    {
+      "branch" : "feat\/a-very-long-branch-name-for-login",
+      "canTerminate" : true,
+      "directory" : "\/Users\/dev\/shop-login",
+      "extras" : [
+
+      ],
+      "id" : "pid:102",
+      "isLongRunning" : false,
+      "likelyHTTP" : true,
+      "primary" : {
+        "exposure" : "loopback",
+        "port" : 5174
+      },
+      "repositoryRoot" : "\/Users\/dev\/shop-login",
+      "section" : {
+        "app" : {
+
+        }
+      },
+      "startedAt" : "2026-11-04T05:20:00Z",
+      "target" : {
+        "process" : {
+          "pid" : 102,
+          "startedAt" : "2026-11-04T05:20:00Z"
+        }
+      },
+      "title" : "@acme\/web",
+      "tool" : "vite"
+    },
+    {
+      "branch" : "3f2a9c1",
+      "canTerminate" : true,
+      "directory" : "\/Users\/dev\/api",
+      "extras" : [
+
+      ],
+      "id" : "pid:103",
+      "isLongRunning" : false,
+      "likelyHTTP" : true,
+      "primary" : {
+        "exposure" : "loopback",
+        "port" : 8000
+      },
+      "repositoryRoot" : "\/Users\/dev\/api",
+      "section" : {
+        "app" : {
+
+        }
+      },
+      "startedAt" : "2026-11-04T05:20:00Z",
+      "target" : {
+        "process" : {
+          "pid" : 103,
+          "startedAt" : "2026-11-04T05:20:00Z"
+        }
+      },
+      "title" : "acme-api",
+      "tool" : "uvicorn"
+    }
+  ],
+  "badgeCount" : 3,
+  "docker" : [
+
+  ],
+  "dockerStatus" : "absent",
+  "hasLongRunning" : false,
+  "hidden" : [
+
+  ],
+  "scannedAt" : "2026-11-04T06:00:00Z",
+  "system" : [
+
+  ]
+}

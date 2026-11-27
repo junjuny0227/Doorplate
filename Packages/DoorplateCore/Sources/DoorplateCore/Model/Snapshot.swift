@@ -7,18 +7,20 @@ public struct SnapshotSettings: Sendable, Equatable, Codable {
   public var showDevTools: Bool
   public var showOtherApps: Bool
   public var showSystemPorts: Bool
+  public var showGitBranch: Bool
   public init(
     longRunningThreshold: TimeInterval = 86_400, showDevTools: Bool = false,
-    showOtherApps: Bool = false, showSystemPorts: Bool = false
+    showOtherApps: Bool = false, showSystemPorts: Bool = false, showGitBranch: Bool = true
   ) {
     self.longRunningThreshold = longRunningThreshold
     self.showDevTools = showDevTools
     self.showOtherApps = showOtherApps
     self.showSystemPorts = showSystemPorts
+    self.showGitBranch = showGitBranch
   }
 
   private enum CodingKeys: String, CodingKey {
-    case longRunningThreshold, showDevTools, showOtherApps, showSystemPorts
+    case longRunningThreshold, showDevTools, showOtherApps, showSystemPorts, showGitBranch
   }
 
   public init(from decoder: any Decoder) throws {
@@ -28,6 +30,7 @@ public struct SnapshotSettings: Sendable, Equatable, Codable {
     showOtherApps = try values.decode(Bool.self, forKey: .showOtherApps)
     // Fixtures captured before this setting existed use the new default too.
     showSystemPorts = try values.decodeIfPresent(Bool.self, forKey: .showSystemPorts) ?? false
+    showGitBranch = try values.decodeIfPresent(Bool.self, forKey: .showGitBranch) ?? true
   }
 }
 

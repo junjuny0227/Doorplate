@@ -24,6 +24,7 @@ struct ModelTests {
       decoder.dateDecodingStrategy = .iso8601
       let fixture = try decoder.decode(ScanFixture.self, from: Data(json.utf8))
       #expect(!fixture.settings.showSystemPorts)
+      #expect(fixture.settings.showGitBranch)
       #expect(fixture.denied.isEmpty)
       #expect(fixture.listeners.first?.socketID == nil)
       #expect(fixture.docker.containers == nil)
@@ -37,6 +38,7 @@ struct ModelTests {
     #expect(!SnapshotSettings().showDevTools)
     #expect(!SnapshotSettings().showOtherApps)
     #expect(!SnapshotSettings().showSystemPorts)
+    #expect(SnapshotSettings().showGitBranch)
     #expect(Snapshot.empty(at: now).scannedAt == now)
     #expect(Snapshot.empty(at: now).badgeCount == 0)
     let entries = [
