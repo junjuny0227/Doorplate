@@ -4,6 +4,43 @@ import Testing
 @testable import DoorplateCore
 
 struct ProjectResolverTests {
+  @Test func branchComesFromTheRepositoryRootHead() {
+    let root = "/Users/dev/shop"
+    let files = FakeFileProbe(files: [
+      "\(root)/apps/web/package.json": "{\"name\":\"@shop/web\"}", "\(root)/.git": "",
+      "\(root)/.git/HEAD": "ref: refs/heads/feat/login\n",
+    ])
+    #expect(
+      ProjectResolver(files: files).resolve(startingAt: "\(root)/apps/web")
+        == ProjectInfo(
+          name: "@shop/web", directory: "\(root)/apps/web", repositoryRoot: root,
+          branch: "feat/login"))
+  }
+  @Test func worktreeFollowsItsGitdir() {
+    let files = FakeFileProbe(files: [
+      "/Users/dev/shop-pay/package.json": "{\"name\":\"shop\"}",
+      "/Users/dev/shop-pay/.git": "gitdir: /Users/dev/shop/.git/worktrees/shop-pay\n",
+      "/Users/dev/shop/.git/worktrees/shop-pay/HEAD": "ref: refs/heads/feat/pay\n",
+      "/Users/dev/shop/.git/HEAD": "ref: refs/heads/main\n",
+    ])
+    #expect(
+      ProjectResolver(files: files).resolve(startingAt: "/Users/dev/shop-pay")?.branch == "feat/pay"
+    )
+  }
+  @Test func noBranchWithoutReadableHead() {
+    let plain = FakeFileProbe(files: ["/Users/dev/tool/package.json": "{\"name\":\"tool\"}"])
+    #expect(ProjectResolver(files: plain).resolve(startingAt: "/Users/dev/tool")?.branch == nil)
+    // A repository whose HEAD cannot be read keeps its name and root, without a branch.
+    let unreadable = FakeFileProbe(files: [
+      "/Users/dev/shop/package.json": "{\"name\":\"shop\"}", "/Users/dev/shop/.git": "",
+    ])
+    let project = ProjectResolver(files: unreadable).resolve(startingAt: "/Users/dev/shop")
+    #expect(project?.repositoryRoot == "/Users/dev/shop")
+    #expect(project?.branch == nil)
+    #expect(
+      ProjectResolver(files: unreadable).inaccessibleProject(startingAt: "/Users/dev/shop")?.branch
+        == nil)
+  }
   @Test func nearestPackageName() {
     let root = "/Users/dev/repot"
     let files = FakeFileProbe(files: [

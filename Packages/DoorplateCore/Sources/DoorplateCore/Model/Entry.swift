@@ -36,6 +36,8 @@ public struct ServerEntry: Sendable, Equatable, Codable {
   public var extras: [PortBinding]
   public var directory: String?
   public var repositoryRoot: String?
+  /// Missing in fixtures written before branches existed; decodes as nil.
+  public var branch: String?
   public var startedAt: Date?
   public var isLongRunning: Bool
   public var likelyHTTP: Bool
@@ -46,8 +48,8 @@ public struct ServerEntry: Sendable, Equatable, Codable {
   public init(
     id: String, target: Target, section: Section, title: String, tool: String? = nil,
     image: String? = nil, primary: PortBinding, extras: [PortBinding] = [],
-    directory: String? = nil, repositoryRoot: String? = nil, startedAt: Date? = nil,
-    isLongRunning: Bool = false, likelyHTTP: Bool, canTerminate: Bool
+    directory: String? = nil, repositoryRoot: String? = nil, branch: String? = nil,
+    startedAt: Date? = nil, isLongRunning: Bool = false, likelyHTTP: Bool, canTerminate: Bool
   ) {
     self.id = id
     self.target = target
@@ -59,6 +61,7 @@ public struct ServerEntry: Sendable, Equatable, Codable {
     self.extras = extras
     self.directory = directory
     self.repositoryRoot = repositoryRoot
+    self.branch = branch
     self.startedAt = startedAt
     self.isLongRunning = isLongRunning
     self.likelyHTTP = likelyHTTP
