@@ -9,13 +9,14 @@ func entry(
   startedAt: Date = menuNow.addingTimeInterval(-2400), isLongRunning: Bool = false,
   exposure: Exposure = .loopback, directory: String? = "/Users/dev/repot/apps/desktop",
   root: String? = "/Users/dev/repot", extras: [PortBinding] = [],
-  likelyHTTP: Bool = true, canTerminate: Bool = true
+  likelyHTTP: Bool = true, canTerminate: Bool = true, branch: String? = nil
 ) -> ServerEntry {
   ServerEntry(
     id: id,
     target: section == .docker ? .container(id: id) : .process(pid: pid, startedAt: startedAt),
     section: section, title: title, tool: tool, primary: .init(port: port, exposure: exposure),
-    extras: extras, directory: directory, repositoryRoot: root, startedAt: startedAt,
+    extras: extras, directory: directory, repositoryRoot: root, branch: branch,
+    startedAt: startedAt,
     isLongRunning: isLongRunning, likelyHTTP: likelyHTTP, canTerminate: canTerminate)
 }
 

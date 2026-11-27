@@ -89,6 +89,15 @@ private func entry(
       })
   }
 
+  @Test(arguments: [false, true])
+  func branchSettingClearsBranches(show: Bool) {
+    var app = entry("pid:1", 5173, .app)
+    app.branch = "feat/login"
+    let snapshot = SnapshotBuilder.build(
+      [app], dockerStatus: .absent, settings: SnapshotSettings(showGitBranch: show), now: Date())
+    #expect(snapshot.apps.first?.branch == (show ? "feat/login" : nil))
+  }
+
   @Test func emptyInput() {
     let result = SnapshotBuilder.build(
       [], dockerStatus: .notResponding, settings: .init(), now: Date())

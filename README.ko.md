@@ -25,6 +25,8 @@ Doorplate는 열려 있는 포트마다 어느 프로젝트의 서버인지 보�
 - **서버마다 이름을 붙입니다.** 열린 포트마다 서버가 실행된 프로젝트의 이름
   (`package.json`, `Cargo.toml`, `pyproject.toml`, Gradle, Maven, `go.mod`, `.git`
   폴더)과 서버를 띄운 도구를 보여 줍니다. JVM과 모노레포 서버도 정확하게 붙입니다.
+  git 저장소 안이면 현재 브랜치를 회색으로 함께 보여 주므로, 워크트리 두 개도 바로
+  구분됩니다.
 - **Docker Compose를 알아봅니다.** 컨테이너가 게시한 포트를 Compose 서비스 이름으로
   보여 주고, 오른쪽에 컨테이너 이름을 둡니다. Docker Desktop, OrbStack, Colima에서
   동작합니다.

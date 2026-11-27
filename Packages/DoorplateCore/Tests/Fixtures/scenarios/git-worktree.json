@@ -1,0 +1,85 @@
+{
+  "currentUID": 501,
+  "denied": [],
+  "docker": {
+    "status": "absent"
+  },
+  "files": {
+    "/Users/dev/api/.git": "",
+    "/Users/dev/api/.git/HEAD": "3f2a9c1d4e5b6a7980123456789abcdef0123456\n",
+    "/Users/dev/api/pyproject.toml": "[project]\nname = \"acme-api\"\n",
+    "/Users/dev/shop-login/.git": "gitdir: /Users/dev/shop/.git/worktrees/shop-login\n",
+    "/Users/dev/shop-login/package.json": "{\"name\":\"@acme/web\"}",
+    "/Users/dev/shop/.git": "",
+    "/Users/dev/shop/.git/HEAD": "ref: refs/heads/main\n",
+    "/Users/dev/shop/.git/worktrees/shop-login/HEAD": "ref: refs/heads/feat/a-very-long-branch-name-for-login\n",
+    "/Users/dev/shop/package.json": "{\"name\":\"@acme/web\"}"
+  },
+  "home": "/Users/dev",
+  "listeners": [
+    {
+      "address": "127.0.0.1",
+      "pid": 101,
+      "port": 5173
+    },
+    {
+      "address": "127.0.0.1",
+      "pid": 102,
+      "port": 5174
+    },
+    {
+      "address": "127.0.0.1",
+      "pid": 103,
+      "port": 8000
+    }
+  ],
+  "now": "2026-11-04T06:00:00Z",
+  "processes": [
+    {
+      "arguments": [
+        "node",
+        "/Users/dev/repot/node_modules/.bin/vite"
+      ],
+      "cwd": "/Users/dev/shop",
+      "executablePath": "/opt/homebrew/bin/node",
+      "name": "node",
+      "parentPID": 1,
+      "pid": 101,
+      "startedAt": "2026-11-04T05:20:00Z",
+      "uid": 501
+    },
+    {
+      "arguments": [
+        "node",
+        "/Users/dev/repot/node_modules/.bin/vite"
+      ],
+      "cwd": "/Users/dev/shop-login",
+      "executablePath": "/opt/homebrew/bin/node",
+      "name": "node",
+      "parentPID": 1,
+      "pid": 102,
+      "startedAt": "2026-11-04T05:20:00Z",
+      "uid": 501
+    },
+    {
+      "arguments": [
+        "python3",
+        "-m",
+        "uvicorn",
+        "main:app"
+      ],
+      "cwd": "/Users/dev/api",
+      "executablePath": "/opt/homebrew/bin/python3",
+      "name": "python3",
+      "parentPID": 1,
+      "pid": 103,
+      "startedAt": "2026-11-04T05:20:00Z",
+      "uid": 501
+    }
+  ],
+  "settings": {
+    "longRunningThreshold": 86400,
+    "showDevTools": false,
+    "showOtherApps": false
+  }
+}

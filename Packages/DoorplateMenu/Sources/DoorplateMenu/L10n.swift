@@ -60,6 +60,7 @@ public enum L10n {
     case settingsShowOtherApps = "settings.showOtherApps"
     case settingsShowSystemPorts = "settings.showSystemPorts"
     case settingsShowSystemPortsHint = "settings.showSystemPortsHint"
+    case settingsShowGitBranch = "settings.showGitBranch"
     case settingsTerminal = "settings.terminal"
     case settingsAutoUpdate = "settings.autoUpdate"
     case settingsLoginRequiresApproval = "settings.loginRequiresApproval"

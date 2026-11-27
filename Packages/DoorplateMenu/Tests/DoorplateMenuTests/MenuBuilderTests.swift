@@ -111,6 +111,47 @@ import Testing
       menu, outcome: outcome(apps: [entry(), entry(id: "pid:102")]), state: MenuState())
     #expect(try row() !== original)
   }
+  @Test func branchFollowsTheTitleInGray() throws {
+    populate(
+      outcome(apps: [
+        entry(
+          port: 8080, title: "shop-api", tool: "gradle",
+          startedAt: menuNow.addingTimeInterval(-259200), isLongRunning: true,
+          branch: "feat/pay")
+      ]))
+    let item = try row()
+    #expect(item.title == "8080  shop-api · feat/pay · 3d\tgradle")
+    let text = try #require(item.attributedTitle)
+    var gray = NSRange()
+    let start = (text.string as NSString).range(of: " · feat/pay").location
+    #expect(
+      text.attribute(.foregroundColor, at: start, effectiveRange: &gray) as? NSColor
+        == .secondaryLabelColor)
+    #expect(gray == NSRange(location: start, length: (" · feat/pay" as NSString).length))
+    // The long-running tag stays orange after the branch; the Option row has no branch.
+    let orange = (text.string as NSString).range(of: " · 3d")
+    #expect(
+      text.attribute(.foregroundColor, at: orange.location, effectiveRange: nil) as? NSColor
+        == .systemOrange)
+    #expect(menu.items[menu.index(of: item) + 1].title == "Stop 8080 shop-api")
+  }
+  @Test func longBranchesAreCut() throws {
+    populate(outcome(apps: [entry(branch: "feature/JIRA-1234-add-login-page")]))
+    #expect(try row().title == "5173  @repot/desktop · feature/JIRA-1234-add-l…\tvite")
+    #expect(MenuBuilder.shortBranch(String(repeating: "b", count: 24)).count == 24)
+  }
+  @Test func noBranchOnDockerRowsOrWithoutOne() throws {
+    populate(
+      outcome(
+        apps: [entry()],
+        docker: [
+          entry(
+            port: 5432, title: "db", tool: "shop-db", section: .docker, id: "docker:abc",
+            branch: "main")
+        ], dockerStatus: .ok))
+    #expect(try row().title == "5173  @repot/desktop\tvite")
+    #expect(try row("docker:abc").title == "5432  db\tshop-db")
+  }
   @Test func alternateStopOnlyWhenTerminable() throws {
     populate(outcome(apps: [entry()]))
     let index = menu.index(of: try row())

@@ -47,6 +47,7 @@
 "settings.showOtherApps" = "ほかのアプリのポートを表示";
 "settings.showSystemPorts" = "システムポートを表示";
 "settings.showSystemPortsHint" = "AirPlayなどのmacOSサービスが使用するポートを表示します。";
+"settings.showGitBranch" = "git ブランチを表示";
 "settings.terminal" = "ターミナルアプリ";
 "settings.autoUpdate" = "アップデートを自動的に確認";
 "settings.loginRequiresApproval" = "システム設定 > 一般 > ログイン項目でDoorplateを許可してください。";

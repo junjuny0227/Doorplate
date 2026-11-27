@@ -146,6 +146,12 @@ private final class CommandBox {
       let docker = entry.section == .docker
       let title = displayTitle(entry)
       var text = "\(entry.primary.port)  \(title)"
+      var branch: NSRange?
+      if !system, !docker, let name = entry.branch {
+        let label = " · " + Self.shortBranch(name)
+        branch = NSRange(location: (text as NSString).length, length: (label as NSString).length)
+        text += label
+      }
       var suffix: String?
       if entry.isLongRunning, let startedAt = entry.startedAt {
         suffix =
@@ -156,7 +162,7 @@ private final class CommandBox {
       if stopping { text += " · " + L10n.text(.rowStopping) }
       if !system, let tool = entry.tool { text += "\t" + tool }
       let row = item(text, id: entry.id)
-      row.attributedTitle = attributed(text, orangeSuffix: suffix)
+      row.attributedTitle = attributed(text, orangeSuffix: suffix, gray: branch)
       let dot: StatusDot =
         system ? .system : docker ? .docker : entry.isLongRunning ? .longRunning : .running
       row.image = dot.image()
@@ -287,11 +293,21 @@ private final class CommandBox {
     EntryRef(id: entry.id, target: entry.target, title: entry.title, port: entry.primary.port)
   }
 
-  private func attributed(_ text: String, orangeSuffix: String? = nil) -> NSAttributedString {
+  /// Branch names past 24 characters are cut to 23 and an ellipsis so the menu does not widen.
+  static func shortBranch(_ name: String) -> String {
+    name.count > 24 ? String(name.prefix(23)) + "…" : name
+  }
+
+  private func attributed(_ text: String, orangeSuffix: String? = nil, gray: NSRange? = nil)
+    -> NSAttributedString
+  {
     let paragraph = NSMutableParagraphStyle()
     paragraph.tabStops = [NSTextTab(textAlignment: .right, location: 320)]
     let title = NSMutableAttributedString(
       string: text, attributes: [.font: NSFont.menuFont(ofSize: 0), .paragraphStyle: paragraph])
+    if let gray {
+      title.addAttribute(.foregroundColor, value: NSColor.secondaryLabelColor, range: gray)
+    }
     if let orangeSuffix {
       title.addAttribute(
         .foregroundColor, value: NSColor.systemOrange,

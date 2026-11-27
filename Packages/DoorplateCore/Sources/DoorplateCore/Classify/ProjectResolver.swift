@@ -4,10 +4,13 @@ public struct ProjectInfo: Sendable, Equatable {
   public var name: String
   public var directory: String
   public var repositoryRoot: String?
-  public init(name: String, directory: String, repositoryRoot: String?) {
+  /// Current branch of `repositoryRoot`, or a short commit id when detached (spec 7.5).
+  public var branch: String?
+  public init(name: String, directory: String, repositoryRoot: String?, branch: String? = nil) {
     self.name = name
     self.directory = directory
     self.repositoryRoot = repositoryRoot
+    self.branch = branch
   }
 }
 
@@ -32,11 +35,10 @@ public struct ProjectResolver: Sendable {
         }
         guard presence == .present else { continue }
         if file == ".git" {
-          return ProjectInfo(
-            name: leaf(current), directory: current, repositoryRoot: gitRoot(from: current))
+          return project(name: leaf(current), directory: current)
         }
         if let text = files.read(path), let name = reader(text), !name.isEmpty {
-          return ProjectInfo(name: name, directory: current, repositoryRoot: gitRoot(from: current))
+          return project(name: name, directory: current)
         }
       }
       current = parent(current)
@@ -72,6 +74,16 @@ public struct ProjectResolver: Sendable {
       ("settings.gradle.kts", ManifestName.gradle), ("settings.gradle", ManifestName.gradle),
       ("pom.xml", ManifestName.maven), ("go.mod", ManifestName.goModule), (".git", { _ in nil }),
     ]
+  }
+  private func project(name: String, directory: String) -> ProjectInfo {
+    let root = gitRoot(from: directory)
+    return ProjectInfo(
+      name: name, directory: directory, repositoryRoot: root, branch: root.flatMap(branch(atRoot:)))
+  }
+  /// Reads one HEAD file; a worktree's `.git` file points at its own git directory.
+  private func branch(atRoot root: String) -> String? {
+    let head = GitHead.headPath(root: root, dotGitFile: files.read(join(root, ".git")))
+    return files.read(head).flatMap(GitHead.branch(fromHead:))
   }
   private func gitRoot(from dir: String) -> String? {
     var path = dir

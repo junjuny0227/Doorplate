@@ -63,7 +63,7 @@
     "items": {
       "names": {
         "title": "各サーバに名前を付けます",
-        "text": "待ち受けポートごとに、実行元のプロジェクト名（package.json、Cargo.toml、pyproject.toml、Gradle、Maven、go.mod、.git フォルダから取得）と、起動したツールを表示します。JVM やモノレポのサーバにも対応しています。"
+        "text": "待ち受けポートごとに、実行元のプロジェクト名（package.json、Cargo.toml、pyproject.toml、Gradle、Maven、go.mod、.git フォルダから取得）と、起動したツールを表示します。JVM やモノレポのサーバにも対応しています。git リポジトリ内では現在のブランチをグレーで添えるので、同じプロジェクトの 2 つのワークツリーもすぐに見分けられます。"
       },
       "docker": {
         "title": "Docker Compose に対応しています",

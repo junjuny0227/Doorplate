@@ -79,6 +79,7 @@ public struct Classifier: Sendable {
       title: match.title ?? project?.name ?? jar ?? executable ?? process.name,
       tool: match.tool, primary: ports.primary, extras: ports.extras,
       directory: project?.directory, repositoryRoot: project?.repositoryRoot,
+      branch: project?.branch,
       startedAt: process.startedAt,
       isLongRunning: false, likelyHTTP: HTTPGuess.likelyHTTP(port: ports.primary.port, image: nil),
       canTerminate: process.uid == currentUID && process.startedAt != nil

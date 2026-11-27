@@ -63,7 +63,7 @@
     "items": {
       "names": {
         "title": "为每个服务器显示名称",
-        "text": "为每个监听端口显示运行它的项目名称（从 package.json、Cargo.toml、pyproject.toml、Gradle、Maven、go.mod 或 .git 文件夹获取），以及启动它的工具。也支持 JVM 和单仓库中的服务器。"
+        "text": "为每个监听端口显示运行它的项目名称（从 package.json、Cargo.toml、pyproject.toml、Gradle、Maven、go.mod 或 .git 文件夹获取），以及启动它的工具。也支持 JVM 和单仓库中的服务器。在 git 仓库中还会以灰色显示当前分支，同一项目的两个工作树也能一眼分清。"
       },
       "docker": {
         "title": "支持 Docker Compose",

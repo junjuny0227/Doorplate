@@ -7,7 +7,7 @@ import Testing
     "node-monorepo-vite", "next-dev", "spring-gradle", "spring-maven",
     "java-jar-outside-project", "cargo-run", "python-django-uvicorn", "rails-puma",
     "docker-compose", "macos-noise", "gunicorn-prefork", "documents-denied", "adb-server",
-    "macos-system-visible",
+    "macos-system-visible", "git-worktree",
   ]
 
   @Test(arguments: names)
