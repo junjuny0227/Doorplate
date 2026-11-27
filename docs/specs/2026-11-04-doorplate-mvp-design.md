@@ -85,9 +85,10 @@ pid 재확인과 단계적 종료(SIGTERM → 확인 후 SIGKILL)는 Berth와 ma
 7. macOS AirPlay 수신(5000, 7000)과 macOS 서비스 포트는 기본 숨김. "시스템 포트 표시"를 켜면 시스템 구역에 표시하고, AirPlay에는 끄는 방법을 안내.
 8. 동작: 브라우저에서 열기, Finder에서 보기, 터미널에서 열기, 주소 복사, 종료.
 9. 오래 켜진 서버 표시(기본 24시간).
-10. 설정 창: 로그인 시 실행, 오래 켜짐 기준, 개발 도구 포트 표시, 다른 앱 포트 표시, 시스템 포트 표시, 터미널 앱, 업데이트 확인.
+10. 설정 창: 로그인 시 실행, 오래 켜짐 기준, 개발 도구 포트 표시, 다른 앱 포트 표시, 시스템 포트 표시, git 브랜치 표시, 터미널 앱, 업데이트 확인.
 11. 앱 업데이트(13절).
 12. 언어: 영어 원본과 한국어, 일본어, 중국어(간체). 시스템 언어를 따른다.
+13. 앱 서버 행에 git 브랜치 표시(7.5절). 설정에서 끌 수 있다(계획 6).
 
 ### MVP에서 뺀다
 
@@ -271,6 +272,13 @@ pid마다 이름, 실행 파일 경로, argv, cwd, 부모 pid, 부모의 argv, �
   - 완료된 결과(표식 없음 포함)는 30초 동안 캐시하고, 조회에서 더 이상 보이지 않는 시작 폴더의 결과는 버린다. 그래서 서버를 재시작하거나 캐시가 만료되면 바뀐 표식 이름을 다시 읽는다. fixture 재생은 동기 resolver를 주입해 시간에 따른 결과 차이를 없앤다.
   - 거부하면 이후 읽기는 바로 EPERM·EACCES로 실패한다. 이때도 `stat`은 성공하므로, 파일이 있으면 한 번 열어 보고 EPERM·EACCES면 거부로 본다(2026-11-05 수동 점검에서 확인). libproc로 읽는 cwd와 argv는 거부와 관계없이 읽히므로 시작 폴더 이름으로 대체할 수 있다.
 
+**git 브랜치**: 저장소 루트(`repositoryRoot`)를 찾았으면 같은 조회 작업에서 HEAD 파일 하나를 읽는다. `git` 명령은 실행하지 않는다.
+
+- 루트의 `.git`이 `gitdir: <경로>`로 시작하는 파일이면(워크트리, 서브모듈) 그 경로의 `HEAD`를, 아니면 `.git/HEAD`를 읽는다. 상대 경로는 루트 기준이다.
+- `ref: refs/heads/<이름>`이면 `<이름>`(슬래시 포함), 다른 `ref:`는 `refs/`를 뗀 나머지, 40·64자 16진수(detached HEAD)는 앞 7자리.
+- 읽지 못하거나 형식이 다르면 브랜치만 비운다. 프로젝트 이름은 영향받지 않는다.
+- 프로젝트 이름과 같은 30초 캐시를 쓰므로 `git switch` 뒤 최대 30초 늦게 바뀐다. 브랜치만 따로 매번 읽으면 권한 대기 중인 보호 폴더 조회가 다른 행을 막는 문제를 다시 만든다.
+
 **대표 포트와 보조 포트**
 
 - 역할을 아는 포트는 보조 포트다: argv의 `-agentlib:jdwp` 주소(디버그), Node `--inspect` 포트(기본 9229), 35729(LiveReload).
@@ -281,6 +289,7 @@ pid마다 이름, 실행 파일 경로, argv, cwd, 부모 pid, 부모의 argv, �
 - 구역 순서: 앱 서버 → 시스템 → Docker → "숨김 N개".
 - 시스템 항목은 `showSystemPorts`가 참일 때만 시스템 구역에 두고, 거짓이면 분류(`.system`)를 유지한 채 "숨김 N개"로 옮긴다. `showOtherApps`와 독립적이다. 숨김 수는 포트 수가 아닌 행 수이며, AirPlay의 5000·7000은 한 행이다.
 - 구역 안에서는 대표 포트 번호 순. 열 때마다 순서가 바뀌지 않게 한다.
+- `showGitBranch`가 거짓이면 모든 항목의 `branch`를 비운다. 이전 진단 fixture에 키가 없으면 참으로 읽는다.
 - 오래 켜짐: `현재 시각 - 시작 시각 > 기준값`. 컨테이너는 Docker API의 시작 시각을 쓴다. 시스템 항목은 오래 켜짐 꼬리표와 메뉴바 주황 점에서 제외한다.
 - 메뉴바 숫자는 앱 서버와 Docker 행만 센다. 시스템 행(AirPlay와 macOS 서비스)과 숨김은 세지 않는다. 시스템 행을 세면 AirPlay를 켠 사용자의 숫자가 0이 되지 않는다.
 
@@ -296,6 +305,7 @@ struct ServerEntry: Sendable, Equatable {
   let extras: [PortBinding]    // role: .debugger, .liveReload, .inspector
   let directory: String?       // 표식 폴더 (절대 경로)
   let repositoryRoot: String?  // git 루트 (절대 경로)
+  let branch: String?          // "feat/login", detached면 짧은 해시 (7.5절)
   let startedAt: Date?
   let isLongRunning: Bool
   let likelyHTTP: Bool
@@ -317,8 +327,8 @@ struct ServerEntry: Sendable, Equatable {
 ```
 실행 중 · 5                                   (회색 머리글)
 ● 3000  @repot/site                    vite ▸
-● 5173  @repot/desktop                 vite ▸
-● 8080  shop-api · 3일째             gradle ▸   (`· 3일째`는 주황 글자)
+● 5173  @repot/desktop · main          vite ▸   (`· main`은 회색 글자)
+● 8080  shop-api · feat/pay · 3일째  gradle ▸   (`· 3일째`는 주황 글자)
 ──────────
 ◌ 5000  AirPlay 수신 (macOS)                ▸
 ──────────
@@ -334,7 +344,8 @@ Doorplate 종료                           ⌘Q
 
 - 머리글은 `실행 중 · N`이다. N은 메뉴바 숫자와 같다(7.6절).
 - 앱 행: 색 점, 포트, 프로젝트 제목, 오른쪽 끝에 도구 이름과 하위 메뉴 화살표.
-- 오래 켜진 행은 제목 뒤에 주황 글자로 `· 3일째`(영어 `· 3d`)를 붙인다.
+- git 저장소 안의 앱 행은 제목 뒤에 회색 글자(`secondaryLabelColor`)로 `· <브랜치>`를 붙인다. 24자를 넘으면 23자와 `…`로 자른다. Docker·시스템 행과 숨김 목록에는 없다.
+- 오래 켜진 행은 제목(과 브랜치) 뒤에 주황 글자로 `· 3일째`(영어 `· 3d`)를 붙인다.
 - Docker 행: 제목은 Compose 서비스 이름, 오른쪽 열은 컨테이너 이름이다. Compose가 아니면 제목은 컨테이너 이름, 오른쪽 열은 이미지 짧은 이름이다(7.4절).
 - 서버가 없으면 "No servers running" 한 줄.
 - 행의 도구 이름과 Docker 행의 오른쪽 열은 탭 정지가 있는 `attributedTitle`로 오른쪽에 맞춘다.
@@ -409,6 +420,7 @@ Finder에서 보기
 | 개발 도구 포트 표시 | 꺼짐 |
 | 다른 앱 포트 표시 | 꺼짐 |
 | 시스템 포트 표시 | 꺼짐. 설명: "AirPlay 등 macOS 서비스가 사용하는 포트를 표시합니다." |
+| git 브랜치 표시 | 켜짐 |
 | 터미널 앱 | Terminal. 설치된 Terminal, iTerm, Ghostty, Warp 등에서 고른다 |
 | 업데이트 자동 확인 | 켜짐 |
 
@@ -529,7 +541,6 @@ Apple Developer Program에 가입하지 않는다. Developer ID 서명과 공증
 ## 15. 이후 (MVP 밖)
 
 - 알림 센터 알림(오래 켜짐, 포트 충돌, 고정한 포트의 변화)
-- git 브랜치 표시
 - 자주 쓰는 포트 고정
 - 프로젝트별 묶음 보기
 - Developer ID 서명과 공증(13.6절)
